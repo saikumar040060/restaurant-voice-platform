@@ -33,7 +33,7 @@ public class SessionService {
 
     @Transactional
     public Optional<LoginResult> login(String username, String password, UUID correlation) {
-        var accounts = jdbc.query("SELECT * FROM employees WHERE username = ?",
+        var accounts = jdbc.query("SELECT * FROM employees WHERE username = ? FOR UPDATE",
                 (rs, row) -> new Account(new Actor(rs.getObject("id", UUID.class),
                         rs.getObject("tenant_id", UUID.class), Actor.Role.valueOf(rs.getString("role"))),
                         rs.getString("password_hash"), rs.getBoolean("enabled"), rs.getBoolean("mfa_required")),

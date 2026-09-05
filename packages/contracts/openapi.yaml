@@ -120,6 +120,147 @@ paths:
         '403': {description: Role denied}
         '404': {description: Missing or outside employee scope}
         '503': {description: Database unavailable}
+  /api/v1/locations:
+    post:
+      summary: Create a location in an owned restaurant
+      description: Owner role required. Owner accounts cannot be demoted or disabled through staff management.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/NewLocation'}
+      responses:
+        '201':
+          description: Successful operation
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Location'}
+        '400': {description: Invalid request}
+        '401': {description: Authentication required}
+        '403': {description: Role or protected-owner restriction}
+        '404': {description: Missing or outside tenant scope}
+        '409': {description: Username unavailable}
+        '503': {description: Database or audit persistence unavailable}
+  /api/v1/employees:
+    get:
+      summary: List up to 200 staff records in the authenticated tenant
+      description: Owner role required. Owner accounts cannot be demoted or disabled through staff management.
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EmployeeList'}
+        '400': {description: Invalid request}
+        '401': {description: Authentication required}
+        '403': {description: Role or protected-owner restriction}
+        '404': {description: Missing or outside tenant scope}
+        '409': {description: Username unavailable}
+        '503': {description: Database or audit persistence unavailable}
+    post:
+      summary: Create a manager or employee account
+      description: Owner role required. Owner accounts cannot be demoted or disabled through staff management.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/NewEmployee'}
+      responses:
+        '201':
+          description: Successful operation
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Employee'}
+        '400': {description: Invalid request}
+        '401': {description: Authentication required}
+        '403': {description: Role or protected-owner restriction}
+        '404': {description: Missing or outside tenant scope}
+        '409': {description: Username unavailable}
+        '503': {description: Database or audit persistence unavailable}
+  /api/v1/employees/{id}/access:
+    put:
+      summary: Change staff role/enabled status and revoke all their sessions
+      description: Owner role required. Owner accounts cannot be demoted or disabled through staff management.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/AccessChange'}
+      responses:
+        '204':
+          description: Successful operation
+        '400': {description: Invalid request}
+        '401': {description: Authentication required}
+        '403': {description: Role or protected-owner restriction}
+        '404': {description: Missing or outside tenant scope}
+        '409': {description: Username unavailable}
+        '503': {description: Database or audit persistence unavailable}
+  /api/v1/employees/{id}/locations:
+    put:
+      summary: Atomically replace staff location assignments
+      description: Owner role required. Owner accounts cannot be demoted or disabled through staff management.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/Assignments'}
+      responses:
+        '204':
+          description: Successful operation
+        '400': {description: Invalid request}
+        '401': {description: Authentication required}
+        '403': {description: Role or protected-owner restriction}
+        '404': {description: Missing or outside tenant scope}
+        '409': {description: Username unavailable}
+        '503': {description: Database or audit persistence unavailable}
+  /api/v1/employees/{id}/revoke-sessions:
+    post:
+      summary: Revoke all sessions for an employee in the authenticated tenant
+      description: Owner role required. Owner accounts cannot be demoted or disabled through staff management.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        '204':
+          description: Successful operation
+        '400': {description: Invalid request}
+        '401': {description: Authentication required}
+        '403': {description: Role or protected-owner restriction}
+        '404': {description: Missing or outside tenant scope}
+        '409': {description: Username unavailable}
+        '503': {description: Database or audit persistence unavailable}
+  /api/v1/audit-events:
+    get:
+      summary: Read latest tenant audit events; limit defaults to 50 and is clamped to 1–200
+      description: Owner role required. Owner accounts cannot be demoted or disabled through staff management.
+      parameters:
+        - in: query
+          name: limit
+          schema: {type: integer, default: 50}
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AuditList'}
+        '400': {description: Invalid request}
+        '401': {description: Authentication required}
+        '403': {description: Role or protected-owner restriction}
+        '404': {description: Missing or outside tenant scope}
+        '409': {description: Username unavailable}
+        '503': {description: Database or audit persistence unavailable}
 components:
   securitySchemes:
     bearerSession:
@@ -132,3 +273,67 @@ components:
       properties:
         id: {type: string, format: uuid}
         name: {type: string}
+    NewLocation:
+      type: object
+      additionalProperties: false
+      required: [restaurantId, name, timezone]
+      properties:
+        restaurantId: {type: string, format: uuid}
+        name: {type: string, minLength: 1, maxLength: 120}
+        timezone: {type: string, description: Valid IANA timezone}
+    Location:
+      type: object
+      properties:
+        id: {type: string, format: uuid}
+        restaurantId: {type: string, format: uuid}
+        name: {type: string}
+        timezone: {type: string}
+    NewEmployee:
+      type: object
+      additionalProperties: false
+      required: [username, password, role]
+      properties:
+        username: {type: string, minLength: 1, maxLength: 120}
+        password: {type: string, minLength: 12, maxLength: 72, writeOnly: true, description: At most 72 UTF-8 bytes}
+        role: {type: string, enum: [MANAGER, EMPLOYEE]}
+    Employee:
+      type: object
+      properties:
+        id: {type: string, format: uuid}
+        username: {type: string}
+        role: {type: string, enum: [OWNER, MANAGER, EMPLOYEE, SUPPORT, SYSTEM]}
+        enabled: {type: boolean}
+    EmployeeList:
+      type: array
+      maxItems: 200
+      items: {$ref: '#/components/schemas/Employee'}
+    AccessChange:
+      type: object
+      additionalProperties: false
+      required: [role, enabled]
+      properties:
+        role: {type: string, enum: [MANAGER, EMPLOYEE]}
+        enabled: {type: boolean}
+    Assignments:
+      type: object
+      additionalProperties: false
+      required: [locationIds]
+      properties:
+        locationIds:
+          type: array
+          maxItems: 100
+          uniqueItems: true
+          items: {type: string, format: uuid}
+    AuditList:
+      type: array
+      maxItems: 200
+      items:
+        type: object
+        properties:
+          id: {type: string, format: uuid}
+          actorId: {type: string, format: uuid}
+          action: {type: string}
+          targetId: {type: string, format: uuid}
+          outcome: {type: string}
+          correlationId: {type: string, format: uuid}
+          occurredAt: {type: string, format: date-time}

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,6 +45,7 @@ class VoicePlatformApplicationTest {
     @Autowired PasswordEncoder encoder;
     @Autowired ObjectMapper json;
     @Autowired TenantService tenants;
+    @Autowired com.harborvoice.identity.BootstrapService bootstrap;
     private final UUID tenantA = UUID.randomUUID();
     private final UUID tenantB = UUID.randomUUID();
     private final UUID ownerA = UUID.randomUUID();
@@ -297,6 +299,146 @@ class VoicePlatformApplicationTest {
                 .content(json.writeValueAsString(new LoginInput("owner-a", secret))))
                 .andExpect(status().isBadRequest()).andReturn().getResponse();
         assertThat(response.getContentAsString()).doesNotContain(secret);
+    }
+
+    private String body(Object value) throws Exception {
+        return json.writeValueAsString(value);
+    }
+
+    @Test
+    void ownerCreatesStaffWithoutLeakingPasswords() throws Exception {
+        String token = login("owner-a");
+        String response = mvc.perform(post("/api/v1/employees").header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).content(body(java.util.Map.of(
+                        "username", "new-staff", "password", PASSWORD, "role", "EMPLOYEE"))))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        assertThat(response).doesNotContain("password", PASSWORD, "hash", "tenantId");
+        String hash = jdbc.queryForObject("SELECT password_hash FROM employees WHERE username = 'new-staff'", String.class);
+        assertThat(hash).isNotEqualTo(PASSWORD);
+        assertThat(encoder.matches(PASSWORD, hash)).isTrue();
+        String staffToken = login("new-staff");
+        mvc.perform(get("/api/v1/locations/" + locationA).header("Authorization", "Bearer " + staffToken))
+                .andExpect(status().isNotFound());
+        String list = mvc.perform(get("/api/v1/employees").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        assertThat(list).contains("new-staff").doesNotContain("owner-b", "password", "hash");
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = Actor.Role.class, names = {"OWNER", "SYSTEM", "SUPPORT"})
+    void ownerCannotMintPrivilegedRoles(Actor.Role role) throws Exception {
+        String token = login("owner-a");
+        mvc.perform(post("/api/v1/employees").header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).content(body(java.util.Map.of(
+                        "username", "privileged", "password", PASSWORD, "role", role.name()))))
+                .andExpect(status().isForbidden());
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM employees WHERE username = 'privileged'", Integer.class))
+                .isZero();
+    }
+
+    @Test
+    void locationCreationChecksTenantAndTimezone() throws Exception {
+        String token = login("owner-a");
+        mvc.perform(post("/api/v1/locations").header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).content(body(java.util.Map.of(
+                        "restaurantId", restaurantA, "name", "Second Location", "timezone", "America/Detroit"))))
+                .andExpect(status().isCreated());
+        mvc.perform(post("/api/v1/locations").header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).content(body(java.util.Map.of(
+                        "restaurantId", restaurantB, "name", "Foreign", "timezone", "America/Detroit"))))
+                .andExpect(status().isNotFound());
+        mvc.perform(post("/api/v1/locations").header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).content(body(java.util.Map.of(
+                        "restaurantId", restaurantA, "name", "Invalid", "timezone", "Mars/Unknown"))))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void assignmentsRejectForeignLocationsWithoutLosingExistingAccess() throws Exception {
+        UUID staff = UUID.randomUUID();
+        employee(staff, tenantA, "staff", Actor.Role.EMPLOYEE);
+        String owner = login("owner-a");
+        String token = login("staff");
+        mvc.perform(put("/api/v1/employees/" + staff + "/locations").header("Authorization", "Bearer " + owner)
+                .contentType(MediaType.APPLICATION_JSON).content(body(java.util.Map.of("locationIds", java.util.List.of(locationA)))))
+                .andExpect(status().isNoContent());
+        mvc.perform(get("/api/v1/locations/" + locationA).header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+        mvc.perform(put("/api/v1/employees/" + staff + "/locations").header("Authorization", "Bearer " + owner)
+                .contentType(MediaType.APPLICATION_JSON).content(body(java.util.Map.of("locationIds", java.util.List.of(locationB)))))
+                .andExpect(status().isNotFound());
+        mvc.perform(get("/api/v1/locations/" + locationA).header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+        mvc.perform(put("/api/v1/employees/" + staff + "/locations").header("Authorization", "Bearer " + owner)
+                .contentType(MediaType.APPLICATION_JSON).content(body(java.util.Map.of("locationIds", java.util.List.of()))))
+                .andExpect(status().isNoContent());
+        mvc.perform(get("/api/v1/locations/" + locationA).header("Authorization", "Bearer " + token))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void accessChangesRevokeSessionsAndCannotChangeOwnersOrOtherTenants() throws Exception {
+        UUID staff = UUID.randomUUID();
+        employee(staff, tenantA, "staff", Actor.Role.EMPLOYEE);
+        String owner = login("owner-a");
+        String old = login("staff");
+        mvc.perform(put("/api/v1/employees/" + staff + "/access").header("Authorization", "Bearer " + owner)
+                .contentType(MediaType.APPLICATION_JSON).content(body(java.util.Map.of("role", "MANAGER", "enabled", true))))
+                .andExpect(status().isNoContent());
+        mvc.perform(get("/api/v1/me").header("Authorization", "Bearer " + old)).andExpect(status().isUnauthorized());
+        String fresh = login("staff");
+        mvc.perform(post("/api/v1/employees/" + staff + "/revoke-sessions").header("Authorization", "Bearer " + owner))
+                .andExpect(status().isNoContent());
+        mvc.perform(get("/api/v1/me").header("Authorization", "Bearer " + fresh)).andExpect(status().isUnauthorized());
+        mvc.perform(put("/api/v1/employees/" + ownerA + "/access").header("Authorization", "Bearer " + owner)
+                .contentType(MediaType.APPLICATION_JSON).content(body(java.util.Map.of("role", "EMPLOYEE", "enabled", false))))
+                .andExpect(status().isForbidden());
+        mvc.perform(put("/api/v1/employees/" + ownerB + "/access").header("Authorization", "Bearer " + owner)
+                .contentType(MediaType.APPLICATION_JSON).content(body(java.util.Map.of("role", "EMPLOYEE", "enabled", false))))
+                .andExpect(status().isNotFound());
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = Actor.Role.class, names = {"MANAGER", "EMPLOYEE"})
+    void nonOwnersCannotManageStaffLocationsOrAudit(Actor.Role role) throws Exception {
+        UUID staff = UUID.randomUUID();
+        employee(staff, tenantA, "staff", role);
+        String token = login("staff");
+        mvc.perform(get("/api/v1/employees").header("Authorization", "Bearer " + token)).andExpect(status().isForbidden());
+        mvc.perform(get("/api/v1/audit-events").header("Authorization", "Bearer " + token)).andExpect(status().isForbidden());
+        mvc.perform(post("/api/v1/locations").header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).content(body(java.util.Map.of(
+                        "restaurantId", restaurantA, "name", "Denied", "timezone", "America/Detroit"))))
+                .andExpect(status().isForbidden());
+        mvc.perform(post("/api/v1/employees/" + ownerA + "/revoke-sessions").header("Authorization", "Bearer " + token))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void auditViewerIsTenantScopedAndBounded() throws Exception {
+        String owner = login("owner-a");
+        login("owner-b");
+        String response = mvc.perform(get("/api/v1/audit-events?limit=1").header("Authorization", "Bearer " + owner))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        assertThat(json.readTree(response).size()).isEqualTo(1);
+        assertThat(response).contains(ownerA.toString()).doesNotContain(ownerB.toString());
+    }
+
+    @Test
+    void bootstrapIsSingleUseAndDoesNotExposeHttpSignup() throws Exception {
+        assertThatThrownBy(() -> bootstrap.initialize("Fictional", "first-owner", PASSWORD))
+                .isInstanceOf(IllegalStateException.class);
+        jdbc.execute("TRUNCATE tenants CASCADE");
+        UUID created = bootstrap.initialize("Fictional", "first-owner", PASSWORD);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM tenants", Integer.class)).isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT tenant_id FROM employees WHERE username = 'first-owner'", UUID.class))
+                .isEqualTo(created);
+        String token = login("first-owner");
+        mvc.perform(get("/api/v1/me").header("Authorization", "Bearer " + token)).andExpect(status().isOk());
+        assertThatThrownBy(() -> bootstrap.initialize("Second", "second-owner", PASSWORD))
+                .isInstanceOf(IllegalStateException.class);
+        mvc.perform(post("/api/v1/bootstrap").contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isUnauthorized());
     }
 
 }

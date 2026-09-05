@@ -24,7 +24,7 @@ The foundation check is offline and dependency-free. The backend test script req
 
 ## Implemented API slice
 
-Login/logout, current identity, tenant/location-scoped restaurant reads, owner-only restaurant creation, and assigned location reads. See `packages/contracts/openapi.yaml`. Sessions expire after 15 minutes. There is no public registration, default account, or onboarding UI; accounts currently exist only in isolated test fixtures. See ADR 0002 for security decisions and limitations.
+Login/logout, current identity, tenant/location-scoped restaurant reads, owner-only restaurant creation, and assigned location reads. See `packages/contracts/openapi.yaml`. Sessions expire after 15 minutes. There is no public registration or default account. Initial owner provisioning uses the non-web command in [the onboarding runbook](docs/runbooks/INITIAL_OWNER.md). Only isolated fictional test accounts have been created so far. Owner APIs now support staff/location administration, session revocation, and recent audit viewing. See ADR 0002 for security decisions and limitations.
 
 ## Local database
 
@@ -46,4 +46,4 @@ The database binds only to localhost. Its volume persists when stopped. Never re
 - `docs`: architecture, security, decisions, progress, and runbooks
 - `tests`: conversation evaluation, future load and end-to-end suites
 
-No GitHub remote or remote execution environment has been configured. Local work stops when the laptop sleeps.
+The private GitHub repository is [saikumar040060/restaurant-voice-platform](https://github.com/saikumar040060/restaurant-voice-platform). Local origin is configured, but publishing is pending authentication/connector access; no hosted CI run or remote execution environment exists yet. Local work stops when the laptop sleeps.
