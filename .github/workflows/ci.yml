@@ -1,11 +1,11 @@
-name: Foundation validation
+name: Backend validation
 on:
   push:
   pull_request:
 permissions:
   contents: read
 jobs:
-  foundation:
+  foundation-and-tenancy:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -19,7 +19,7 @@ jobs:
           cache: maven
           cache-dependency-path: apps/backend/pom.xml
       - run: python3 scripts/validate_foundation.py
-      - run: mvn -B -f apps/backend/pom.xml verify
+      - run: python3 scripts/test_backend.py
       - run: docker compose -f infra/local/compose.yaml config --quiet
         env:
           VOICE_DB_PASSWORD: ci-config-validation-only

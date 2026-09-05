@@ -4,7 +4,7 @@ A conversational AI phone assistant for restaurants: explain dishes, answer grou
 
 ## Current state
 
-Milestone 0 engineering foundation. No working voice agent, customer-facing ordering, POS integration, or production deployment is claimed. See [project status](docs/PROJECT_STATUS.md).
+Milestone 1 is in progress: authenticated tenant-access APIs and PostgreSQL integration tests are implemented. No working voice agent, customer-facing ordering, POS integration, or production deployment is claimed. See [project status](docs/PROJECT_STATUS.md).
 
 ## Source of requirements
 
@@ -16,11 +16,15 @@ Prerequisites: Python 3.11+, Java 21, Maven 3.9.12, Node 22.19.0, Docker Compose
 
 ```sh
 python3 scripts/validate_foundation.py
-mvn -B -f apps/backend/pom.xml verify
+python3 scripts/test_backend.py
 VOICE_DB_PASSWORD=config-validation-only docker compose -f infra/local/compose.yaml config --quiet
 ```
 
-The foundation check is offline and dependency-free. Maven's first build needs dependency access. CI runs the same checks. It does not prove application behavior, security isolation, or pilot readiness.
+The foundation check is offline and dependency-free. The backend test script requires Docker, creates its own disposable PostgreSQL 17.6 container, runs Maven verification, and removes the container. Java 21 must be selected in JAVA_HOME/PATH. Initial downloads require network access. CI defines the same checks; no hosted run exists yet. Tests cover the implemented access paths only, not full pilot readiness.
+
+## Implemented API slice
+
+Login/logout, current identity, tenant/location-scoped restaurant reads, owner-only restaurant creation, and assigned location reads. See `packages/contracts/openapi.yaml`. Sessions expire after 15 minutes. There is no public registration, default account, or onboarding UI; accounts currently exist only in isolated test fixtures. See ADR 0002 for security decisions and limitations.
 
 ## Local database
 

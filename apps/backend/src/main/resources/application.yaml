@@ -1,5 +1,18 @@
 spring:
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
   application:
     name: restaurant-voice-platform
-  main:
-    web-application-type: none
+  datasource:
+    url: ${VOICE_DB_URL}
+    username: ${VOICE_DB_USER}
+    password: ${VOICE_DB_PASSWORD}
+  flyway:
+    enabled: true
+server:
+  address: 127.0.0.1
+  error:
+    include-message: never
+    include-stacktrace: never
+  shutdown: graceful

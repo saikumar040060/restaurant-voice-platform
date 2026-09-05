@@ -1,6 +1,134 @@
 openapi: 3.1.0
 info:
   title: Restaurant Voice Platform
-  version: 0.0.1
-  description: Foundation only. No HTTP endpoints are implemented or advertised.
-paths: {}
+  version: 0.1.0
+  description: First authenticated tenant-access slice. No voice or ordering endpoints yet.
+security:
+  - bearerSession: []
+paths:
+  /api/v1/auth/login:
+    post:
+      security: []
+      summary: Exchange employee credentials for a 15-minute opaque session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [username, password]
+              properties:
+                username: {type: string, minLength: 1, maxLength: 120}
+                password: {type: string, minLength: 1, maxLength: 72, writeOnly: true, description: Also limited to 72 UTF-8 bytes}
+      responses:
+        '200':
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [token, expiresAt]
+                properties:
+                  token: {type: string}
+                  expiresAt: {type: string, format: date-time}
+        '400': {description: Invalid request}
+        '401': {description: Invalid credentials or account unavailable}
+        '429': {description: Too many attempts; Retry-After header provided}
+        '503': {description: Database unavailable}
+  /api/v1/auth/logout:
+    post:
+      summary: Revoke the current session
+      responses:
+        '204': {description: Revoked}
+        '401': {description: Authentication required}
+        '503': {description: Database unavailable}
+  /api/v1/me:
+    get:
+      summary: Read identity from the authenticated session
+      responses:
+        '200':
+          description: Current identity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  employeeId: {type: string, format: uuid}
+                  tenantId: {type: string, format: uuid}
+                  role: {type: string, enum: [OWNER, MANAGER, EMPLOYEE]}
+        '401': {description: Authentication required}
+        '503': {description: Database unavailable}
+  /api/v1/restaurants:
+    get:
+      summary: List restaurants visible to this employee
+      responses:
+        '200':
+          description: Tenant and location-scoped list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/Restaurant'}
+        '401': {description: Authentication required}
+        '403': {description: Role denied}
+        '503': {description: Database unavailable}
+    post:
+      summary: Owner creates a restaurant within their authenticated tenant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [name]
+              properties:
+                name: {type: string, minLength: 1, maxLength: 120}
+      responses:
+        '201':
+          description: Created and audited atomically
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Restaurant'}
+        '400': {description: Invalid request}
+        '401': {description: Authentication required}
+        '403': {description: Owner role required}
+        '503': {description: Persistence failed; creation rolled back}
+  /api/v1/locations/{id}:
+    get:
+      summary: Read an authorized location
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        '200':
+          description: Authorized location
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: {type: string, format: uuid}
+                  restaurantId: {type: string, format: uuid}
+                  name: {type: string}
+                  timezone: {type: string}
+        '400': {description: Invalid identifier}
+        '401': {description: Authentication required}
+        '403': {description: Role denied}
+        '404': {description: Missing or outside employee scope}
+        '503': {description: Database unavailable}
+components:
+  securitySchemes:
+    bearerSession:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque
+  schemas:
+    Restaurant:
+      type: object
+      properties:
+        id: {type: string, format: uuid}
+        name: {type: string}

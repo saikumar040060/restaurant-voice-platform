@@ -11,3 +11,5 @@ No product accounts are connected, no plugins installed for this project, and no
 | Hosting | Unselected | None now | Provider-specific later |
 
 Approval records: none required or granted for external accounts so far. Existing connector availability is not evidence of repository ownership or approval to connect a product account.
+
+Local tooling permission on 2026-09-05: owner granted network/Maven-cache write access and Docker socket access for build/test execution. A public PostgreSQL 17.6 image was used with isolated fictional fixtures; no product account was connected. Test containers are stopped/removed after validation.
