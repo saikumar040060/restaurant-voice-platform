@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: restaurant-voice-platform
+  main:
+    web-application-type: none

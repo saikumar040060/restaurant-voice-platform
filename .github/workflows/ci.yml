@@ -1,0 +1,25 @@
+name: Foundation validation
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  foundation:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: apps/backend/pom.xml
+      - run: python3 scripts/validate_foundation.py
+      - run: mvn -B -f apps/backend/pom.xml verify
+      - run: docker compose -f infra/local/compose.yaml config --quiet
+        env:
+          VOICE_DB_PASSWORD: ci-config-validation-only

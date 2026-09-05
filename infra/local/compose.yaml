@@ -1,0 +1,20 @@
+name: restaurant-voice-local
+services:
+  postgres:
+    image: postgres:17.6
+    environment:
+      POSTGRES_DB: voice_platform
+      POSTGRES_USER: voice_local
+      POSTGRES_PASSWORD: ${VOICE_DB_PASSWORD:?Set VOICE_DB_PASSWORD in infra/local/.env}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - voice_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U voice_local -d voice_platform"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: "no"
+volumes:
+  voice_pgdata:
