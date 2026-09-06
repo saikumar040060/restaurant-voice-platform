@@ -96,6 +96,8 @@ The restaurant order lifecycle now distinguishes draft, confirmed, submitting, a
 
 The escalation slice adds tenant-scoped transfer and callback case contracts with explicit reasons and states. It performs no telephony, SMS, or employee notification.
 
+Migration V7 and consent contracts now separate service, recording, transcript, and callback purposes with immutable evidence hashes. No recording or outbound callback is enabled.
+
 The media slice adds bounded provider-neutral envelopes and a synchronized sequencer that rejects duplicate/stale frames and requires explicit epoch advancement for interruptions. No telephony or audio provider is connected.
 
 Provider-neutral `SpeechToTextPort` and `TextToSpeechPort` contracts now support bounded streaming transcripts, epoch-aware synthesis, and deterministic local fixtures. No speech SDK, credential, network call, or recording was added.
