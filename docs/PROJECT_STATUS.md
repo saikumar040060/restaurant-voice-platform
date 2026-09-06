@@ -178,6 +178,8 @@ Provider-free unit verification now covers the grounded knowledge service, dialo
 
 Latest provider-free regression run passes under Java 25 targeting Java 21. The database-guarded integration suite remains unrun because Docker API access is denied.
 
+Migration V11 adds an idempotent action outbox with explicit pending, dispatched, unknown, and reconciled states for future external adapters; it performs no dispatch itself.
+
 `FixtureActionGateway` now validates permit request, business, tool, and expiry before returning a fixture result. It performs no external side effect and exists only for policy tests.
 
 Provider-neutral `SpeechToTextPort` and `TextToSpeechPort` contracts now support bounded streaming transcripts, epoch-aware synthesis, and deterministic local fixtures. No speech SDK, credential, network call, or recording was added.
