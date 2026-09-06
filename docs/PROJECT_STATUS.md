@@ -86,6 +86,8 @@ Migration V6 and the `KnowledgePort` contract add tenant/location-scoped knowled
 
 `GroundedKnowledgeService` now packages retrieved sources with stable IDs, versions, and provenance so a later dialogue provider can cite only the approved context it received.
 
+The local `DialogueSimulator` consumes grounded context and emits deterministic reference workflow events for questions, callbacks, transfers, and endings. It is a test fixture, not an AI or voice runtime.
+
 No runtime voice vendor is chosen. M5a uses mocks/local fixtures; natural voice capability requires M5b measured evaluation with an approved implementation. This task requests no credentials and authorizes no real calls or product account connections.
 
 ## Environment and continuation
