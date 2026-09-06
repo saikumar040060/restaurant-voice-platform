@@ -25,4 +25,11 @@ class MenuAvailabilityTest {
         org.assertj.core.api.Assertions.assertThatThrownBy(() -> new AvailabilitySnapshot("bad revision", Map.of()))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test void rejectsOversizedSnapshot() {
+        var values = new java.util.HashMap<String, Boolean>();
+        for (int i = 0; i < 10_001; i++) values.put("sku-" + i, true);
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> new AvailabilitySnapshot("rev-1", values))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
 }
