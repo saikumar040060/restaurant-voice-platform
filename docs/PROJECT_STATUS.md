@@ -257,3 +257,5 @@ Local execution only. GitHub storage and CI do not keep this coding task running
 The routing guidance is committed in local 01129e9 and the remote snapshot. It does not automatically switch models or select a runtime voice model.
 
 M4 publication controls now include explicit revocation and same-tenant rollback contracts. Rollback only restores an older non-revoked record for the same canonical key and rejects cross-tenant or forward-version substitutions; focused tests and module-boundary/foundation validation pass.
+
+Grounded dialogue now detects conflicting approved sources sharing a canonical key and returns a clarification response instead of selecting one arbitrarily; focused provider-free tests pass.
