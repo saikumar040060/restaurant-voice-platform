@@ -76,6 +76,8 @@ Migration V4 adds tenant-scoped conversation, turn, and action-request state wit
 
 Migration V5 and `JdbcPermitRepository` now persist short-lived, business-scoped policy permits and validate request hash, tool, and expiry before any adapter can execute.
 
+Action status transitions now reject changes from terminal states (`SUCCEEDED`, `FAILED`, `UNKNOWN`) and require the expected prior state, preserving uncertain outcomes for reconciliation instead of blind retries.
+
 No runtime voice vendor is chosen. M5a uses mocks/local fixtures; natural voice capability requires M5b measured evaluation with an approved implementation. This task requests no credentials and authorizes no real calls or product account connections.
 
 ## Environment and continuation

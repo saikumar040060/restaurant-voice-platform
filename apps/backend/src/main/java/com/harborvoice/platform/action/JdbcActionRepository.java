@@ -40,4 +40,13 @@ public class JdbcActionRepository {
             throw new IllegalArgumentException("action arguments cannot be serialized", ex);
         }
     }
+
+    public boolean transition(UUID requestId, UUID businessId, ActionStatus from, ActionStatus to) {
+        if (from == to || (from == ActionStatus.SUCCEEDED || from == ActionStatus.FAILED || from == ActionStatus.UNKNOWN)) {
+            throw new IllegalArgumentException("terminal action cannot transition");
+        }
+        int updated = jdbc.update("UPDATE action_requests SET status = ? WHERE id = ? AND business_id = ? AND status = ?",
+                to.name(), requestId, businessId, from.name());
+        return updated == 1;
+    }
 }
