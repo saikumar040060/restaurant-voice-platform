@@ -92,6 +92,8 @@ Migration V6 and the `KnowledgePort` contract add tenant/location-scoped knowled
 
 `CallSession` now provides validated tenant-scoped call identity, channel, conversation state, and lifecycle timestamps for binding media, consent, audit, and workflow events.
 
+`ConversationTurn` now restricts speaker roles to `CUSTOMER`, `AGENT`, or `SYSTEM`, matching the persistence schema and preventing untrusted role injection.
+
 `ToolCapability` now gives modules an explicit, validated tool identifier plus mutation and confirmation requirements; modules default to no tools and cannot declare arbitrary paths or endpoints.
 
 `GroundedKnowledgeService` now packages retrieved sources with stable IDs, versions, and provenance so a later dialogue provider can cite only the approved context it received.

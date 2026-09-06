@@ -12,7 +12,8 @@ public record ConversationTurn(UUID turnId, UUID conversationId, long sequence, 
         Objects.requireNonNull(speaker, "speaker");
         Objects.requireNonNull(text, "text");
         Objects.requireNonNull(occurredAt, "occurredAt");
-        if (sequence < 0 || epoch < 0 || text.length() > 16_000) {
+        if (sequence < 0 || epoch < 0 || text.length() > 16_000
+                || !(speaker.equals("CUSTOMER") || speaker.equals("AGENT") || speaker.equals("SYSTEM"))) {
             throw new IllegalArgumentException("invalid conversation turn");
         }
     }
