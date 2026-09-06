@@ -7,4 +7,6 @@ public interface BusinessModule {
     ModuleDescriptor descriptor();
 
     Set<String> supportedIntents();
+
+    default Set<ToolCapability> tools() { return Set.of(); }
 }

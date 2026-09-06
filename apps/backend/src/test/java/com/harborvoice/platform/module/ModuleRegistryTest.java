@@ -22,4 +22,10 @@ class ModuleRegistryTest {
         assertThatThrownBy(() -> new ModuleDescriptor("../admin", "1", "Bad"))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void toolCapabilityRejectsPathTraversalIdentifiers() {
+        assertThatThrownBy(() -> new ToolCapability("../admin", false, true))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
 }

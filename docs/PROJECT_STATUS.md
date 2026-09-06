@@ -90,6 +90,8 @@ Migration V6 and the `KnowledgePort` contract add tenant/location-scoped knowled
 
 `BusinessScope` now provides a shared immutable business/location scope predicate for platform operations, with optional location narrowing and fail-fast business identity validation.
 
+`ToolCapability` now gives modules an explicit, validated tool identifier plus mutation and confirmation requirements; modules default to no tools and cannot declare arbitrary paths or endpoints.
+
 `GroundedKnowledgeService` now packages retrieved sources with stable IDs, versions, and provenance so a later dialogue provider can cite only the approved context it received.
 
 The local `DialogueSimulator` consumes grounded context and emits deterministic reference workflow events for questions, callbacks, transfers, and endings. It is a test fixture, not an AI or voice runtime.
