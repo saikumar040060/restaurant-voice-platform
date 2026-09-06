@@ -53,4 +53,14 @@ class ModuleRegistryTest {
         var registry = new ModuleRegistry(java.util.List.of(new ReferenceBusinessModule()));
         assertThatThrownBy(() -> registry.require(null)).isInstanceOf(NullPointerException.class);
     }
+
+    @Test
+    void rejectsMalformedDeclaredIntent() {
+        BusinessModule invalid = new BusinessModule() {
+            public ModuleDescriptor descriptor() { return new ModuleDescriptor("reference", "1.0.0", "Reference"); }
+            public Set<String> supportedIntents() { return Set.of("Bad Intent"); }
+        };
+        assertThatThrownBy(() -> new ModuleRegistry(java.util.List.of(invalid)))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
 }
