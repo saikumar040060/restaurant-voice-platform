@@ -199,6 +199,7 @@ Prompt fact maps now enforce bounded count and identifier syntax before renderin
 M2 now includes a validated business-scoped `ServicePrincipal` contract for internal workers, distinct from employee actors and unsuitable for staff-authorized requests.
 Callback request destinations are now trimmed and capped at 320 characters before any future queueing, while explicit consent and exact business/conversation scope remain required.
 Escalation cases now validate identity, tenant/conversation scope, reason, state, and creation time before transfer or callback handling.
+Escalation cases now expose forward-only transition rules; resolved or declined cases cannot reopen or move backward.
 Restaurant orders now have a bounded special-instructions value object that trims ordinary notes and rejects payment or credential-like content before workflow use.
 The platform now exposes a bounded immutable conversation context so dialogue providers and business modules receive ordered recent turns without direct storage coupling.
 Conversation contexts now verify their declared character count and enforce the 16,000-character ceiling even when constructed directly.
