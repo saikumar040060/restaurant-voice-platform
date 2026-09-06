@@ -13,6 +13,7 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -69,6 +70,13 @@ public class SessionService {
                   AND e.enabled AND NOT e.mfa_required AND e.role IN ('OWNER', 'MANAGER', 'EMPLOYEE')
                 """, (rs, row) -> new Actor(rs.getObject("id", UUID.class), rs.getObject("tenant_id", UUID.class),
                         Actor.Role.valueOf(rs.getString("role"))), hash(token)).stream().findFirst();
+    }
+
+    /** Removes expired opaque session hashes without touching active sessions. */
+    @Transactional
+    @Scheduled(fixedDelayString = "${harborvoice.auth.session-cleanup-delay-ms:3600000}")
+    public void removeExpiredSessions() {
+        jdbc.update("DELETE FROM auth_sessions WHERE expires_at <= CURRENT_TIMESTAMP");
     }
 
     @Transactional
