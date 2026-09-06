@@ -110,6 +110,8 @@ The restaurant `OrderPort` and fixture adapter now establish the POS boundary: o
 
 `MenuRecommendations` now ranks only explicitly available items with a stable name/SKU ordering and bounded result count. Recommendations use no model-generated or hidden inventory assumptions.
 
+`DishProfile` now carries structured ingredients, allergens, and dietary tags for grounded dish explanations; absent facts remain empty rather than being inferred.
+
 The privacy slice adds deterministic redaction for email, phone, and card-like sequences before log/audit payloads are emitted. It is a utility only; production retention and provider controls remain gated.
 
 The evaluation slice adds a reusable scenario contract carrying module ID, utterances, and expected outcome so restaurant and future business modules can share offline tests.
