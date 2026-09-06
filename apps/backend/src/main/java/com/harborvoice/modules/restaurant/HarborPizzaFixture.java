@@ -26,7 +26,9 @@ public final class HarborPizzaFixture {
                         profile("PEPPERONI-M", "Cheese pizza topped with pepperoni.",
                                 java.util.List.of("dough", "tomato sauce", "mozzarella", "pepperoni")),
                         profile("PEPPERONI-L", "Cheese pizza topped with pepperoni.",
-                                java.util.List.of("dough", "tomato sauce", "mozzarella", "pepperoni"))));
+                                java.util.List.of("dough", "tomato sauce", "mozzarella", "pepperoni")),
+                        profile("BYO", "Build your own pizza with a size and selected toppings.",
+                                java.util.List.of("dough", "tomato sauce", "mozzarella"))));
     }
 
     private static MenuItem item(String sku, String name, int price) {

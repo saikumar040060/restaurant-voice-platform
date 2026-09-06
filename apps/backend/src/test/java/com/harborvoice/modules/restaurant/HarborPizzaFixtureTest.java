@@ -13,5 +13,6 @@ class HarborPizzaFixtureTest {
         assertTrue(menu.items().stream().anyMatch(i -> i.sku().equals("BYO")));
         assertTrue(menu.dish("PEPPERONI-M").ingredients().contains("pepperoni"));
         assertTrue(menu.dish("PEPPERONI-M").allergens().contains("milk"));
+        assertTrue(menu.dish("BYO").description().contains("selected toppings"));
     }
 }
