@@ -183,6 +183,7 @@ Migration V11 adds an idempotent action outbox with explicit pending, dispatched
 `JdbcOutboxRepository` now enqueues requests idempotently and applies business-scoped expected-state transitions while leaving dispatch and reconciliation to a future approved adapter.
 
 The outbox repository now increments dispatch attempts atomically only for pending or dispatched entries; unknown and reconciled outcomes remain protected.
+The platform now exposes a bounded immutable conversation context so dialogue providers and business modules receive ordered recent turns without direct storage coupling.
 
 `FixtureActionGateway` now validates permit request, business, tool, and expiry before returning a fixture result. It performs no external side effect and exists only for policy tests.
 
