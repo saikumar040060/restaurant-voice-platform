@@ -224,6 +224,7 @@ Restaurant menu knowledge now rejects duplicate item or dish SKUs at constructio
 The compiled module registry now rejects null module lookups explicitly, keeping unknown or malformed module identities fail-closed before resolution.
 Module descriptors now require numeric semantic versions and cap display names at 160 characters before registry publication.
 The module registry now validates declared intent syntax and non-null tool sets at construction, rejecting malformed contracts before tenant routing.
+Added `scripts/validate_module_boundaries.py` to enforce that platform core does not import restaurant types and restaurant code does not import sibling business modules.
 Restaurant recommendations now collapse duplicate SKUs before deterministic sorting and limiting, avoiding repeated or ambiguous suggestions.
 Restaurant quote pricing now bounds an order to 100 lines before arithmetic, preventing unbounded input from reaching confirmation or persistence.
 
