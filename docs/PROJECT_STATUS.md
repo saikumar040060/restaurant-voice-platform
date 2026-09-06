@@ -104,6 +104,8 @@ Platform audit contracts now provide a generic append-only event path with busin
 
 The media slice adds bounded provider-neutral envelopes and a synchronized sequencer that rejects duplicate/stale frames and requires explicit epoch advancement for interruptions. No telephony or audio provider is connected.
 
+`LocalConversationSimulator` now exercises the core media-to-fixture-STT-to-workflow path entirely in memory, including interruption epochs. It is a validation fixture and does not represent a live voice service.
+
 Provider-neutral `SpeechToTextPort` and `TextToSpeechPort` contracts now support bounded streaming transcripts, epoch-aware synthesis, and deterministic local fixtures. No speech SDK, credential, network call, or recording was added.
 
 `LocalStreamingPipeline` now proves media sequencing, stale-frame rejection, fixture STT delivery, and interruption epoch propagation in a focused local test.
