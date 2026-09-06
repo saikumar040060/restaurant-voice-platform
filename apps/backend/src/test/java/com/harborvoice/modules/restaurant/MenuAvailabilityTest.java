@@ -18,5 +18,6 @@ class MenuAvailabilityTest {
         values.put("soup", false);
         assertThat(snapshot.available("soup")).isTrue();
         assertThat(snapshot.available("missing")).isFalse();
+        assertThat(MenuAvailability.isAvailable(new MenuItem("soup", "Soup", 100, Map.of()), snapshot)).isTrue();
     }
 }
