@@ -13,7 +13,8 @@ public record ActionRequest(UUID requestId, UUID businessId, UUID conversationId
         Objects.requireNonNull(toolId, "toolId");
         Objects.requireNonNull(idempotencyKey, "idempotencyKey");
         arguments = Map.copyOf(Objects.requireNonNull(arguments, "arguments"));
-        if (toolId.isBlank() || idempotencyKey.isBlank() || idempotencyKey.length() > 128) {
+        if (toolId.isBlank() || idempotencyKey.isBlank() || idempotencyKey.length() > 128
+                || arguments.size() > 100 || arguments.keySet().stream().anyMatch(key -> key == null || key.isBlank() || key.length() > 128)) {
             throw new IllegalArgumentException("invalid action request");
         }
     }
