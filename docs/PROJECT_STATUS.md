@@ -80,6 +80,8 @@ Action status transitions now reject changes from terminal states (`SUCCEEDED`, 
 
 The workflow slice adds a deterministic reducer contract and a fictional reference reducer for FAQ, callback, transfer, and end events. Free-form model output is not a workflow transition and no restaurant order workflow exists yet.
 
+Migration V6 and the `KnowledgePort` contract add tenant/location-scoped knowledge with provenance, version, approval state, and freshness metadata. Retrieval implementation must still enforce approval and scope before ranking.
+
 No runtime voice vendor is chosen. M5a uses mocks/local fixtures; natural voice capability requires M5b measured evaluation with an approved implementation. This task requests no credentials and authorizes no real calls or product account connections.
 
 ## Environment and continuation
