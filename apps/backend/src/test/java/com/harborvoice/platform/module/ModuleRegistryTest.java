@@ -28,4 +28,15 @@ class ModuleRegistryTest {
         assertThatThrownBy(() -> new ToolCapability("../admin", false, true))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void rejectsDuplicateModuleIds() {
+        BusinessModule first = new ReferenceBusinessModule();
+        BusinessModule second = new BusinessModule() {
+            public ModuleDescriptor descriptor() { return new ModuleDescriptor("reference", "2.0.0", "Other"); }
+            public Set<String> supportedIntents() { return Set.of(); }
+        };
+        assertThatThrownBy(() -> new ModuleRegistry(java.util.List.of(first, second)))
+                .isInstanceOf(IllegalStateException.class);
+    }
 }
