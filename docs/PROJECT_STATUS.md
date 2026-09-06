@@ -180,6 +180,8 @@ Latest provider-free regression run passes under Java 25 targeting Java 21. The 
 
 Migration V11 adds an idempotent action outbox with explicit pending, dispatched, unknown, and reconciled states for future external adapters; it performs no dispatch itself.
 
+`JdbcOutboxRepository` now enqueues requests idempotently and applies business-scoped expected-state transitions while leaving dispatch and reconciliation to a future approved adapter.
+
 `FixtureActionGateway` now validates permit request, business, tool, and expiry before returning a fixture result. It performs no external side effect and exists only for policy tests.
 
 Provider-neutral `SpeechToTextPort` and `TextToSpeechPort` contracts now support bounded streaming transcripts, epoch-aware synthesis, and deterministic local fixtures. No speech SDK, credential, network call, or recording was added.
