@@ -114,6 +114,8 @@ The restaurant `OrderPort` and fixture adapter now establish the POS boundary: o
 
 Migration V9 adds tenant/location-scoped restaurant order persistence with immutable quote hash, integer total, currency, and explicit lifecycle state. It has no POS submission path.
 
+`JdbcRestaurantOrderRepository` now stores confirmed submissions idempotently in the scoped order table while keeping external POS submission behind `OrderPort`.
+
 `DishProfile` now carries structured ingredients, allergens, and dietary tags for grounded dish explanations; absent facts remain empty rather than being inferred.
 
 `RestaurantOrderWorkflow` now requires the deterministic quote confirmation transition before submission can begin, keeping order state separate from external adapter execution.
