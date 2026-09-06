@@ -11,6 +11,12 @@ class PromptTemplateTest {
         var template = new PromptTemplate("tenant.prompt", "{{fact}}", java.util.Map.of("fact", "x".repeat(16_001)));
         assertThatThrownBy(template::render).isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void rejectsMalformedFactKeys() {
+        assertThatThrownBy(() -> new PromptTemplate("tenant.prompt", "{{fact}}", java.util.Map.of("bad key", "x")))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
     @Test void rendersFactsAsData() {
         var prompt = new PromptTemplate("greeting", "Hello {{business_name}}", java.util.Map.of("business_name", "Fictional Cafe"));
         assertThat(prompt.render()).isEqualTo("Hello Fictional Cafe");
