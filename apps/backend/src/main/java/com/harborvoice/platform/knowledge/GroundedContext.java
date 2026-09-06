@@ -9,6 +9,13 @@ public record GroundedContext(String query, List<Source> sources) {
         sources = List.copyOf(sources == null ? List.of() : sources);
     }
 
+    public boolean hasConflict() {
+        return sources.stream().map(Source::key).distinct().anyMatch(key ->
+                sources.stream().filter(source -> source.key().equals(key)).map(Source::content).distinct().count() > 1);
+    }
+
+    public boolean answerable() { return !sources.isEmpty() && !hasConflict(); }
+
     public record Source(UUID id, String key, String content, String provenance, int version) {
         public Source {
             if (id == null || key == null || key.isBlank() || content == null || content.isBlank()
