@@ -192,6 +192,7 @@ Restaurant menu knowledge now rejects duplicate item or dish SKUs at constructio
 `VoiceTurnService` now rejects blank transcripts, missing grounded context, and negative interruption epochs before invoking dialogue or TTS.
 The compiled module registry now rejects null module lookups explicitly, keeping unknown or malformed module identities fail-closed before resolution.
 Restaurant recommendations now collapse duplicate SKUs before deterministic sorting and limiting, avoiding repeated or ambiguous suggestions.
+Restaurant quote pricing now bounds an order to 100 lines before arithmetic, preventing unbounded input from reaching confirmation or persistence.
 
 `FixtureActionGateway` now validates permit request, business, tool, and expiry before returning a fixture result. It performs no external side effect and exists only for policy tests.
 

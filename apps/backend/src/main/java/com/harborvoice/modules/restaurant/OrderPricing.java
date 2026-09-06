@@ -11,7 +11,7 @@ public final class OrderPricing {
     }
 
     public static Quote quote(List<Line> lines, String currency) {
-        if (lines == null || lines.isEmpty() || currency == null || !currency.matches("[A-Z]{3}")) {
+        if (lines == null || lines.isEmpty() || lines.size() > 100 || currency == null || !currency.matches("[A-Z]{3}")) {
             throw new IllegalArgumentException("order and currency required");
         }
         int total = 0;
