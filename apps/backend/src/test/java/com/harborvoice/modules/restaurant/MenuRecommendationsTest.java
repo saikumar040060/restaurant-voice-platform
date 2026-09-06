@@ -19,4 +19,10 @@ class MenuRecommendationsTest {
         assertThat(MenuRecommendations.recommend(List.of(first, duplicate), Map.of("pizza", true), 5))
                 .containsExactly(first);
     }
+
+    @Test void supportsRevisionedAvailabilitySnapshot() {
+        var soup = new MenuItem("soup", "Soup", 800, Map.of());
+        assertThat(MenuRecommendations.recommend(List.of(soup),
+                new AvailabilitySnapshot("rev-1", Map.of("soup", true)), 1)).containsExactly(soup);
+    }
 }

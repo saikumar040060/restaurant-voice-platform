@@ -190,6 +190,7 @@ Migration V12 and the outbox repository now expose a `DEAD_LETTER` terminal stat
 Restaurant availability now has an immutable named snapshot contract, allowing deterministic flows to retain the exact revision used for a quote while unknown SKUs fail closed.
 The availability helper accepts immutable snapshots directly alongside the legacy map form, preserving compatibility while enabling revision-bound callers.
 Availability snapshot revisions now use bounded identifier syntax, preventing malformed metadata from entering quote or audit state.
+Recommendation ranking now accepts the same immutable availability snapshot used by ordering, keeping suggestions bound to a specific inventory revision.
 Restaurant orders now have a bounded special-instructions value object that trims ordinary notes and rejects payment or credential-like content before workflow use.
 The platform now exposes a bounded immutable conversation context so dialogue providers and business modules receive ordered recent turns without direct storage coupling.
 Provider health is represented by a provider-neutral contract with healthy, degraded, and unavailable states; routing can use it for failover or escalation without exposing providers to business workflows.
