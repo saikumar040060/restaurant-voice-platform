@@ -193,6 +193,7 @@ Availability snapshot revisions now use bounded identifier syntax, preventing ma
 Recommendation ranking now accepts the same immutable availability snapshot used by ordering, keeping suggestions bound to a specific inventory revision.
 Availability snapshots now cap entries at 10,000, bounding tenant-controlled in-memory state before recommendation or quote evaluation.
 Provider health reasons are now trimmed and capped at 500 characters before routing or audit consumers receive them.
+Special-instruction filtering now matches sensitive terms as whole words, avoiding false positives on harmless words such as “cardboard.”
 Restaurant orders now have a bounded special-instructions value object that trims ordinary notes and rejects payment or credential-like content before workflow use.
 The platform now exposes a bounded immutable conversation context so dialogue providers and business modules receive ordered recent turns without direct storage coupling.
 Provider health is represented by a provider-neutral contract with healthy, degraded, and unavailable states; routing can use it for failover or escalation without exposing providers to business workflows.
