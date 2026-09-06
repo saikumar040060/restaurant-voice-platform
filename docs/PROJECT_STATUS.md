@@ -98,6 +98,8 @@ The restaurant module is now registered through the platform `BusinessModule` co
 
 The privacy slice adds deterministic redaction for email, phone, and card-like sequences before log/audit payloads are emitted. It is a utility only; production retention and provider controls remain gated.
 
+The evaluation slice adds a reusable scenario contract carrying module ID, utterances, and expected outcome so restaurant and future business modules can share offline tests.
+
 `OrderDraft` now binds explicit confirmation to the exact immutable quote, rejecting changed totals or lines. It remains local domain logic and cannot submit an order.
 
 The restaurant order lifecycle now distinguishes draft, confirmed, submitting, accepted, unknown, and cancelled states. Unknown submission results are terminal until reconciliation and cannot be retried through a normal transition.
