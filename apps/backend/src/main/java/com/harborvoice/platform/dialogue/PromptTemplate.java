@@ -10,7 +10,10 @@ public record PromptTemplate(String templateId, String text, Map<String, String>
     }
     public String render() {
         String rendered = text;
-        for (var entry : facts.entrySet()) rendered = rendered.replace("{{" + entry.getKey() + "}}", entry.getValue());
+        for (var entry : facts.entrySet()) {
+            rendered = rendered.replace("{{" + entry.getKey() + "}}", entry.getValue());
+            if (rendered.length() > 16_000) throw new IllegalArgumentException("rendered prompt too long");
+        }
         return rendered;
     }
 }
