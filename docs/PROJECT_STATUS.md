@@ -86,6 +86,8 @@ Migration V6 and the `KnowledgePort` contract add tenant/location-scoped knowled
 
 `KnowledgeRecord` now validates stable identity, nonblank content and provenance, positive version, and approval state before a record can enter retrieval or grounding.
 
+`KnowledgePublication` now requires a strictly newer version and rejects revoked candidates before approval, keeping publication explicit and auditable.
+
 `GroundedKnowledgeService` now packages retrieved sources with stable IDs, versions, and provenance so a later dialogue provider can cite only the approved context it received.
 
 The local `DialogueSimulator` consumes grounded context and emits deterministic reference workflow events for questions, callbacks, transfers, and endings. It is a test fixture, not an AI or voice runtime.
