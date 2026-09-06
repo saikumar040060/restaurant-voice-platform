@@ -10,4 +10,12 @@ class ProviderHealthTest {
         ProviderHealth health = new ProviderHealth("fixture", ProviderHealth.State.UNAVAILABLE, Instant.now(), "timeout");
         assertFalse(health.canServe());
     }
+
+    @Test
+    void boundsAndTrimsReason() {
+        assertEquals("timeout", new ProviderHealth("fixture", ProviderHealth.State.DEGRADED,
+                Instant.now(), " timeout ").reason());
+        assertThrows(IllegalArgumentException.class, () -> new ProviderHealth("fixture", ProviderHealth.State.DEGRADED,
+                Instant.now(), "x".repeat(501)));
+    }
 }
