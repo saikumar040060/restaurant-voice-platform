@@ -34,5 +34,6 @@ CREATE TABLE action_requests (
     arguments JSONB NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (business_id, idempotency_key),
+    UNIQUE (id, business_id),
     FOREIGN KEY (conversation_id, business_id) REFERENCES conversations(id, business_id)
 );

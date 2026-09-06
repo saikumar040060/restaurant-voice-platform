@@ -11,5 +11,6 @@ class MigrationSchemaTest {
         String sql = Files.readString(Path.of("src/main/resources/db/migration/V4__conversation_and_action_state.sql"));
         assertTrue(sql.contains("UNIQUE (id, business_id)"));
         assertTrue(sql.contains("FOREIGN KEY (conversation_id, business_id)"));
+        assertTrue(sql.contains("UNIQUE (id, business_id)"));
     }
 }

@@ -181,6 +181,7 @@ Completion audit 2026-09-06: `scripts/validate_foundation.py` passes and the pro
 The backend harness now selects the installed Java 25 runtime when the shell is still on Java 17, preventing Surefire class-version mismatches during verification.
 The harness now always uses the installed Java 25 runtime when available, regardless of the caller's `JAVA_HOME` path naming, so Java 17 cannot launch Java 25-compiled tests.
 Integration audit found and fixed a V4 PostgreSQL defect: conversation child tables referenced `(conversation_id, business_id)` without a matching unique key on `conversations`; V4 now declares `UNIQUE (id, business_id)` and includes a migration schema regression test.
+The next integration audit found the corresponding V5 action-permit defect; V4 now also declares `UNIQUE (id, business_id)` on `action_requests`, satisfying the composite foreign key used by `action_permits`.
 The provider-neutral health registry now records and replaces health signals by provider in a thread-safe in-memory fixture, without making provider calls.
 
 Migration V11 adds an idempotent action outbox with explicit pending, dispatched, unknown, and reconciled states for future external adapters; it performs no dispatch itself.
