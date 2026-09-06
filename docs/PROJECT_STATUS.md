@@ -112,6 +112,8 @@ Migration V8 and business profile contracts add versioned, approval-aware tenant
 
 The dialogue slice adds a provider-neutral `DialoguePort` and deterministic fixture that answers only from supplied grounded sources and emits structured workflow events. No language model provider is connected.
 
+`VoiceTurnService` now connects dialogue output to provider-neutral TTS while preserving the interruption epoch. The implementation is fixture-only and does not stream audio to a caller.
+
 Provider-free unit verification now covers the grounded knowledge service, dialogue simulator, media pipeline, module registry, restaurant pricing, order confirmation/lifecycle, and escalation contracts. Database-backed integration verification still requires the disposable PostgreSQL harness.
 
 `FixtureActionGateway` now validates permit request, business, tool, and expiry before returning a fixture result. It performs no external side effect and exists only for policy tests.
