@@ -9,5 +9,7 @@ class OutboxStatusTest {
         assertFalse(OutboxStatus.UNKNOWN.terminal());
         assertTrue(OutboxStatus.DEAD_LETTER.terminal());
         assertTrue(OutboxStatus.RECONCILED.terminal());
+        assertTrue(OutboxStatus.PENDING.retryable());
+        assertFalse(OutboxStatus.UNKNOWN.retryable());
     }
 }
