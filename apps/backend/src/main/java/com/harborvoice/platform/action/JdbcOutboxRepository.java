@@ -26,4 +26,9 @@ public class JdbcOutboxRepository {
         return jdbc.update("UPDATE action_outbox SET attempts = attempts + 1 WHERE id = ? AND business_id = ? AND status IN ('PENDING', 'DISPATCHED') AND attempts < " + MAX_ATTEMPTS,
                 outboxId, businessId) == 1;
     }
+
+    public boolean deadLetter(UUID outboxId, UUID businessId) {
+        return jdbc.update("UPDATE action_outbox SET status = 'DEAD_LETTER' WHERE id = ? AND business_id = ? AND status IN ('PENDING', 'DISPATCHED') AND attempts >= " + MAX_ATTEMPTS,
+                outboxId, businessId) == 1;
+    }
 }
