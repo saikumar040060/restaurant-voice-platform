@@ -130,6 +130,8 @@ The order repository now supports expected-state transitions scoped to the busin
 
 `PickupDetails` now validates the structured customer name, contact, and requested pickup timestamp needed by the restaurant workflow. It does not send or store customer contact data by itself.
 
+Restaurant quote creation now requires an uppercase ISO-style three-letter currency code, preventing malformed money metadata from reaching confirmation or persistence.
+
 `RestaurantOrderWorkflow` now requires the deterministic quote confirmation transition before submission can begin, keeping order state separate from external adapter execution.
 
 The privacy slice adds deterministic redaction for email, phone, and card-like sequences before log/audit payloads are emitted. It is a utility only; production retention and provider controls remain gated.
