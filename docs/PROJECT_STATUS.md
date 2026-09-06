@@ -232,6 +232,7 @@ The replay-safe executor unit/concurrency test passes; a subsequent full harness
 Latest full harness evidence: 105 tests passed with zero failures/errors, including the application-context suite and migration schema test; packaged bootstrap checks and Spring Boot repackage also succeeded. The Docker permission issue was transient and is no longer present for this run.
 Replay verification now explicitly preserves an `UNKNOWN` gateway outcome across repeated execution attempts without invoking the gateway again.
 M3 now includes an action-dispatch worker guard that rejects terminal outbox states and wrong-business jobs before invoking the replay-safe executor.
+M3 now centralizes tool authorization for read and mutating capabilities; tool identity must match the request and confirmation-required tools need explicit evidence.
 Restaurant recommendations now collapse duplicate SKUs before deterministic sorting and limiting, avoiding repeated or ambiguous suggestions.
 Restaurant quote pricing now bounds an order to 100 lines before arithmetic, preventing unbounded input from reaching confirmation or persistence.
 
