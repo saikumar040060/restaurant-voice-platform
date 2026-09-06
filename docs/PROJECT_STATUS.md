@@ -82,6 +82,8 @@ The workflow slice adds a deterministic reducer contract and a fictional referen
 
 Migration V6 and the `KnowledgePort` contract add tenant/location-scoped knowledge with provenance, version, approval state, and freshness metadata. Retrieval implementation must still enforce approval and scope before ranking.
 
+`JdbcKnowledgeRepository` now performs bounded approved retrieval with business/location filtering and freshness checks before matching content. Returned records retain provenance and version for grounding and audit; no vector or model provider is used.
+
 No runtime voice vendor is chosen. M5a uses mocks/local fixtures; natural voice capability requires M5b measured evaluation with an approved implementation. This task requests no credentials and authorizes no real calls or product account connections.
 
 ## Environment and continuation
