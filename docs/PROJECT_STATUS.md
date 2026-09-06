@@ -197,6 +197,7 @@ Special-instruction filtering now matches sensitive terms as whole words, avoidi
 Prompt rendering now enforces a 16,000-character post-substitution ceiling, preventing tenant facts from expanding model-facing context without bound.
 Prompt fact maps now enforce bounded count and identifier syntax before rendering, keeping tenant placeholders deterministic.
 M2 now includes a validated business-scoped `ServicePrincipal` contract for internal workers, distinct from employee actors and unsuitable for staff-authorized requests.
+Callback request destinations are now trimmed and capped at 320 characters before any future queueing, while explicit consent and exact business/conversation scope remain required.
 Restaurant orders now have a bounded special-instructions value object that trims ordinary notes and rejects payment or credential-like content before workflow use.
 The platform now exposes a bounded immutable conversation context so dialogue providers and business modules receive ordered recent turns without direct storage coupling.
 Provider health is represented by a provider-neutral contract with healthy, degraded, and unavailable states; routing can use it for failover or escalation without exposing providers to business workflows.
