@@ -13,6 +13,9 @@ public final class VoiceTurnService {
     }
 
     public Result handle(String transcript, GroundedContext context, long epoch) {
+        if (transcript == null || transcript.isBlank() || context == null || epoch < 0) {
+            throw new IllegalArgumentException("invalid voice turn");
+        }
         var response = dialogue.respond(transcript, context);
         return new Result(response, tts.synthesize(response.responseText(), epoch));
     }

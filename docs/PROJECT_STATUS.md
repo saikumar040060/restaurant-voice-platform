@@ -189,6 +189,7 @@ The M4 text console now retrieves approved, fresh knowledge through the tenant-s
 The restaurant module now includes a deterministic Harbor Pizza Test Kitchen fixture with required cheese, pepperoni, and build-your-own base prices for offline evaluation; it contains no real-business data or provider integration.
 The same fixture now includes explicit structured dish profiles and allergen facts for cheese and pepperoni sizes; missing dietary claims remain empty rather than inferred.
 Restaurant menu knowledge now rejects duplicate item or dish SKUs at construction time, preventing ambiguous identity from entering availability, pricing, or confirmation flows.
+`VoiceTurnService` now rejects blank transcripts, missing grounded context, and negative interruption epochs before invoking dialogue or TTS.
 
 `FixtureActionGateway` now validates permit request, business, tool, and expiry before returning a fixture result. It performs no external side effect and exists only for policy tests.
 
