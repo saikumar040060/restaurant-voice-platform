@@ -2,6 +2,8 @@
 
 Status: accepted for the first Milestone 1 implementation slice. Date: 2026-09-05.
 
+Amendment, 2026-09-06: ADR 0003 subsequently implemented bootstrap, denial auditing and audit viewing described below as pending. [ADR 0004](0004-platform-core-and-business-modules.md) preserves staff authentication and proposes generic business scope, call/service principals and an independent audit port. Those new principal/migration changes remain unimplemented.
+
 User requested continuing local work while GitHub selection remains pending. This does not waive hosted CI or other milestone gates.
 
 Use Spring Security with opaque 256-bit bearer tokens. Persist only SHA-256 token hashes; sessions expire after 15 minutes and logout revokes the current token. Read enabled state, current role, and MFA-required state on every authenticated request. Password hashes use BCrypt cost 12. Validate the BCrypt 72-byte limit before password processing. Never create default credentials or expose self-registration. Owner provisioning remains an unimplemented controlled onboarding operation; current accounts are fictional test fixtures only.

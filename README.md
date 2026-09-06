@@ -1,6 +1,6 @@
 # Restaurant Voice Platform
 
-A conversational AI phone assistant for restaurants: explain dishes, answer grounded questions, recommend food, and take confirmed pickup orders. The broader platform will support configurable service-business workflows.
+A reusable conversational AI voice platform for service businesses, with restaurant pickup ordering as the first production module. Build the shared voice core first and specialize it through approved business knowledge, policies and workflows. The repository name remains unchanged.
 
 ## Current state
 
@@ -9,6 +9,8 @@ Milestone 1 is in progress: authenticated tenant-access APIs and PostgreSQL inte
 ## Source of requirements
 
 [Original handoff](PRODUCT_SPEC.md) and [owner-approved conversational requirements](docs/PRODUCT_ADDENDUM.md). The addendum expands restaurant knowledge without relaxing the handoff's policy controls.
+
+The 2026-09-06 platform-first direction is documented in [the architecture review](docs/architecture/PLATFORM_FIRST_REVIEW.md), [ADR 0004](docs/architecture/0004-platform-core-and-business-modules.md), [contracts](docs/architecture/PLATFORM_CONTRACTS.md), and [the milestone plan](docs/MILESTONES.md). These are designs, not implemented voice capabilities.
 
 ## Local validation
 
@@ -20,7 +22,7 @@ python3 scripts/test_backend.py
 VOICE_DB_PASSWORD=config-validation-only docker compose -f infra/local/compose.yaml config --quiet
 ```
 
-The foundation check is offline and dependency-free. The backend test script requires Docker, creates its own disposable PostgreSQL 17.6 container, runs Maven verification, and removes the container. Java 21 must be selected in JAVA_HOME/PATH. Initial downloads require network access. CI defines the same checks; no hosted run exists yet. Tests cover the implemented access paths only, not full pilot readiness.
+The foundation check is offline and dependency-free. The backend test script requires Docker, creates its own disposable PostgreSQL 17.6 container, runs Maven verification, and removes the container. Java 21 must be selected in JAVA_HOME/PATH. Initial downloads require network access. CI defines the same checks; hosted success is unverified. Tests cover the implemented access paths only, not full pilot readiness.
 
 ## Implemented API slice
 
@@ -46,4 +48,4 @@ The database binds only to localhost. Its volume persists when stopped. Never re
 - `docs`: architecture, security, decisions, progress, and runbooks
 - `tests`: conversation evaluation, future load and end-to-end suites
 
-The private GitHub repository is [saikumar040060/restaurant-voice-platform](https://github.com/saikumar040060/restaurant-voice-platform). Local origin is configured, but publishing is pending authentication/connector access; no hosted CI run or remote execution environment exists yet. Local work stops when the laptop sleeps.
+The private GitHub repository is [saikumar040060/restaurant-voice-platform](https://github.com/saikumar040060/restaurant-voice-platform). The baseline snapshot is published and connector access works. Local and remote histories need reconciliation; see project status. Current architecture edits are local, hosted CI success is unverified, and no continuing remote coding task is configured. Local work stops when the laptop sleeps.

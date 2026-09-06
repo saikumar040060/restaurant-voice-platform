@@ -1,5 +1,7 @@
 # Codex/Astra Master Handoff: Secure AI Voice Operations Platform
 
+> Current amendment (2026-09-06): the owner's platform-first direction is recorded in [ADR 0004](docs/architecture/0004-platform-core-and-business-modules.md) and [the revised milestone plan](docs/MILESTONES.md). They supersede the restaurant-specific core boundaries and M2–M7 sequence below. Original safety, privacy, quality, pilot and human-approval requirements remain in force. The remainder is retained as the historical baseline.
+
 Copy the section titled **MASTER EXECUTION PROMPT** into a new Codex task using Astra. Keep this file in the repository as the authoritative product specification.
 
 ---

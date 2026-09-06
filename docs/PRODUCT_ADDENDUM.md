@@ -12,4 +12,12 @@ Knowledge retrieval cannot cross tenants or reveal private customer history. Tre
 
 Evaluation additions: dish follow-ups; unsupported preparation question; preference-based recommendations; budget-grounded recommendations; mid-order FAQ then resume; interruption while speaking; changed menu after recommendation; conflicting knowledge; knowledge prompt injection; allergy escalation; cross-tenant retrieval denial.
 
-Knowledge administration and provenance join Milestone 2; deterministic conversational scenarios join Milestone 3; real voice grounding and interruption handling join Milestone 7. Model and voice vendor selection remain open pending evaluation and approved costs.
+The original 2026-09-05 sequence placed knowledge in M2, conversation scenarios in M3, and voice grounding in M7. The following amendment supersedes that sequence. Model and voice vendor selection remain open pending evaluation and approved costs.
+
+## Platform-first amendment — 2026-09-06
+
+Build the reusable AI voice core first, then restaurant ordering as the first production business module. Specialize it through approved tenant knowledge, configuration, prompts and typed workflows, not automatic per-tenant model training. Hotels, salons and other industries will supply their own modules and evaluations later; they are not implemented by this amendment.
+
+Generic tenancy/configuration, voice/conversation state, knowledge governance, policy/tool gateway, durable effects, escalation, audit/privacy, cost controls and shared operations belong to the platform. Menus, dish facts, prices/modifiers, order state and POS adapters belong to the restaurant module. Preserve all original safety, identity, confirmation, escalation and approval rules.
+
+Follow [ADR 0004](architecture/0004-platform-core-and-business-modules.md), [contracts](architecture/PLATFORM_CONTRACTS.md), and [MILESTONES.md](MILESTONES.md). M2 establishes generic businesses/contracts; M3 call state and durable actions; M4 approved knowledge/dialogue; M5 streaming voice proof; M6 restaurant specialization; M7 integrated operations/evaluation. A fictional reference module tests reuse without building hotel workflows prematurely.

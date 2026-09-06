@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.harborvoice.identity.Actor;
+import com.harborvoice.identity.SessionService;
 import com.harborvoice.tenancy.TenantService;
 import java.util.UUID;
 import java.util.concurrent.Executors;
@@ -46,6 +47,7 @@ class VoicePlatformApplicationTest {
     @Autowired ObjectMapper json;
     @Autowired TenantService tenants;
     @Autowired com.harborvoice.identity.BootstrapService bootstrap;
+    @Autowired SessionService sessions;
     private final UUID tenantA = UUID.randomUUID();
     private final UUID tenantB = UUID.randomUUID();
     private final UUID ownerA = UUID.randomUUID();
@@ -197,6 +199,20 @@ class VoicePlatformApplicationTest {
         mvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
                 .content(json.writeValueAsString(new LoginInput("owner-a", PASSWORD))))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void cleanupRemovesExpiredSessionsButKeepsActiveSessions() throws Exception {
+        String expired = login("owner-a");
+        jdbc.update("UPDATE auth_sessions SET expires_at = CURRENT_TIMESTAMP - INTERVAL '1 second'");
+        String active = login("owner-a");
+
+        sessions.removeExpiredSessions();
+
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM auth_sessions WHERE expires_at <= CURRENT_TIMESTAMP",
+                Integer.class)).isZero();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM auth_sessions WHERE expires_at > CURRENT_TIMESTAMP",
+                Integer.class)).isEqualTo(1);
     }
 
     @Test

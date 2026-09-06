@@ -1,5 +1,7 @@
 # Test strategy
 
+Sequencing update, 2026-09-06: [MILESTONES.md](MILESTONES.md) is authoritative for M2–M7 allocation and scenario coverage. The paragraphs below retain the original sequence and test categories. Revised M2 tests generic tenancy/principals and module boundaries; M3 call/action durability; M4 knowledge/dialogue; M5 media and measured voice; M6 restaurant rules; M7 integrated operations. M8–M11 retain sandbox, recovery, hardening and pilot gates.
+
 Milestone 0: offline foundation integrity and formatting, Maven compilation/context startup, Compose configuration validation, CI workflow definition. A remote CI run requires a selected pushed GitHub repository.
 
 Milestone 1: PostgreSQL-backed positive/negative role tests, tenant isolation through repository/service/API and jobs, session security, audited outcomes. H2 is not a substitute for PostgreSQL-specific guarantees.

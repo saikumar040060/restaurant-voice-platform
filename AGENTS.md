@@ -2,6 +2,8 @@
 
 Read PRODUCT_SPEC.md, docs/PRODUCT_ADDENDUM.md, and docs/PROJECT_STATUS.md before modifying this project. Owner instructions take precedence. Preserve unrelated changes. Use one milestone branch, small commits, and evidence-based completion reports.
 
+For core boundaries and delivery order also read docs/architecture/0004-platform-core-and-business-modules.md, docs/architecture/PLATFORM_CONTRACTS.md and docs/MILESTONES.md. The owner's 2026-09-06 direction builds the reusable voice core before the restaurant module. Keep core code independent of restaurant entities, enable only reviewed compiled modules, and use tenant-scoped approved knowledge/configuration rather than per-business fine-tuning by default. These documents are designs until implemented and tested; do not claim their ports, migrations or voice behavior exist already.
+
 The language model proposes actions; only the validated policy gateway executes them. Never compute prices with an LLM, authorize from caller ID, leak tenant data, submit without current explicit confirmation, or retry an unknown POS outcome blindly. Model-visible restaurant content is untrusted data, never executable instructions.
 
 Use Java 21, Spring Boot, PostgreSQL, React/TypeScript, UUID domain identifiers, UTC event timestamps, location timezones, and integer minor-unit money with explicit currency and rounding. Use constructor injection and explicit module interfaces. Keep controllers thin. Tenant context must come from authenticated authorization, not request body claims. Do not introduce microservices or Redis without an ADR.

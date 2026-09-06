@@ -2,6 +2,8 @@
 
 Status: accepted for local implementation. Date: 2026-09-05.
 
+Amendment, 2026-09-06: [ADR 0004](0004-platform-core-and-business-modules.md) retains this bootstrap and management behavior. Generic business/location migration and separately authorized additional tenant provisioning are planned in revised M2. This remains the historical account of implemented M1 capabilities.
+
 Keep initial owner provisioning outside the HTTP API. A non-web bootstrap profile reads an owner-only password file, takes a PostgreSQL transaction advisory lock, and creates exactly one initial tenant/owner only on an empty installation. Provisioning and audit commit atomically. Startup fails closed for insecure file permissions or repeated provisioning. Only fictional test accounts were created.
 
 Owners can create tenant-scoped locations and staff, replace location assignments, change staff roles/enabled status, revoke employee sessions, and view recent tenant audit events. Managers/employees cannot administer these controls yet; narrower delegated permissions may be introduced with explicit requirements and tests. Staff APIs cannot create OWNER/SUPPORT/SYSTEM or modify existing owner access, avoiding ownership escalation and last-owner lockout. Ownership recovery/transfer is a separate future workflow.
