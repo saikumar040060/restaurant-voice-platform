@@ -124,6 +124,8 @@ The order repository now supports expected-state transitions scoped to the busin
 
 `DishProfile` now carries structured ingredients, allergens, and dietary tags for grounded dish explanations; absent facts remain empty rather than being inferred.
 
+`RestaurantMenuKnowledge` now groups typed menu items and dish profiles and resolves dish facts by stable SKU, returning no invented result for unknown dishes.
+
 `RestaurantOrderWorkflow` now requires the deterministic quote confirmation transition before submission can begin, keeping order state separate from external adapter execution.
 
 The privacy slice adds deterministic redaction for email, phone, and card-like sequences before log/audit payloads are emitted. It is a utility only; production retention and provider controls remain gated.
