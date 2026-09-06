@@ -112,6 +112,8 @@ Migration V8 and business profile contracts add versioned, approval-aware tenant
 
 Provider-free unit verification now covers the grounded knowledge service, dialogue simulator, media pipeline, module registry, restaurant pricing, order confirmation/lifecycle, and escalation contracts. Database-backed integration verification still requires the disposable PostgreSQL harness.
 
+`FixtureActionGateway` now validates permit request, business, tool, and expiry before returning a fixture result. It performs no external side effect and exists only for policy tests.
+
 Provider-neutral `SpeechToTextPort` and `TextToSpeechPort` contracts now support bounded streaming transcripts, epoch-aware synthesis, and deterministic local fixtures. No speech SDK, credential, network call, or recording was added.
 
 `LocalStreamingPipeline` now proves media sequencing, stale-frame rejection, fixture STT delivery, and interruption epoch propagation in a focused local test.
