@@ -140,6 +140,8 @@ Migration V8 and business profile contracts add versioned, approval-aware tenant
 
 `JdbcBusinessProfileRepository` now resolves the newest approved profile for the authenticated business and fails closed when none exists or stored JSON is invalid.
 
+Business profile invariant tests now cover blank locale/timezone rejection; unapproved or missing profiles remain fail-closed at the repository boundary.
+
 The dialogue slice adds a provider-neutral `DialoguePort` and deterministic fixture that answers only from supplied grounded sources and emits structured workflow events. No language model provider is connected.
 
 `VoiceTurnService` now connects dialogue output to provider-neutral TTS while preserving the interruption epoch. The implementation is fixture-only and does not stream audio to a caller.
