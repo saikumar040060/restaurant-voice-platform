@@ -94,6 +94,8 @@ The restaurant module is now registered through the platform `BusinessModule` co
 
 `MenuAvailability` now defaults unknown menu items to unavailable and allows quotes to require an explicit availability snapshot. Live inventory remains deferred to the approved POS integration.
 
+`OrderSubmission` now requires a confirmed draft and carries a deterministic SHA-256 quote hash for later external reconciliation. It creates no external order.
+
 `OrderDraft` now binds explicit confirmation to the exact immutable quote, rejecting changed totals or lines. It remains local domain logic and cannot submit an order.
 
 The restaurant order lifecycle now distinguishes draft, confirmed, submitting, accepted, unknown, and cancelled states. Unknown submission results are terminal until reconciliation and cannot be retried through a normal transition.
