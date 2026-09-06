@@ -1,6 +1,6 @@
 # Project status
 
-Updated: 2026-09-05.
+Updated: 2026-09-06.
 
 ## Current milestone
 
@@ -35,6 +35,8 @@ Java 21 exists through Homebrew although the system Java 21 registration is brok
 ## Decisions and improvements
 
 Knowledge provenance and dish/conversation evaluation are first-class requirements. Exactly-once effects depend on provider capabilities. Raw speech can contain unsolicited payment credentials, so provider retention/redaction must be evaluated as well as agent behavior.
+
+Owner requested cost-conscious Codex development routing: root AGENTS.md now prefers Luna Low for routine/mechanical work, Terra Low/Medium for normal implementation, Sol Medium for harder work, and Astra only for exceptional architecture/security/debugging. Bounded context and targeted checks supplement the existing mandatory validation gates. This is instruction-level guidance; no model/configuration switch or runtime voice-model selection was made. Documentation-only update, uncommitted; no milestone completion or publishing status changed.
 
 ## Next action
 
