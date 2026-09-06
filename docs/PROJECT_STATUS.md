@@ -194,6 +194,7 @@ Recommendation ranking now accepts the same immutable availability snapshot used
 Availability snapshots now cap entries at 10,000, bounding tenant-controlled in-memory state before recommendation or quote evaluation.
 Provider health reasons are now trimmed and capped at 500 characters before routing or audit consumers receive them.
 Provider health now exposes a staleness check with caller-supplied age bounds, allowing routing to fail closed on old signals.
+Grounded knowledge sources now validate stable identity, bounded content, provenance, and positive version before dialogue consumption.
 Special-instruction filtering now matches sensitive terms as whole words, avoiding false positives on harmless words such as “cardboard.”
 Prompt rendering now enforces a 16,000-character post-substitution ceiling, preventing tenant facts from expanding model-facing context without bound.
 Prompt fact maps now enforce bounded count and identifier syntax before rendering, keeping tenant placeholders deterministic.
