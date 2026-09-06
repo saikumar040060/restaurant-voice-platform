@@ -68,6 +68,8 @@ The action layer now defines validated requests, confirmation evidence, short-li
 
 The M2 read-only module endpoint now resolves modules through the authenticated tenant identity; callers cannot supply a different business ID. Mutable module provisioning remains an operator-only follow-up.
 
+Migration V4 adds tenant-scoped conversation, turn, and action-request state with interruption epochs, monotonic sequence uniqueness, bounded text, explicit action status, and idempotency keys. Runtime repositories and simulator behavior remain the next implementation slice.
+
 No runtime voice vendor is chosen. M5a uses mocks/local fixtures; natural voice capability requires M5b measured evaluation with an approved implementation. This task requests no credentials and authorizes no real calls or product account connections.
 
 ## Environment and continuation
