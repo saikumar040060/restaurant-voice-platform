@@ -2,6 +2,7 @@ package com.harborvoice.modules.restaurant;
 
 import com.harborvoice.platform.module.BusinessModule;
 import com.harborvoice.platform.module.ModuleDescriptor;
+import com.harborvoice.platform.module.ToolCapability;
 import java.util.Set;
 import org.springframework.stereotype.Component;
 
@@ -14,4 +15,9 @@ public final class RestaurantBusinessModule implements BusinessModule {
 
     @Override public ModuleDescriptor descriptor() { return DESCRIPTOR; }
     @Override public Set<String> supportedIntents() { return INTENTS; }
+    @Override public Set<ToolCapability> tools() {
+        return Set.of(new ToolCapability("restaurant.menu_lookup", false, false),
+                new ToolCapability("restaurant.availability_lookup", false, false),
+                new ToolCapability("restaurant.quote", true, false));
+    }
 }

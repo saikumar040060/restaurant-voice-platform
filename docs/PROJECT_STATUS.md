@@ -100,6 +100,8 @@ The first restaurant module slice adds pure deterministic menu-item validation a
 
 The restaurant module is now registered through the platform `BusinessModule` contract with menu, dish, recommendation, availability, pickup-order, and transfer intents. POS and payment capabilities remain absent until their approved integration milestone.
 
+The restaurant module now declares read-only menu/availability tools and a confirmation-required quote capability through `ToolCapability`; no arbitrary or external tool is exposed.
+
 `MenuAvailability` now defaults unknown menu items to unavailable and allows quotes to require an explicit availability snapshot. Live inventory remains deferred to the approved POS integration.
 
 `OrderSubmission` now requires a confirmed draft and carries a deterministic SHA-256 quote hash for later external reconciliation. It creates no external order.
