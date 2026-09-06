@@ -186,6 +186,7 @@ The outbox repository now increments dispatch attempts atomically only for pendi
 Outbox attempt increments now stop at five tries, enforcing a bounded retry ceiling before dead-letter/reconciliation handling is added.
 Migration V12 and the outbox repository now expose a `DEAD_LETTER` terminal state once five attempts are exhausted; unknown external outcomes remain separate and reconcilable.
 `OutboxStatus.terminal()` now encodes that reconciled and dead-letter entries cannot be retried, while unknown entries remain eligible for explicit reconciliation.
+Restaurant orders now have a bounded special-instructions value object that trims ordinary notes and rejects payment or credential-like content before workflow use.
 The platform now exposes a bounded immutable conversation context so dialogue providers and business modules receive ordered recent turns without direct storage coupling.
 Provider health is represented by a provider-neutral contract with healthy, degraded, and unavailable states; routing can use it for failover or escalation without exposing providers to business workflows.
 The M4 text console now retrieves approved, fresh knowledge through the tenant-scoped knowledge service before invoking dialogue; its no-arg fixture constructor remains available for provider-free tests, and it cannot answer from unapproved or caller-supplied facts.
