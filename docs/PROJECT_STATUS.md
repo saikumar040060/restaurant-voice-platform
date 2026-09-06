@@ -90,6 +90,8 @@ The local `DialogueSimulator` consumes grounded context and emits deterministic 
 
 The first restaurant module slice adds pure deterministic menu-item validation and minor-unit pricing with modifier checks. It uses fictional domain data and has no ordering submission, POS, payment, or customer integration.
 
+The restaurant module is now registered through the platform `BusinessModule` contract with menu, dish, recommendation, availability, pickup-order, and transfer intents. POS and payment capabilities remain absent until their approved integration milestone.
+
 `OrderDraft` now binds explicit confirmation to the exact immutable quote, rejecting changed totals or lines. It remains local domain logic and cannot submit an order.
 
 The restaurant order lifecycle now distinguishes draft, confirmed, submitting, accepted, unknown, and cancelled states. Unknown submission results are terminal until reconciliation and cannot be retried through a normal transition.
