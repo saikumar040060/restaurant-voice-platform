@@ -15,4 +15,12 @@ class ToolAuthorizationTest {
         assertThrows(IllegalArgumentException.class, () -> ToolAuthorization.require(
                 new ToolCapability("other.lookup", false, false), request, false));
     }
+
+    @Test
+    void mutatingToolsRequireExplicitConfirmation() {
+        var request = new ActionRequest(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "order.submit", "key-2", Map.of());
+        var mutating = new ToolCapability("order.submit", true, true);
+        assertThrows(IllegalArgumentException.class, () -> ToolAuthorization.require(mutating, request, false));
+        ToolAuthorization.require(mutating, request, true);
+    }
 }
