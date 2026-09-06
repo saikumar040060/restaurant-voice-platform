@@ -11,7 +11,8 @@ public record ConfirmationEvidence(UUID conversationId, long epoch, String summa
         Objects.requireNonNull(summary, "summary");
         Objects.requireNonNull(utteranceHash, "utteranceHash");
         Objects.requireNonNull(observedAt, "observedAt");
-        if (epoch < 0 || summary.isBlank() || summary.length() > 2_000 || utteranceHash.isBlank()) {
+        if (epoch < 0 || summary.isBlank() || summary.length() > 2_000
+                || !utteranceHash.matches("[A-Fa-f0-9]{64}")) {
             throw new IllegalArgumentException("invalid confirmation evidence");
         }
     }

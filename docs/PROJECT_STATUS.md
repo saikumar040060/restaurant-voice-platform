@@ -196,6 +196,7 @@ Provider health reasons are now trimmed and capped at 500 characters before rout
 Provider health now exposes a staleness check with caller-supplied age bounds, allowing routing to fail closed on old signals.
 Grounded knowledge sources now validate stable identity, bounded content, provenance, and positive version before dialogue consumption.
 Action requests now cap arguments at 100 validated keys, bounding model-proposed payloads before policy authorization.
+Confirmation evidence now requires a canonical 64-character hexadecimal utterance hash, preventing malformed evidence from authorizing actions.
 Special-instruction filtering now matches sensitive terms as whole words, avoiding false positives on harmless words such as “cardboard.”
 Prompt rendering now enforces a 16,000-character post-substitution ceiling, preventing tenant facts from expanding model-facing context without bound.
 Prompt fact maps now enforce bounded count and identifier syntax before rendering, keeping tenant placeholders deterministic.
