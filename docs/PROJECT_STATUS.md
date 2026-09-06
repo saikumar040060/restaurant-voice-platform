@@ -258,6 +258,8 @@ The routing guidance is committed in local 01129e9 and the remote snapshot. It d
 
 M4 publication controls now include explicit revocation and same-tenant rollback contracts. Rollback only restores an older non-revoked record for the same canonical key and rejects cross-tenant or forward-version substitutions; focused tests and module-boundary/foundation validation pass.
 
+Credential-free M5b preparation now includes bounded sandbox provider configuration, Twilio HMAC request verification, and synthetic evaluation/account-owner checklist documentation. No provider credentials, SDK, network call, or real call path has been added.
+
 Grounded dialogue now detects conflicting approved sources sharing a canonical key and returns a clarification response instead of selecting one arbitrarily; focused provider-free tests pass.
 
 A post-M4 full harness retry on 2026-09-06 stopped before PostgreSQL startup because Docker denied access to unix:///Users/saikumar/.docker/run/docker.sock. Unit tests, foundation validation, and module-boundary validation remain green; no database result is inferred from this retry.
