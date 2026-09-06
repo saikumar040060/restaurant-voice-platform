@@ -255,3 +255,5 @@ Java 21 is available through Homebrew; shell Java was 17, so select Java 21 per 
 Local execution only. GitHub storage and CI do not keep this coding task running after laptop sleep. No continuing cloud task is configured. Publish reviewed changes and configure an approved reproducible remote task before claiming laptop-independent work.
 
 The routing guidance is committed in local 01129e9 and the remote snapshot. It does not automatically switch models or select a runtime voice model.
+
+M4 publication controls now include explicit revocation and same-tenant rollback contracts. Rollback only restores an older non-revoked record for the same canonical key and rejects cross-tenant or forward-version substitutions; focused tests and module-boundary/foundation validation pass.
