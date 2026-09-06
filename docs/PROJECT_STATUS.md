@@ -261,3 +261,5 @@ M4 publication controls now include explicit revocation and same-tenant rollback
 Grounded dialogue now detects conflicting approved sources sharing a canonical key and returns a clarification response instead of selecting one arbitrarily; focused provider-free tests pass.
 
 A post-M4 full harness retry on 2026-09-06 stopped before PostgreSQL startup because Docker denied access to unix:///Users/saikumar/.docker/run/docker.sock. Unit tests, foundation validation, and module-boundary validation remain green; no database result is inferred from this retry.
+
+User-provided full harness evidence 2026-09-06 19:23:18: Maven verify completed with 112 tests, zero failures/errors/skips, packaged jar/repackage succeeded, and bootstrap initialization/repeat-secret/insecure-secret checks passed.
