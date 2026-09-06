@@ -146,6 +146,8 @@ Business profile invariant tests now cover blank locale/timezone rejection; unap
 
 The dialogue slice adds a provider-neutral `DialoguePort` and deterministic fixture that answers only from supplied grounded sources and emits structured workflow events. No language model provider is connected.
 
+`PromptTemplate` now provides bounded tenant prompt rendering with explicit fact substitution; tenant values remain data and no external model is invoked.
+
 `VoiceTurnService` now connects dialogue output to provider-neutral TTS while preserving the interruption epoch. The implementation is fixture-only and does not stream audio to a caller.
 
 Provider-free unit verification now covers the grounded knowledge service, dialogue simulator, media pipeline, module registry, restaurant pricing, order confirmation/lifecycle, and escalation contracts. Database-backed integration verification still requires the disposable PostgreSQL harness.
