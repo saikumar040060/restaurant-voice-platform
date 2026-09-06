@@ -1,6 +1,7 @@
 package com.harborvoice.platform.ops;
 
 import java.time.Instant;
+import java.time.Duration;
 
 /** Provider-neutral health signal consumed by routing and escalation policy. */
 public record ProviderHealth(String provider, State state, Instant observedAt, String reason) {
@@ -15,4 +16,9 @@ public record ProviderHealth(String provider, State state, Instant observedAt, S
     public enum State { HEALTHY, DEGRADED, UNAVAILABLE }
 
     public boolean canServe() { return state != State.UNAVAILABLE; }
+
+    public boolean staleAt(Instant now, Duration maxAge) {
+        if (now == null || maxAge == null || maxAge.isNegative()) throw new IllegalArgumentException("invalid health age");
+        return observedAt.plus(maxAge).isBefore(now);
+    }
 }
