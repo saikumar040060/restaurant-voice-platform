@@ -190,6 +190,7 @@ The restaurant module now includes a deterministic Harbor Pizza Test Kitchen fix
 The same fixture now includes explicit structured dish profiles and allergen facts for cheese and pepperoni sizes; missing dietary claims remain empty rather than inferred.
 Restaurant menu knowledge now rejects duplicate item or dish SKUs at construction time, preventing ambiguous identity from entering availability, pricing, or confirmation flows.
 `VoiceTurnService` now rejects blank transcripts, missing grounded context, and negative interruption epochs before invoking dialogue or TTS.
+The compiled module registry now rejects null module lookups explicitly, keeping unknown or malformed module identities fail-closed before resolution.
 
 `FixtureActionGateway` now validates permit request, business, tool, and expiry before returning a fixture result. It performs no external side effect and exists only for policy tests.
 

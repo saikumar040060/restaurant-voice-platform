@@ -3,6 +3,7 @@ package com.harborvoice.platform.module;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.Objects;
 import org.springframework.stereotype.Component;
 
 /** Provides only reviewed modules discovered through dependency injection. */
@@ -17,6 +18,7 @@ public class ModuleRegistry {
     }
 
     public BusinessModule require(String moduleId) {
+        Objects.requireNonNull(moduleId, "moduleId");
         BusinessModule module = modules.get(moduleId);
         if (module == null) {
             throw new IllegalArgumentException("unknown business module: " + moduleId);

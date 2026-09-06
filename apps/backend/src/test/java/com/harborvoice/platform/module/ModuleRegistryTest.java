@@ -39,4 +39,10 @@ class ModuleRegistryTest {
         assertThatThrownBy(() -> new ModuleRegistry(java.util.List.of(first, second)))
                 .isInstanceOf(IllegalStateException.class);
     }
+
+    @Test
+    void rejectsNullModuleId() {
+        var registry = new ModuleRegistry(java.util.List.of(new ReferenceBusinessModule()));
+        assertThatThrownBy(() -> registry.require(null)).isInstanceOf(NullPointerException.class);
+    }
 }
