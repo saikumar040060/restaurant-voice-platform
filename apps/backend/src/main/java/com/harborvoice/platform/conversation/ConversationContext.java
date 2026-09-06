@@ -1,6 +1,7 @@
 package com.harborvoice.platform.conversation;
 
 import java.util.List;
+import java.util.Objects;
 
 /** Bounded, immutable context passed to dialogue providers and business modules. */
 public record ConversationContext(List<ConversationTurn> turns, int characterCount) {
@@ -12,6 +13,7 @@ public record ConversationContext(List<ConversationTurn> turns, int characterCou
     }
 
     public static ConversationContext bounded(List<ConversationTurn> source, int maxTurns, int maxCharacters) {
+        Objects.requireNonNull(source, "source");
         if (maxTurns < 0 || maxCharacters < 0) {
             throw new IllegalArgumentException("context limits cannot be negative");
         }
