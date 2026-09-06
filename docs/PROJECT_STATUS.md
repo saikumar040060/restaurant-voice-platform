@@ -74,6 +74,8 @@ Migration V4 adds tenant-scoped conversation, turn, and action-request state wit
 
 `JdbcActionRepository` now persists proposed action requests and safely reuses an identical business-scoped idempotency key while rejecting key reuse with a different request hash. It does not execute actions.
 
+Migration V5 and `JdbcPermitRepository` now persist short-lived, business-scoped policy permits and validate request hash, tool, and expiry before any adapter can execute.
+
 No runtime voice vendor is chosen. M5a uses mocks/local fixtures; natural voice capability requires M5b measured evaluation with an approved implementation. This task requests no credentials and authorizes no real calls or product account connections.
 
 ## Environment and continuation
