@@ -227,6 +227,7 @@ The module registry now validates declared intent syntax and non-null tool sets 
 Added `scripts/validate_module_boundaries.py` to enforce that platform core does not import restaurant types and restaurant code does not import sibling business modules.
 M3 now includes a bounded tenant-scoped `CallerPrincipal` contract; caller hints carry no employee role or staff authority.
 Policy permits now require a nonblank tool, canonical 64-character hexadecimal request hash, and non-null expiry before action execution.
+M3 now includes a replay-safe provider-free action executor that validates request/business scope and atomically invokes a gateway at most once per request ID.
 Restaurant recommendations now collapse duplicate SKUs before deterministic sorting and limiting, avoiding repeated or ambiguous suggestions.
 Restaurant quote pricing now bounds an order to 100 lines before arithmetic, preventing unbounded input from reaching confirmation or persistence.
 
