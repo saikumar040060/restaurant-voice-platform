@@ -118,6 +118,8 @@ Migration V9 adds tenant/location-scoped restaurant order persistence with immut
 
 Migration V10 adds immutable order lines for confirmed restaurant orders, preserving SKU, modifier, quantity, and unit minor-unit price for audit and reconciliation.
 
+`JdbcRestaurantOrderRepository` now stores validated quote lines idempotently with deterministic line numbers and calculated unit prices.
+
 `JdbcRestaurantOrderRepository` now stores confirmed submissions idempotently in the scoped order table while keeping external POS submission behind `OrderPort`.
 
 The order repository now supports expected-state transitions scoped to the business and rejects transitions from accepted, unknown, or cancelled orders, preserving reconciliation safety.
