@@ -7,8 +7,8 @@ import java.util.Objects;
 public record ConversationContext(List<ConversationTurn> turns, int characterCount) {
     public ConversationContext {
         turns = List.copyOf(turns == null ? List.of() : turns);
-        int actual = turns.stream().mapToInt(turn -> turn.text().length()).sum();
-        if (characterCount < 0 || characterCount != actual || characterCount > 16_000) {
+        long actual = turns.stream().mapToLong(turn -> turn.text().length()).sum();
+        if (characterCount < 0 || actual > Integer.MAX_VALUE || characterCount != actual || characterCount > 16_000) {
             throw new IllegalArgumentException("invalid conversation context size");
         }
     }
