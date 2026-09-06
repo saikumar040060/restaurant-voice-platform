@@ -20,4 +20,9 @@ class MenuAvailabilityTest {
         assertThat(snapshot.available("missing")).isFalse();
         assertThat(MenuAvailability.isAvailable(new MenuItem("soup", "Soup", 100, Map.of()), snapshot)).isTrue();
     }
+
+    @Test void rejectsMalformedSnapshotRevision() {
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> new AvailabilitySnapshot("bad revision", Map.of()))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
 }
