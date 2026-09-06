@@ -66,6 +66,8 @@ The platform boundary now also defines provider-neutral conversation state, turn
 
 The action layer now defines validated requests, confirmation evidence, short-lived policy permits, and an execution result boundary. Model output remains non-executable, and no external action adapter exists yet.
 
+The M2 read-only module endpoint now resolves modules through the authenticated tenant identity; callers cannot supply a different business ID. Mutable module provisioning remains an operator-only follow-up.
+
 No runtime voice vendor is chosen. M5a uses mocks/local fixtures; natural voice capability requires M5b measured evaluation with an approved implementation. This task requests no credentials and authorizes no real calls or product account connections.
 
 ## Environment and continuation
