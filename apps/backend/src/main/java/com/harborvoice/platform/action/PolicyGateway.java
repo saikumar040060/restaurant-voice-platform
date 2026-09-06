@@ -9,11 +9,16 @@ public interface PolicyGateway {
     record ActionPermit(UUID requestId, UUID businessId, String toolId, String requestHash,
                         InstantExpiry expiresAt) {
         public ActionPermit {
-            if (requestId == null || businessId == null || toolId == null || requestHash == null || expiresAt == null) {
-                throw new NullPointerException("permit fields are required");
+            if (requestId == null || businessId == null || toolId == null || toolId.isBlank() || requestHash == null
+                    || !requestHash.matches("[A-Fa-f0-9]{64}") || expiresAt == null) {
+                throw new IllegalArgumentException("invalid action permit");
             }
         }
     }
 
-    record InstantExpiry(java.time.Instant value) { }
+    record InstantExpiry(java.time.Instant value) {
+        public InstantExpiry {
+            if (value == null) throw new IllegalArgumentException("expiry required");
+        }
+    }
 }
