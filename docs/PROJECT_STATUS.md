@@ -102,6 +102,8 @@ The restaurant module is now registered through the platform `BusinessModule` co
 
 The restaurant module now declares read-only menu/availability tools and a confirmation-required quote capability through `ToolCapability`; no arbitrary or external tool is exposed.
 
+The restaurant `OrderPort` and fixture adapter now establish the POS boundary: only confirmed submissions cross it, and the fixture returns a clearly synthetic reference without external calls.
+
 `MenuAvailability` now defaults unknown menu items to unavailable and allows quotes to require an explicit availability snapshot. Live inventory remains deferred to the approved POS integration.
 
 `OrderSubmission` now requires a confirmed draft and carries a deterministic SHA-256 quote hash for later external reconciliation. It creates no external order.
