@@ -187,6 +187,7 @@ The platform now exposes a bounded immutable conversation context so dialogue pr
 Provider health is represented by a provider-neutral contract with healthy, degraded, and unavailable states; routing can use it for failover or escalation without exposing providers to business workflows.
 The M4 text console now retrieves approved, fresh knowledge through the tenant-scoped knowledge service before invoking dialogue; its no-arg fixture constructor remains available for provider-free tests, and it cannot answer from unapproved or caller-supplied facts.
 The restaurant module now includes a deterministic Harbor Pizza Test Kitchen fixture with required cheese, pepperoni, and build-your-own base prices for offline evaluation; it contains no real-business data or provider integration.
+The same fixture now includes explicit structured dish profiles and allergen facts for cheese and pepperoni sizes; missing dietary claims remain empty rather than inferred.
 
 `FixtureActionGateway` now validates permit request, business, tool, and expiry before returning a fixture result. It performs no external side effect and exists only for policy tests.
 

@@ -14,10 +14,26 @@ public final class HarborPizzaFixture {
                 item("PEPPERONI-L", "Pepperoni Pizza (large)", 1749),
                 new MenuItem("BYO", "Build Your Own Pizza", 999,
                         java.util.Map.of("medium", 300, "large", 600, "topping", 150))),
-                java.util.List.of());
+                java.util.List.of(
+                        profile("CHEESE-S", "Classic cheese pizza with tomato sauce and mozzarella.",
+                                java.util.List.of("dough", "tomato sauce", "mozzarella")),
+                        profile("CHEESE-M", "Classic cheese pizza with tomato sauce and mozzarella.",
+                                java.util.List.of("dough", "tomato sauce", "mozzarella")),
+                        profile("CHEESE-L", "Classic cheese pizza with tomato sauce and mozzarella.",
+                                java.util.List.of("dough", "tomato sauce", "mozzarella")),
+                        profile("PEPPERONI-S", "Cheese pizza topped with pepperoni.",
+                                java.util.List.of("dough", "tomato sauce", "mozzarella", "pepperoni")),
+                        profile("PEPPERONI-M", "Cheese pizza topped with pepperoni.",
+                                java.util.List.of("dough", "tomato sauce", "mozzarella", "pepperoni")),
+                        profile("PEPPERONI-L", "Cheese pizza topped with pepperoni.",
+                                java.util.List.of("dough", "tomato sauce", "mozzarella", "pepperoni"))));
     }
 
     private static MenuItem item(String sku, String name, int price) {
         return new MenuItem(sku, name, price, java.util.Map.of());
+    }
+
+    private static DishProfile profile(String sku, String description, java.util.List<String> ingredients) {
+        return new DishProfile(sku, description, ingredients, java.util.List.of("wheat", "milk"), java.util.List.of());
     }
 }
