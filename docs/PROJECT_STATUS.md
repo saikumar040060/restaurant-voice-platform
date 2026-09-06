@@ -122,6 +122,8 @@ The evaluation slice adds a reusable scenario contract carrying module ID, utter
 
 `CallbackRequest` now requires explicit consent and tenant/conversation scope before a callback can be represented. It does not enqueue, schedule, or send a callback.
 
+`UsageBudget` now provides a synchronized per-call guard for audio duration and input size, failing closed when either budget would be exceeded.
+
 `OrderDraft` now binds explicit confirmation to the exact immutable quote, rejecting changed totals or lines. It remains local domain logic and cannot submit an order.
 
 The restaurant order lifecycle now distinguishes draft, confirmed, submitting, accepted, unknown, and cancelled states. Unknown submission results are terminal until reconciliation and cannot be retried through a normal transition.
