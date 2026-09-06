@@ -177,7 +177,8 @@ The dialogue slice adds a provider-neutral `DialoguePort` and deterministic fixt
 Provider-free unit verification now covers the grounded knowledge service, dialogue simulator, media pipeline, module registry, restaurant pricing, order confirmation/lifecycle, and escalation contracts. Database-backed integration verification still requires the disposable PostgreSQL harness.
 
 Latest provider-free regression run passes under Java 25 targeting Java 21. The database-guarded integration suite remains unrun because Docker API access is denied.
-Completion audit 2026-09-06: `scripts/validate_foundation.py` passes and the provider-free Maven suite passes. `scripts/test_backend.py` cannot start its isolated PostgreSQL 17.6 container because Docker API access is denied at `unix:///Users/saikumar/.docker/run/docker.sock`; rerun `python3 scripts/test_backend.py` after Docker access is restored.
+Earlier completion audit: `scripts/validate_foundation.py` and the provider-free Maven suite passed, while the first `scripts/test_backend.py` attempt was blocked by temporary Docker API access denial.
+Integration verification later completed successfully: `scripts/test_backend.py` ran 100 tests with zero failures or errors, packaged bootstrap/repeat/insecure-secret checks passed, and Maven build/repackage succeeded against disposable PostgreSQL 17.6.
 The backend harness now selects the installed Java 25 runtime when the shell is still on Java 17, preventing Surefire class-version mismatches during verification.
 The harness now always uses the installed Java 25 runtime when available, regardless of the caller's `JAVA_HOME` path naming, so Java 17 cannot launch Java 25-compiled tests.
 Integration audit found and fixed a V4 PostgreSQL defect: conversation child tables referenced `(conversation_id, business_id)` without a matching unique key on `conversations`; V4 now declares `UNIQUE (id, business_id)` and includes a migration schema regression test.
