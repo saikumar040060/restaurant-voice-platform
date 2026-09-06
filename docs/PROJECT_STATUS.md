@@ -201,6 +201,7 @@ Callback request destinations are now trimmed and capped at 320 characters befor
 Escalation cases now validate identity, tenant/conversation scope, reason, state, and creation time before transfer or callback handling.
 Restaurant orders now have a bounded special-instructions value object that trims ordinary notes and rejects payment or credential-like content before workflow use.
 The platform now exposes a bounded immutable conversation context so dialogue providers and business modules receive ordered recent turns without direct storage coupling.
+Conversation contexts now verify their declared character count and enforce the 16,000-character ceiling even when constructed directly.
 Provider health is represented by a provider-neutral contract with healthy, degraded, and unavailable states; routing can use it for failover or escalation without exposing providers to business workflows.
 The M4 text console now retrieves approved, fresh knowledge through the tenant-scoped knowledge service before invoking dialogue; its no-arg fixture constructor remains available for provider-free tests, and it cannot answer from unapproved or caller-supplied facts.
 The restaurant module now includes a deterministic Harbor Pizza Test Kitchen fixture with required cheese, pepperoni, and build-your-own base prices for offline evaluation; it contains no real-business data or provider integration.

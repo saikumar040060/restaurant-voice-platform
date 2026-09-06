@@ -22,6 +22,13 @@ class ConversationContextTest {
         assertThrows(NullPointerException.class, () -> ConversationContext.bounded(null, 1, 10));
     }
 
+    @Test
+    void rejectsMismatchedDeclaredCharacterCount() {
+        UUID conversation = UUID.randomUUID();
+        var turn = turn(conversation, 0, "hello");
+        assertThrows(IllegalArgumentException.class, () -> new ConversationContext(List.of(turn), 4));
+    }
+
     private ConversationTurn turn(UUID conversation, long sequence, String text) {
         return new ConversationTurn(UUID.randomUUID(), conversation, sequence, 0, "CUSTOMER", text, Instant.now(), true);
     }
