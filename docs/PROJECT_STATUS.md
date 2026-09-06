@@ -100,6 +100,8 @@ The privacy slice adds deterministic redaction for email, phone, and card-like s
 
 The evaluation slice adds a reusable scenario contract carrying module ID, utterances, and expected outcome so restaurant and future business modules can share offline tests.
 
+`CallbackRequest` now requires explicit consent and tenant/conversation scope before a callback can be represented. It does not enqueue, schedule, or send a callback.
+
 `OrderDraft` now binds explicit confirmation to the exact immutable quote, rejecting changed totals or lines. It remains local domain logic and cannot submit an order.
 
 The restaurant order lifecycle now distinguishes draft, confirmed, submitting, accepted, unknown, and cancelled states. Unknown submission results are terminal until reconciliation and cannot be retried through a normal transition.
