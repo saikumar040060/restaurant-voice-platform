@@ -10,4 +10,13 @@ class MenuAvailabilityTest {
         assertThat(MenuAvailability.isAvailable(item, Map.of())).isFalse();
         assertThat(MenuAvailability.isAvailable(item, Map.of("soup", true))).isTrue();
     }
+
+    @Test void snapshotCopiesValuesAndFailsClosedForUnknownSku() {
+        var values = new java.util.HashMap<String, Boolean>();
+        values.put("soup", true);
+        var snapshot = new AvailabilitySnapshot("rev-1", values);
+        values.put("soup", false);
+        assertThat(snapshot.available("soup")).isTrue();
+        assertThat(snapshot.available("missing")).isFalse();
+    }
 }
