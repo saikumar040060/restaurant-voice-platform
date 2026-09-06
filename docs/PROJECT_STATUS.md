@@ -70,6 +70,8 @@ The M2 read-only module endpoint now resolves modules through the authenticated 
 
 Migration V4 adds tenant-scoped conversation, turn, and action-request state with interruption epochs, monotonic sequence uniqueness, bounded text, explicit action status, and idempotency keys. Runtime repositories and simulator behavior remain the next implementation slice.
 
+`JdbcConversationRepository` now provides tenant-scoped start, state lookup, turn append, and interruption operations backed by V4. Database constraints remain authoritative for duplicate sequences and cross-business writes.
+
 No runtime voice vendor is chosen. M5a uses mocks/local fixtures; natural voice capability requires M5b measured evaluation with an approved implementation. This task requests no credentials and authorizes no real calls or product account connections.
 
 ## Environment and continuation
