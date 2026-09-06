@@ -110,6 +110,8 @@ Migration V8 and business profile contracts add versioned, approval-aware tenant
 
 `JdbcBusinessProfileRepository` now resolves the newest approved profile for the authenticated business and fails closed when none exists or stored JSON is invalid.
 
+Provider-free unit verification now covers the grounded knowledge service, dialogue simulator, media pipeline, module registry, restaurant pricing, order confirmation/lifecycle, and escalation contracts. Database-backed integration verification still requires the disposable PostgreSQL harness.
+
 Provider-neutral `SpeechToTextPort` and `TextToSpeechPort` contracts now support bounded streaming transcripts, epoch-aware synthesis, and deterministic local fixtures. No speech SDK, credential, network call, or recording was added.
 
 `LocalStreamingPipeline` now proves media sequencing, stale-frame rejection, fixture STT delivery, and interruption epoch propagation in a focused local test.
