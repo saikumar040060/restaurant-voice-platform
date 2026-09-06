@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class JdbcOutboxRepository {
+    private static final int MAX_ATTEMPTS = 5;
     private final JdbcTemplate jdbc;
     public JdbcOutboxRepository(JdbcTemplate jdbc) { this.jdbc = jdbc; }
 
@@ -22,7 +23,7 @@ public class JdbcOutboxRepository {
     }
 
     public boolean incrementAttempt(UUID outboxId, UUID businessId) {
-        return jdbc.update("UPDATE action_outbox SET attempts = attempts + 1 WHERE id = ? AND business_id = ? AND status IN ('PENDING', 'DISPATCHED')",
+        return jdbc.update("UPDATE action_outbox SET attempts = attempts + 1 WHERE id = ? AND business_id = ? AND status IN ('PENDING', 'DISPATCHED') AND attempts < " + MAX_ATTEMPTS,
                 outboxId, businessId) == 1;
     }
 }

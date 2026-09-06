@@ -183,6 +183,7 @@ Migration V11 adds an idempotent action outbox with explicit pending, dispatched
 `JdbcOutboxRepository` now enqueues requests idempotently and applies business-scoped expected-state transitions while leaving dispatch and reconciliation to a future approved adapter.
 
 The outbox repository now increments dispatch attempts atomically only for pending or dispatched entries; unknown and reconciled outcomes remain protected.
+Outbox attempt increments now stop at five tries, enforcing a bounded retry ceiling before dead-letter/reconciliation handling is added.
 The platform now exposes a bounded immutable conversation context so dialogue providers and business modules receive ordered recent turns without direct storage coupling.
 Provider health is represented by a provider-neutral contract with healthy, degraded, and unavailable states; routing can use it for failover or escalation without exposing providers to business workflows.
 The M4 text console now retrieves approved, fresh knowledge through the tenant-scoped knowledge service before invoking dialogue; its no-arg fixture constructor remains available for provider-free tests, and it cannot answer from unapproved or caller-supplied facts.
