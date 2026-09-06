@@ -118,6 +118,8 @@ The restaurant `OrderPort` and fixture adapter now establish the POS boundary: o
 
 The privacy slice adds deterministic redaction for email, phone, and card-like sequences before log/audit payloads are emitted. It is a utility only; production retention and provider controls remain gated.
 
+`AuditText` now applies redaction at construction time and bounds audit text size before persistence callers receive it.
+
 The evaluation slice adds a reusable scenario contract carrying module ID, utterances, and expected outcome so restaurant and future business modules can share offline tests.
 
 `CallbackRequest` now requires explicit consent and tenant/conversation scope before a callback can be represented. It does not enqueue, schedule, or send a callback.
