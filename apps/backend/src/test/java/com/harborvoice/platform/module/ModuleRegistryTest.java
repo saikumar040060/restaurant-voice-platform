@@ -24,6 +24,14 @@ class ModuleRegistryTest {
     }
 
     @Test
+    void descriptorRequiresSemanticVersionAndBoundedName() {
+        assertThatThrownBy(() -> new ModuleDescriptor("reference", "v1", "Reference"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new ModuleDescriptor("reference", "1.0.0", "x".repeat(161)))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void toolCapabilityRejectsPathTraversalIdentifiers() {
         assertThatThrownBy(() -> new ToolCapability("../admin", false, true))
                 .isInstanceOf(IllegalArgumentException.class);

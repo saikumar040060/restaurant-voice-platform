@@ -9,8 +9,8 @@ public record ModuleDescriptor(String moduleId, String version, String displayNa
         }
         Objects.requireNonNull(version, "version");
         Objects.requireNonNull(displayName, "displayName");
-        if (displayName.isBlank()) {
-            throw new IllegalArgumentException("displayName must not be blank");
+        if (!version.matches("[0-9]+\\.[0-9]+\\.[0-9]+") || displayName.isBlank() || displayName.length() > 160) {
+            throw new IllegalArgumentException("invalid module descriptor");
         }
     }
 }

@@ -222,6 +222,7 @@ The same fixture now includes explicit structured dish profiles and allergen fac
 Restaurant menu knowledge now rejects duplicate item or dish SKUs at construction time, preventing ambiguous identity from entering availability, pricing, or confirmation flows.
 `VoiceTurnService` now rejects blank transcripts, missing grounded context, and negative interruption epochs before invoking dialogue or TTS.
 The compiled module registry now rejects null module lookups explicitly, keeping unknown or malformed module identities fail-closed before resolution.
+Module descriptors now require numeric semantic versions and cap display names at 160 characters before registry publication.
 Restaurant recommendations now collapse duplicate SKUs before deterministic sorting and limiting, avoiding repeated or ambiguous suggestions.
 Restaurant quote pricing now bounds an order to 100 lines before arithmetic, preventing unbounded input from reaching confirmation or persistence.
 
