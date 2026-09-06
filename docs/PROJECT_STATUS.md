@@ -21,7 +21,7 @@ Retain staff authentication, UUIDs, tenant constraints, audit behavior and exist
 | Milestone | Status |
 | --- | --- |
 | 0 Engineering foundation | Local evidence recorded; hosted CI acceptance unverified |
-| 1 Secure tenant foundation | In progress; lifecycle, DB privileges and validation gaps remain |
+| 1 Secure tenant foundation | Local integration and packaged bootstrap verified; hosted CI/history reconciliation remains |
 | 2 Generic businesses, profiles and module contracts | Core contracts and reference module implemented; isolation evidence remains |
 | 3 Call state, policy gateway and durable actions | Contracts, repositories, outbox and fixtures implemented; DB/concurrency evidence remains |
 | 4 Approved knowledge and configurable dialogue | Knowledge, profiles, prompts, dialogue and context implemented; console/publication evidence remains |
@@ -176,7 +176,7 @@ The dialogue slice adds a provider-neutral `DialoguePort` and deterministic fixt
 
 Provider-free unit verification now covers the grounded knowledge service, dialogue simulator, media pipeline, module registry, restaurant pricing, order confirmation/lifecycle, and escalation contracts. Database-backed integration verification still requires the disposable PostgreSQL harness.
 
-Latest provider-free regression run passes under Java 25 targeting Java 21. The database-guarded integration suite remains unrun because Docker API access is denied.
+Latest provider-free regression run passes under Java 25 targeting Java 21. The database-guarded integration suite has now also passed locally against disposable PostgreSQL 17.6.
 Earlier completion audit: `scripts/validate_foundation.py` and the provider-free Maven suite passed, while the first `scripts/test_backend.py` attempt was blocked by temporary Docker API access denial.
 Integration verification later completed successfully: `scripts/test_backend.py` ran 100 tests with zero failures or errors, packaged bootstrap/repeat/insecure-secret checks passed, and Maven build/repackage succeeded against disposable PostgreSQL 17.6.
 The backend harness now selects the installed Java 25 runtime when the shell is still on Java 17, preventing Surefire class-version mismatches during verification.
