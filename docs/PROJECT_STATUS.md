@@ -84,6 +84,8 @@ Migration V6 and the `KnowledgePort` contract add tenant/location-scoped knowled
 
 `JdbcKnowledgeRepository` now performs bounded approved retrieval with business/location filtering and freshness checks before matching content. Returned records retain provenance and version for grounding and audit; no vector or model provider is used.
 
+`GroundedKnowledgeService` now packages retrieved sources with stable IDs, versions, and provenance so a later dialogue provider can cite only the approved context it received.
+
 No runtime voice vendor is chosen. M5a uses mocks/local fixtures; natural voice capability requires M5b measured evaluation with an approved implementation. This task requests no credentials and authorizes no real calls or product account connections.
 
 ## Environment and continuation
