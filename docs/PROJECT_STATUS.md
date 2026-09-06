@@ -72,6 +72,8 @@ Migration V4 adds tenant-scoped conversation, turn, and action-request state wit
 
 `JdbcConversationRepository` now provides tenant-scoped start, state lookup, turn append, and interruption operations backed by V4. Database constraints remain authoritative for duplicate sequences and cross-business writes.
 
+`JdbcActionRepository` now persists proposed action requests and safely reuses an identical business-scoped idempotency key while rejecting key reuse with a different request hash. It does not execute actions.
+
 No runtime voice vendor is chosen. M5a uses mocks/local fixtures; natural voice capability requires M5b measured evaluation with an approved implementation. This task requests no credentials and authorizes no real calls or product account connections.
 
 ## Environment and continuation
