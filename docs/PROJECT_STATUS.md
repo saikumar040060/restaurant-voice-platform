@@ -110,6 +110,8 @@ Migration V8 and business profile contracts add versioned, approval-aware tenant
 
 `JdbcBusinessProfileRepository` now resolves the newest approved profile for the authenticated business and fails closed when none exists or stored JSON is invalid.
 
+The dialogue slice adds a provider-neutral `DialoguePort` and deterministic fixture that answers only from supplied grounded sources and emits structured workflow events. No language model provider is connected.
+
 Provider-free unit verification now covers the grounded knowledge service, dialogue simulator, media pipeline, module registry, restaurant pricing, order confirmation/lifecycle, and escalation contracts. Database-backed integration verification still requires the disposable PostgreSQL harness.
 
 `FixtureActionGateway` now validates permit request, business, tool, and expiry before returning a fixture result. It performs no external side effect and exists only for policy tests.
