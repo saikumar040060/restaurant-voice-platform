@@ -18,4 +18,12 @@ public class JdbcRestaurantOrderRepository {
                 """, submission.orderId(), businessId, locationId, submission.quoteHash(),
                 submission.quote().currency(), submission.quote().subtotalMinor());
     }
+
+    public boolean transition(java.util.UUID businessId, java.util.UUID orderId, OrderState from, OrderState to) {
+        if (from == null || to == null || from == OrderState.ACCEPTED || from == OrderState.UNKNOWN || from == OrderState.CANCELLED) {
+            throw new IllegalArgumentException("terminal order cannot transition");
+        }
+        return jdbc.update("UPDATE restaurant_orders SET state = ? WHERE id = ? AND business_id = ? AND state = ?",
+                to.name(), orderId, businessId, from.name()) == 1;
+    }
 }

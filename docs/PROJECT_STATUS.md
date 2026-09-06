@@ -118,6 +118,8 @@ Migration V10 adds immutable order lines for confirmed restaurant orders, preser
 
 `JdbcRestaurantOrderRepository` now stores confirmed submissions idempotently in the scoped order table while keeping external POS submission behind `OrderPort`.
 
+The order repository now supports expected-state transitions scoped to the business and rejects transitions from accepted, unknown, or cancelled orders, preserving reconciliation safety.
+
 `DishProfile` now carries structured ingredients, allergens, and dietary tags for grounded dish explanations; absent facts remain empty rather than being inferred.
 
 `RestaurantOrderWorkflow` now requires the deterministic quote confirmation transition before submission can begin, keeping order state separate from external adapter execution.
