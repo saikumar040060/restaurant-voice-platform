@@ -88,6 +88,8 @@ Migration V6 and the `KnowledgePort` contract add tenant/location-scoped knowled
 
 The local `DialogueSimulator` consumes grounded context and emits deterministic reference workflow events for questions, callbacks, transfers, and endings. It is a test fixture, not an AI or voice runtime.
 
+The first restaurant module slice adds pure deterministic menu-item validation and minor-unit pricing with modifier checks. It uses fictional domain data and has no ordering submission, POS, payment, or customer integration.
+
 The media slice adds bounded provider-neutral envelopes and a synchronized sequencer that rejects duplicate/stale frames and requires explicit epoch advancement for interruptions. No telephony or audio provider is connected.
 
 Provider-neutral `SpeechToTextPort` and `TextToSpeechPort` contracts now support bounded streaming transcripts, epoch-aware synthesis, and deterministic local fixtures. No speech SDK, credential, network call, or recording was added.
