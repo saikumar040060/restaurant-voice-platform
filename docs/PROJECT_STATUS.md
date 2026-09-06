@@ -235,6 +235,7 @@ M3 now includes an action-dispatch worker guard that rejects terminal outbox sta
 M3 now centralizes tool authorization for read and mutating capabilities; tool identity must match the request and confirmation-required tools need explicit evidence.
 M3 now includes a fixture escalation port that stores a case before returning success and enforces business-scoped forward-only transitions; it performs no transfer, SMS, or employee notification.
 The post-escalation full harness attempt stopped before startup because Docker again denied access to `unix:///Users/saikumar/.docker/run/docker.sock`; no integration result is inferred from that attempt.
+M3 acceptance rerun after the worker and tool-authorization slices was attempted twice; both attempts stopped before container startup on the same Docker socket permission error, while all provider-free M3 tests remain green.
 Restaurant recommendations now collapse duplicate SKUs before deterministic sorting and limiting, avoiding repeated or ambiguous suggestions.
 Restaurant quote pricing now bounds an order to 100 lines before arithmetic, preventing unbounded input from reaching confirmation or persistence.
 
