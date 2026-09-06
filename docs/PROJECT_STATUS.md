@@ -1,6 +1,6 @@
 # Project status
 
-Updated: 2026-09-06. Current work: platform-first architecture review completed as local documentation; implementation not started.
+Updated: 2026-09-06. Current work: platform-first core, deterministic voice fixtures, knowledge/dialogue contracts, and restaurant domain foundations are implemented locally; integration and real-provider gates remain open.
 
 ## Product direction
 
@@ -12,7 +12,7 @@ The first live pilot remains US/English-first restaurant pickup ordering. Origin
 
 M1 includes hashed staff sessions, BCrypt, expiry/revocation, roles, tenant predicates/composite FKs, staff/location administration, initial-owner bootstrap, login throttling, audit viewing/denial events, correlation IDs, and transactional audit with write rollback.
 
-Historical evidence: 28 PostgreSQL integration tests passed, plus packaged bootstrap success, repeat rejection and secret-file checks. This architecture review inspected source/reports but did not rerun the backend suite or establish security/pilot readiness. Documentation checks are recorded in the review report. No voice engine, knowledge service, policy gateway, outbox, order workflow, POS integration or dashboard is implemented yet.
+Historical evidence: 28 PostgreSQL integration tests passed, plus packaged bootstrap success, repeat rejection and secret-file checks. Provider-free regression tests now pass locally. Provider-neutral voice ports, knowledge retrieval, policy/action boundaries, durable outbox state, restaurant order workflow, and local fixtures are implemented; no live voice engine, POS integration, external provider, or dashboard is connected.
 
 Retain staff authentication, UUIDs, tenant constraints, audit behavior and existing tests. Proposed adaptations are generic business/location relationships, module boundaries, typed call/service principals and audit-port extraction. Do not rewrite V1 SQL or silently change legacy APIs.
 
@@ -22,11 +22,11 @@ Retain staff authentication, UUIDs, tenant constraints, audit behavior and exist
 | --- | --- |
 | 0 Engineering foundation | Local evidence recorded; hosted CI acceptance unverified |
 | 1 Secure tenant foundation | In progress; lifecycle, DB privileges and validation gaps remain |
-| 2 Generic businesses, profiles and module contracts | Planned |
-| 3 Call state, policy gateway and durable actions | Planned |
-| 4 Approved knowledge and configurable dialogue | Planned |
-| 5 Reusable streaming voice proof | Planned; mock media and real conversation are separate gates |
-| 6 Restaurant business module | Planned |
+| 2 Generic businesses, profiles and module contracts | Core contracts and reference module implemented; isolation evidence remains |
+| 3 Call state, policy gateway and durable actions | Contracts, repositories, outbox and fixtures implemented; DB/concurrency evidence remains |
+| 4 Approved knowledge and configurable dialogue | Knowledge, profiles, prompts, dialogue and context implemented; console/publication evidence remains |
+| 5 Reusable streaming voice proof | M5a local fixture path implemented; M5b requires approved provider/model |
+| 6 Restaurant business module | Domain, workflow, persistence and escalation foundations implemented; full menu/UI/mock POS evidence remains |
 | 7 Shared operations and restaurant voice integration | Planned |
 | 8 Square sandbox | Pending approved access and prerequisites |
 | 9 Observability, load, recovery and security | Not started |
@@ -46,7 +46,7 @@ Hosted CI success is unverified. The previous run-list connector filtered PR eve
 
 ## Next action
 
-Use the repository policy's Terra/Medium preference for substantive implementation. Verify hosted CI/reconcile histories and close recorded M1 lifecycle/privilege/testing gates first. Then implement M2 in focused slices: business/location compatibility migration; typed principals/audit port; compiled registry/profile contracts; reference module and isolation tests.
+Use the repository policy's Terra/Medium preference for substantive implementation. Continue closing M1 lifecycle/privilege/testing gates and add focused M4/M6 evidence: authenticated text console, publication/rollback tests, complete fictional menu fixtures, and restaurant module isolation tests. Keep M5b and M8–M12 gated on approved providers, credentials, external systems, and human approval.
 
 The first bounded M1 lifecycle slice now includes scheduled deletion of expired `auth_sessions` rows. Local compilation is blocked by an environment JDK older than the Java 21 target; the project target and source were not changed.
 
