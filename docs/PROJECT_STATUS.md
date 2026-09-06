@@ -106,6 +106,8 @@ The media slice adds bounded provider-neutral envelopes and a synchronized seque
 
 `LocalConversationSimulator` now exercises the core media-to-fixture-STT-to-workflow path entirely in memory, including interruption epochs. It is a validation fixture and does not represent a live voice service.
 
+Migration V8 and business profile contracts add versioned, approval-aware tenant configuration for locale, timezone, and module settings. Profiles are business-scoped and no shared mutable configuration is introduced.
+
 Provider-neutral `SpeechToTextPort` and `TextToSpeechPort` contracts now support bounded streaming transcripts, epoch-aware synthesis, and deterministic local fixtures. No speech SDK, credential, network call, or recording was added.
 
 `LocalStreamingPipeline` now proves media sequencing, stale-frame rejection, fixture STT delivery, and interruption epoch propagation in a focused local test.
