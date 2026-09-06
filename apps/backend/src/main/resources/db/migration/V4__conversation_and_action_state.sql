@@ -4,7 +4,8 @@ CREATE TABLE conversations (
     state VARCHAR(24) NOT NULL CHECK (state IN ('CONNECTING', 'ACTIVE', 'TRANSFERRING', 'CALLBACK_PENDING', 'ENDED')),
     current_epoch BIGINT NOT NULL DEFAULT 0 CHECK (current_epoch >= 0),
     started_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    ended_at TIMESTAMPTZ
+    ended_at TIMESTAMPTZ,
+    UNIQUE (id, business_id)
 );
 CREATE INDEX conversations_business_time ON conversations(business_id, started_at);
 

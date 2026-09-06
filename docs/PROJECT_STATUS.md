@@ -180,6 +180,7 @@ Latest provider-free regression run passes under Java 25 targeting Java 21. The 
 Completion audit 2026-09-06: `scripts/validate_foundation.py` passes and the provider-free Maven suite passes. `scripts/test_backend.py` cannot start its isolated PostgreSQL 17.6 container because Docker API access is denied at `unix:///Users/saikumar/.docker/run/docker.sock`; rerun `python3 scripts/test_backend.py` after Docker access is restored.
 The backend harness now selects the installed Java 25 runtime when the shell is still on Java 17, preventing Surefire class-version mismatches during verification.
 The harness now always uses the installed Java 25 runtime when available, regardless of the caller's `JAVA_HOME` path naming, so Java 17 cannot launch Java 25-compiled tests.
+Integration audit found and fixed a V4 PostgreSQL defect: conversation child tables referenced `(conversation_id, business_id)` without a matching unique key on `conversations`; V4 now declares `UNIQUE (id, business_id)` and includes a migration schema regression test.
 The provider-neutral health registry now records and replaces health signals by provider in a thread-safe in-memory fixture, without making provider calls.
 
 Migration V11 adds an idempotent action outbox with explicit pending, dispatched, unknown, and reconciled states for future external adapters; it performs no dispatch itself.
