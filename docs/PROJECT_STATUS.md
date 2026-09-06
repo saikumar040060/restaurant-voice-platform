@@ -233,6 +233,7 @@ Latest full harness evidence: 105 tests passed with zero failures/errors, includ
 Replay verification now explicitly preserves an `UNKNOWN` gateway outcome across repeated execution attempts without invoking the gateway again.
 M3 now includes an action-dispatch worker guard that rejects terminal outbox states and wrong-business jobs before invoking the replay-safe executor.
 M3 now centralizes tool authorization for read and mutating capabilities; tool identity must match the request and confirmation-required tools need explicit evidence.
+M3 now includes a fixture escalation port that stores a case before returning success and enforces business-scoped forward-only transitions; it performs no transfer, SMS, or employee notification.
 Restaurant recommendations now collapse duplicate SKUs before deterministic sorting and limiting, avoiding repeated or ambiguous suggestions.
 Restaurant quote pricing now bounds an order to 100 lines before arithmetic, preventing unbounded input from reaching confirmation or persistence.
 
