@@ -12,4 +12,11 @@ class MenuRecommendationsTest {
         assertThat(MenuRecommendations.recommend(List.of(soup, salad), Map.of("soup", true, "salad", false), 5))
                 .containsExactly(soup);
     }
+
+    @Test void collapsesDuplicateSkuRecommendations() {
+        var first = new MenuItem("pizza", "Pizza", 1000, Map.of());
+        var duplicate = new MenuItem("pizza", "Pizza", 1200, Map.of());
+        assertThat(MenuRecommendations.recommend(List.of(first, duplicate), Map.of("pizza", true), 5))
+                .containsExactly(first);
+    }
 }
