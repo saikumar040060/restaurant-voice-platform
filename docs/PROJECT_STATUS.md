@@ -126,6 +126,8 @@ The order repository now supports expected-state transitions scoped to the busin
 
 `RestaurantMenuKnowledge` now groups typed menu items and dish profiles and resolves dish facts by stable SKU, returning no invented result for unknown dishes.
 
+`OpeningHours` now evaluates open/closed status in the configured IANA timezone from explicit weekly windows; missing days and invalid windows fail closed.
+
 `RestaurantOrderWorkflow` now requires the deterministic quote confirmation transition before submission can begin, keeping order state separate from external adapter execution.
 
 The privacy slice adds deterministic redaction for email, phone, and card-like sequences before log/audit payloads are emitted. It is a utility only; production retention and provider controls remain gated.
