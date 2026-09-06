@@ -229,6 +229,7 @@ M3 now includes a bounded tenant-scoped `CallerPrincipal` contract; caller hints
 Policy permits now require a nonblank tool, canonical 64-character hexadecimal request hash, and non-null expiry before action execution.
 M3 now includes a replay-safe provider-free action executor that validates request/business scope and atomically invokes a gateway at most once per request ID.
 The replay-safe executor unit/concurrency test passes; a subsequent full harness attempt is currently blocked by Docker API permission denial at `unix:///Users/saikumar/.docker/run/docker.sock`.
+Latest full harness evidence: 105 tests passed with zero failures/errors, including the application-context suite and migration schema test; packaged bootstrap checks and Spring Boot repackage also succeeded. The Docker permission issue was transient and is no longer present for this run.
 Restaurant recommendations now collapse duplicate SKUs before deterministic sorting and limiting, avoiding repeated or ambiguous suggestions.
 Restaurant quote pricing now bounds an order to 100 lines before arithmetic, preventing unbounded input from reaching confirmation or persistence.
 
