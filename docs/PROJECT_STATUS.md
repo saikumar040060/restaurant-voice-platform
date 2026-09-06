@@ -98,6 +98,8 @@ The escalation slice adds tenant-scoped transfer and callback case contracts wit
 
 Migration V7 and consent contracts now separate service, recording, transcript, and callback purposes with immutable evidence hashes. No recording or outbound callback is enabled.
 
+Platform audit contracts now provide a generic append-only event path with business scope, actor, target, outcome, and correlation metadata. The existing database trigger remains the mutation control.
+
 `JdbcConsentRepository` now persists consent decisions append-only and evaluates the latest decision for the exact business, conversation, and purpose. No consent is inferred from caller identity or a different conversation.
 
 The media slice adds bounded provider-neutral envelopes and a synchronized sequencer that rejects duplicate/stale frames and requires explicit epoch advancement for interruptions. No telephony or audio provider is connected.
