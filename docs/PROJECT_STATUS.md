@@ -22,9 +22,9 @@ Retain staff authentication, UUIDs, tenant constraints, audit behavior and exist
 | --- | --- |
 | 0 Engineering foundation | Local evidence recorded; hosted CI acceptance unverified |
 | 1 Secure tenant foundation | Local integration and packaged bootstrap verified; hosted CI/history reconciliation remains |
-| 2 Generic businesses, profiles and module contracts | Core contracts and reference module implemented; isolation evidence remains |
-| 3 Call state, policy gateway and durable actions | Contracts, repositories, outbox and fixtures implemented; DB/concurrency evidence remains |
-| 4 Approved knowledge and configurable dialogue | Knowledge, profiles, prompts, dialogue and context implemented; console/publication evidence remains |
+| 2 Generic businesses, profiles and module contracts | Core contracts, reference module, and boundary validation implemented |
+| 3 Call state, policy gateway and durable actions | Contracts, repositories, outbox, replay safety, and 112-test integration evidence implemented |
+| 4 Approved knowledge and configurable dialogue | Scoped retrieval, prompts, dialogue, console, publication controls, and conflict handling implemented |
 | 5 Reusable streaming voice proof | M5a local fixture path implemented; M5b requires approved provider/model |
 | 6 Restaurant business module | Domain, workflow, persistence and escalation foundations implemented; full menu/UI/mock POS evidence remains |
 | 7 Shared operations and restaurant voice integration | Planned |
