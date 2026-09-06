@@ -20,4 +20,9 @@ public class JdbcOutboxRepository {
         return jdbc.update("UPDATE action_outbox SET status = ? WHERE id = ? AND business_id = ? AND status = ?",
                 to.name(), outboxId, businessId, from.name()) == 1;
     }
+
+    public boolean incrementAttempt(UUID outboxId, UUID businessId) {
+        return jdbc.update("UPDATE action_outbox SET attempts = attempts + 1 WHERE id = ? AND business_id = ? AND status IN ('PENDING', 'DISPATCHED')",
+                outboxId, businessId) == 1;
+    }
 }

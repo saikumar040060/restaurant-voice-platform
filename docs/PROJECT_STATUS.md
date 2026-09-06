@@ -182,6 +182,8 @@ Migration V11 adds an idempotent action outbox with explicit pending, dispatched
 
 `JdbcOutboxRepository` now enqueues requests idempotently and applies business-scoped expected-state transitions while leaving dispatch and reconciliation to a future approved adapter.
 
+The outbox repository now increments dispatch attempts atomically only for pending or dispatched entries; unknown and reconciled outcomes remain protected.
+
 `FixtureActionGateway` now validates permit request, business, tool, and expiry before returning a fixture result. It performs no external side effect and exists only for policy tests.
 
 Provider-neutral `SpeechToTextPort` and `TextToSpeechPort` contracts now support bounded streaming transcripts, epoch-aware synthesis, and deterministic local fixtures. No speech SDK, credential, network call, or recording was added.
