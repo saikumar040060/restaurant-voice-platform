@@ -30,6 +30,11 @@ try:
     address = subprocess.check_output(["docker", "port", name, "5432/tcp"], text=True).strip()
     port = int(address.rsplit(":", 1)[1])
     env = os.environ.copy()
+    # The project targets Java 21; prefer an installed Java 25 runtime when the
+    # caller's shell still points at Java 17 (which cannot run class version 65).
+    preferred_java = Path.home() / "Library/Java/JavaVirtualMachines/openjdk-25.0.1/Contents/Home"
+    if preferred_java.is_dir() and (not env.get("JAVA_HOME") or env["JAVA_HOME"].endswith("17")):
+        env["JAVA_HOME"] = str(preferred_java)
     env.update(VOICE_DB_URL=f"jdbc:postgresql://127.0.0.1:{port}/voice_test",
                VOICE_DB_USER="voice_test", VOICE_DB_PASSWORD="isolated-test-only")
     subprocess.run(["mvn", "-B", "-f", "apps/backend/pom.xml", "verify"], cwd=root, env=env, check=True)
