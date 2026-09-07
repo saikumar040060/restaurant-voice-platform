@@ -27,4 +27,13 @@ public class TwilioWebhookConfiguration {
     TwilioRequestVerifier twilioRequestVerifier() {
         return new TwilioRequestVerifier();
     }
+
+    @Bean
+    OpenAiRealtimeConfig openAiRealtimeConfig(
+            @Value("${VOICE_OPENAI_REALTIME_ENABLED:false}") boolean enabled,
+            @Value("${OPENAI_API_KEY:}") String apiKey,
+            @Value("${VOICE_OPENAI_REALTIME_MODEL:}") String model,
+            @Value("${VOICE_OPENAI_MAX_OUTPUT_TOKENS:256}") int maxOutputTokens) {
+        return new OpenAiRealtimeConfig(enabled, apiKey, model, maxOutputTokens);
+    }
 }
