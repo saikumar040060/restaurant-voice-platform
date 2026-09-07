@@ -265,3 +265,5 @@ Grounded dialogue now detects conflicting approved sources sharing a canonical k
 A post-M4 full harness retry on 2026-09-06 stopped before PostgreSQL startup because Docker denied access to unix:///Users/saikumar/.docker/run/docker.sock. Unit tests, foundation validation, and module-boundary validation remain green; no database result is inferred from this retry.
 
 User-provided full harness evidence 2026-09-06 19:23:18: Maven verify completed with 112 tests, zero failures/errors/skips, packaged jar/repackage succeeded, and bootstrap initialization/repeat-secret/insecure-secret checks passed.
+
+M5b preparation now includes a provider-neutral call admission controller enforcing test-number allowlisting, concurrent-call limits, and owner-approved spend ceilings before adapter execution; focused tests and repository validators pass.
