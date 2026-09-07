@@ -11,7 +11,8 @@ spring:
   flyway:
     enabled: true
 server:
-  address: 127.0.0.1
+  address: ${SERVER_ADDRESS:127.0.0.1}
+  port: ${PORT:8080}
   error:
     include-message: never
     include-stacktrace: never
