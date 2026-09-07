@@ -22,6 +22,7 @@ public class SecurityConfig {
                 .logout(logout -> logout.disable())
                 .headers(headers -> headers.contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'none'")))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/healthz").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/auth/login").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(errors -> errors
