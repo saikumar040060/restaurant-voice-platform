@@ -269,3 +269,5 @@ User-provided full harness evidence 2026-09-06 19:23:18: Maven verify completed 
 M5b preparation now includes a provider-neutral call admission controller enforcing test-number allowlisting, concurrent-call limits, and owner-approved spend ceilings before adapter execution; focused tests and repository validators pass.
 
 M5b preparation now includes a provider-neutral circuit breaker that opens after bounded failures and resets only after an explicit successful probe; focused tests and validators pass.
+
+Credential-free M5b provider invocation now has a bounded timeout wrapper coupled to the circuit breaker; synthetic tests prove successful calls, timeout failure accounting, and open-circuit suppression.
