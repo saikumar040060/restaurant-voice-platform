@@ -1,6 +1,6 @@
 # Project status
 
-Updated: 2026-09-06. Current work: platform-first core, deterministic voice fixtures, knowledge/dialogue contracts, and restaurant domain foundations are implemented locally; integration and real-provider gates remain open.
+Updated: 2026-09-07. Current work: platform-first core, deterministic voice fixtures, knowledge/dialogue contracts, restaurant domain foundations, and a sandbox Railway deployment are implemented; provider credentials and real-call gates remain open.
 
 ## Product direction
 
@@ -25,7 +25,7 @@ Retain staff authentication, UUIDs, tenant constraints, audit behavior and exist
 | 2 Generic businesses, profiles and module contracts | Core contracts, reference module, and boundary validation implemented |
 | 3 Call state, policy gateway and durable actions | Contracts, repositories, outbox, replay safety, and 112-test integration evidence implemented |
 | 4 Approved knowledge and configurable dialogue | Scoped retrieval, prompts, dialogue, console, publication controls, and conflict handling implemented |
-| 5 Reusable streaming voice proof | M5a local fixture path implemented; M5b requires approved provider/model |
+| 5 Reusable streaming voice proof | M5a local fixture path implemented; M5b sandbox safeguards and deployment are ready, but provider credentials and measured provider evaluation remain |
 | 6 Restaurant business module | Domain, workflow, persistence and escalation foundations implemented; full menu/UI/mock POS evidence remains |
 | 7 Shared operations and restaurant voice integration | Planned |
 | 8 Square sandbox | Pending approved access and prerequisites |
@@ -252,7 +252,7 @@ No runtime voice vendor is chosen. M5a uses mocks/local fixtures; natural voice 
 
 Java 21 is available through Homebrew; shell Java was 17, so select Java 21 per process. Maven 3.9.12, Node 22.19.0 and Docker are installed. Previous integration tests used disposable PostgreSQL 17.6 containers. Prior turn-scoped tool permissions are not current grants.
 
-Local execution only. GitHub storage and CI do not keep this coding task running after laptop sleep. No continuing cloud task is configured. Publish reviewed changes and configure an approved reproducible remote task before claiming laptop-independent work.
+The sandbox backend is deployed to Railway with managed PostgreSQL and a public liveness endpoint. Railway verifies `/healthz` before completing deployments; the endpoint returns only `{"status":"ok"}` and exposes no tenant, order, provider, or credential data. This establishes an HTTPS callback base for later sandbox integration, not a live voice service. No Twilio or OpenAI credentials have been entered, no calls can be handled, and no customer activity is enabled.
 
 The routing guidance is committed in local 01129e9 and the remote snapshot. It does not automatically switch models or select a runtime voice model.
 
