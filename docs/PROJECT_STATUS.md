@@ -334,3 +334,5 @@ A fail-closed realtime-session factory now reserves the approved caller's spend,
 Realtime transport setup now runs through the existing bounded timeout and circuit-breaker wrapper. The shared wrapper now unwraps runtime provider failures correctly while still recording them for breaker state. Synthetic connection/admission, timeout, and breaker regression tests pass; no real transport was opened.
 
 The shared operations layer now has authenticated `GET /api/v1/operations/snapshot` access for owner and manager roles only. It exposes the existing redaction-safe health/budget projection and denies employee or unauthenticated access; focused operations tests and repository validators pass.
+
+Operations snapshots now remove provider-health diagnostic reasons before serialization, preventing internal or customer-derived diagnostic text from reaching the dashboard API. Focused operations tests and repository validators pass.

@@ -14,6 +14,10 @@ public record OperationsSnapshot(Map<String, ProviderHealth> providers, long aud
 
     public static OperationsSnapshot from(ProviderHealthRegistry registry, UsageBudget budget) {
         if (registry == null || budget == null) throw new IllegalArgumentException("operations state required");
-        return new OperationsSnapshot(registry.snapshot(), budget.audioRemaining(), budget.inputRemaining());
+        Map<String, ProviderHealth> safeProviders = registry.snapshot().entrySet().stream()
+                .collect(java.util.stream.Collectors.toUnmodifiableMap(Map.Entry::getKey,
+                        entry -> new ProviderHealth(entry.getValue().provider(), entry.getValue().state(),
+                                entry.getValue().observedAt(), "")));
+        return new OperationsSnapshot(safeProviders, budget.audioRemaining(), budget.inputRemaining());
     }
 }

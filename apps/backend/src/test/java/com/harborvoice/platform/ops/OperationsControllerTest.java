@@ -17,6 +17,7 @@ class OperationsControllerTest {
 
         var snapshot = controller.snapshot(actor(Actor.Role.MANAGER));
         assertThat(snapshot.providers()).containsOnlyKeys("fixture");
+        assertThat(snapshot.providers().get("fixture").reason()).isEmpty();
         assertThat(snapshot.audioMillisRemaining()).isEqualTo(100);
     }
 
