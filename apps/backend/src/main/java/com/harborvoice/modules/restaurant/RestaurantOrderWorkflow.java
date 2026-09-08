@@ -8,10 +8,14 @@ public final class RestaurantOrderWorkflow {
         return new State(OrderState.DRAFT, draft);
     }
 
+    /**
+     * Kept only to fail safely for callers migrating to the read-back-aware method.
+     * A restaurant order cannot become confirmed without delivered read-back evidence.
+     */
+    @Deprecated(forRemoval = true)
     public State confirm(State state) {
         if (state == null || state.draft() == null) throw new IllegalArgumentException("state required");
-        return new State(OrderLifecycle.transition(state.orderState(), OrderState.CONFIRMED),
-                state.draft().confirm(state.draft().quote()));
+        throw new IllegalStateException("delivered read-back evidence required");
     }
 
     /** Confirmation through this path requires a completed deterministic read-back. */

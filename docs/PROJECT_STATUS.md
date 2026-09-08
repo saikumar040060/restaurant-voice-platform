@@ -303,3 +303,5 @@ The shared operations layer now exposes a stable, credential-free snapshot of pr
 The owner authorized a controlled OpenAI sandbox connection on 2026-09-08. The Railway sandbox now has `gpt-realtime-2.1-mini` configured as the initial low-cost evaluation candidate; its key remains masked and unread. A credential-safe Railway shell model-access probe was initiated without printing the key. Its result is not yet claimed because the console does not expose command output through the automation surface. Twilio ingress and real calls remain disabled.
 
 Restaurant confirmation now has explicit delivered read-back evidence bound to a quote hash and playback epoch. An undelivered response, interrupted epoch, or changed quote cannot confirm the order. Focused read-back, hash, and workflow tests plus repository validators pass; the pending local commit awaits temporary GitHub DNS recovery.
+
+The restaurant workflow now fails closed if a caller uses the legacy confirmation shortcut. A confirmation requires delivered read-back evidence bound to the exact quote and playback epoch; focused workflow regression tests and repository validators pass.

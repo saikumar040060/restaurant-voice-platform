@@ -1,6 +1,7 @@
 package com.harborvoice.modules.restaurant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -10,7 +11,11 @@ class RestaurantOrderWorkflowTest {
         var item = new MenuItem("tea", "Tea", 300, java.util.Map.of());
         var draft = OrderDraft.create(UUID.randomUUID(), List.of(new OrderPricing.Line(item, null, 1)), "USD");
         var workflow = new RestaurantOrderWorkflow();
-        var confirmed = workflow.confirm(workflow.initial(draft));
+        var state = workflow.initial(draft);
+        assertThatThrownBy(() -> workflow.confirm(state))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("delivered read-back evidence required");
+        var confirmed = workflow.confirm(state, RestaurantReadback.issue(draft, 1).markDelivered(1), 1);
         assertThat(confirmed.orderState()).isEqualTo(OrderState.CONFIRMED);
         assertThat(workflow.beginSubmission(confirmed).orderState()).isEqualTo(OrderState.SUBMITTING);
     }
