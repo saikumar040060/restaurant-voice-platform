@@ -25,4 +25,12 @@ public final class FixtureEscalationPort implements EscalationPort {
             return new EscalationCase(current.id(), current.businessId(), current.conversationId(), current.reason(), next, current.createdAt());
         });
     }
+
+    /** Redaction-safe fixture queue for authorized operations views. */
+    public java.util.List<EscalationCase> recent(UUID businessId, int limit) {
+        if (businessId == null || limit < 1 || limit > 100) throw new IllegalArgumentException("invalid queue scope");
+        return cases.values().stream().filter(item -> businessId.equals(item.businessId()))
+                .sorted(java.util.Comparator.comparing(EscalationCase::createdAt).reversed())
+                .limit(limit).toList();
+    }
 }
