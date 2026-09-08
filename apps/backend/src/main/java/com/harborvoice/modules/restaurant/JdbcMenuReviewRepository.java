@@ -5,7 +5,9 @@ import com.harborvoice.platform.audit.PlatformAuditEvent;
 import com.harborvoice.platform.audit.PlatformAuditPort;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -32,17 +34,32 @@ public class JdbcMenuReviewRepository {
     @Transactional
     public MenuReviewDecision decide(Actor actor, int itemIndex, MenuReviewDecision.Decision decision,
                                      String correction, int expectedVersion) {
+        return write(actor, new DecisionWrite(itemIndex, decision, correction, expectedVersion));
+    }
+
+    @Transactional
+    public List<MenuReviewDecision> decideAll(Actor actor, List<DecisionWrite> writes) {
         requireOwner(actor);
-        if (itemIndex < 1 || decision == null || expectedVersion < 0) {
-            throw new IllegalArgumentException("item, decision, and expected version required");
+        if (writes == null || writes.isEmpty() || writes.size() > 256) {
+            throw new IllegalArgumentException("between one and 256 review decisions required");
         }
-        String fixed = correction == null ? null : correction.trim();
-        if (fixed != null && fixed.length() > 2000) {
-            throw new IllegalArgumentException("correction too long");
+        Set<Integer> indexes = new HashSet<>();
+        for (DecisionWrite write : writes) {
+            validate(write);
+            if (!indexes.add(write.itemIndex())) {
+                throw new IllegalArgumentException("duplicate item decision in bulk request");
+            }
         }
-        if ((decision == MenuReviewDecision.Decision.CORRECTED) != (fixed != null && !fixed.isBlank())) {
-            throw new IllegalArgumentException("correction state mismatch");
-        }
+        return writes.stream().map(write -> write(actor, write)).toList();
+    }
+
+    private MenuReviewDecision write(Actor actor, DecisionWrite write) {
+        requireOwner(actor);
+        validate(write);
+        int itemIndex = write.itemIndex();
+        MenuReviewDecision.Decision decision = write.decision();
+        String fixed = write.correction() == null ? null : write.correction().trim();
+        int expectedVersion = write.expectedVersion();
         int changed = jdbc.update("""
                 INSERT INTO menu_review_decisions(business_id,item_index,decision,correction,version,actor_id)
                 VALUES(?,?,?,?,?,?)
@@ -67,6 +84,22 @@ public class JdbcMenuReviewRepository {
                 FROM menu_review_decisions WHERE business_id = ? AND item_index = ?
                 """, (rs, ignored) -> fromRow(rs), actor.tenantId(), itemIndex);
     }
+
+    private static void validate(DecisionWrite write) {
+        if (write == null || write.itemIndex() < 1 || write.decision() == null || write.expectedVersion() < 0) {
+            throw new IllegalArgumentException("item, decision, and expected version required");
+        }
+        String fixed = write.correction() == null ? null : write.correction().trim();
+        if (fixed != null && fixed.length() > 2000) {
+            throw new IllegalArgumentException("correction too long");
+        }
+        if ((write.decision() == MenuReviewDecision.Decision.CORRECTED) != (fixed != null && !fixed.isBlank())) {
+            throw new IllegalArgumentException("correction state mismatch");
+        }
+    }
+
+    public record DecisionWrite(int itemIndex, MenuReviewDecision.Decision decision, String correction,
+                                int expectedVersion) { }
 
     private static void requireOwner(Actor actor) {
         if (actor == null || actor.role() != Actor.Role.OWNER) {

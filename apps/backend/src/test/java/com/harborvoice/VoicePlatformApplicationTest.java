@@ -126,6 +126,13 @@ class VoicePlatformApplicationTest {
                 INSERT INTO menu_review_decisions(business_id, item_index, decision, correction, version, publication_state, actor_id)
                 VALUES (?, 2, 'APPROVED', NULL, 1, 'PUBLISHED', ?)
                 """, tenantA, ownerA)).isInstanceOf(DataAccessException.class);
+        assertThatThrownBy(() -> menuReviews.decideAll(owner, java.util.List.of(
+                new JdbcMenuReviewRepository.DecisionWrite(3, MenuReviewDecision.Decision.APPROVED, null, 0),
+                new JdbcMenuReviewRepository.DecisionWrite(1, MenuReviewDecision.Decision.APPROVED, null, 0))))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("version conflict");
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM menu_review_decisions WHERE business_id = ? AND item_index = 3", Integer.class, tenantA)).isZero();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM audit_events WHERE tenant_id = ?", Integer.class, tenantA)).isEqualTo(1);
     }
 
     @Test

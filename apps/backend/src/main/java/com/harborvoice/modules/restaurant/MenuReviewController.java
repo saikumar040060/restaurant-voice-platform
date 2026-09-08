@@ -48,4 +48,23 @@ public final class MenuReviewController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, invalid.getMessage(), invalid);
         }
     }
+
+    public record BulkDecisionInput(List<DecisionInput> decisions) { }
+
+    @PostMapping("/api/v1/restaurant/menu-review-draft/decisions/bulk")
+    List<MenuReviewDecision> decideAll(@AuthenticationPrincipal Actor actor, @RequestBody BulkDecisionInput input) {
+        if (actor == null || actor.role() != Actor.Role.OWNER) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "owner review access required");
+        }
+        try {
+            List<JdbcMenuReviewRepository.DecisionWrite> writes = input == null || input.decisions() == null ? null
+                    : input.decisions().stream().map(decision -> new JdbcMenuReviewRepository.DecisionWrite(
+                            decision.itemIndex(), decision.decision(), decision.correction(), decision.expectedVersion())).toList();
+            return decisions.decideAll(actor, writes);
+        } catch (IllegalStateException conflict) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "review decision changed; reload before retrying", conflict);
+        } catch (IllegalArgumentException invalid) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, invalid.getMessage(), invalid);
+        }
+    }
 }
