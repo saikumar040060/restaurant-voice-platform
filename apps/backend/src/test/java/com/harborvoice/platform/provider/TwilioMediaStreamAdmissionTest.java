@@ -18,4 +18,13 @@ class TwilioMediaStreamAdmissionTest {
         assertThatThrownBy(() -> admission.consume(token, now.plusSeconds(2))).isInstanceOf(IllegalArgumentException.class);
         admission.close(grant);
     }
+
+    @Test void rejectsExpiredWrongCallerAndOverLimitAdmissions() {
+        var gate = new SandboxSpendGate(new CallAdmissionController(new ProviderSafetyConfig(true, Set.of("+15550000000"), 1, 1, 1)));
+        var admission = new TwilioMediaStreamAdmission(gate); var now = Instant.parse("2026-09-08T12:00:00Z");
+        assertThatThrownBy(() -> admission.issue(UUID.randomUUID(), UUID.randomUUID(), "+15551111111", 1, now)).isInstanceOf(IllegalStateException.class);
+        UUID token = admission.issue(UUID.randomUUID(), UUID.randomUUID(), "+15550000000", 1, now);
+        assertThatThrownBy(() -> admission.consume(token, now.plusSeconds(121))).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> admission.issue(UUID.randomUUID(), UUID.randomUUID(), "+15550000000", 1, now)).isInstanceOf(IllegalStateException.class);
+    }
 }

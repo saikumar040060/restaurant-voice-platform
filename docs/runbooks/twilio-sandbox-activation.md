@@ -51,3 +51,5 @@ The disabled Media Streams endpoint is:
 `wss://restaurant-voice-platform-production.up.railway.app/webhooks/twilio/media`
 
 Do not add this URL in Twilio Console yet. A connection requires a short-lived, one-use, business-scoped `token` query parameter issued only after the signed voice webhook has admitted the call. The current disabled handler rejects sessions before reading frames. It discards any future admitted frames and creates no recordings or orders. Activating the endpoint therefore requires a separately reviewed TwiML call-admission/token-issuance slice; do not bypass that by using a static token.
+
+For the reviewed TwiML admission step, also configure the nonsecret `VOICE_TWILIO_SANDBOX_BUSINESS_ID` to the approved fictional sandbox business UUID and retain `VOICE_TWILIO_MEDIA_WSS_URL` at the documented WSS URL. The server derives a stable conversation identity from that business and Twilio `CallSid`; it never accepts a caller-provided tenant identifier.
