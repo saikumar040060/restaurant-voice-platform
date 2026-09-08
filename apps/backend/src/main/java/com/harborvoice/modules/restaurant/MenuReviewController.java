@@ -2,9 +2,14 @@ package com.harborvoice.modules.restaurant;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.harborvoice.identity.Actor;
 import java.io.InputStream;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -63,6 +68,46 @@ public final class MenuReviewController {
         } catch (IllegalStateException incomplete) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, incomplete.getMessage(), incomplete);
         }
+    }
+
+    @GetMapping("/api/v1/restaurant/menu-review-draft/report")
+    ObjectNode report(@AuthenticationPrincipal Actor actor) {
+        if (actor == null || actor.role() != Actor.Role.OWNER) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "owner review access required");
+        }
+        MenuReviewCompletion completion = decisions.completion(actor);
+        List<MenuReviewDecision> saved = decisions.decisions(actor);
+        if (completion == null || saved.size() != MenuReviewDraft.ITEM_COUNT) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "completed menu review required");
+        }
+        UUID auditEventId = decisions.completionAuditEventId(actor);
+        if (auditEventId == null) {
+            throw new IllegalStateException("menu review completion audit unavailable");
+        }
+        Map<Integer, MenuReviewDecision> byIndex = new LinkedHashMap<>();
+        saved.forEach(decision -> byIndex.put(decision.itemIndex(), decision));
+        JsonNode source = draft(actor);
+        ObjectNode report = json.createObjectNode();
+        report.put("label", "UNPUBLISHED — TEST DATA");
+        report.put("businessId", actor.tenantId().toString());
+        report.put("draftRevision", completion.draftRevision());
+        report.put("decisionSetHash", completion.decisionSetHash());
+        report.put("completedAt", completion.completedAt().toString());
+        report.put("completionAuditEventId", auditEventId.toString());
+        report.put("totalItems", MenuReviewDraft.ITEM_COUNT);
+        ObjectNode categories = report.putObject("categories");
+        for (JsonNode item : source.path("items")) {
+            MenuReviewDecision decision = byIndex.get(item.path("source_index").asInt());
+            ArrayNode entries = categories.withArray(item.path("category").asText());
+            ObjectNode entry = entries.addObject();
+            entry.put("sourceIndex", decision.itemIndex());
+            entry.put("name", item.path("name").asText());
+            entry.put("listedPrice", item.path("listed_price").asText());
+            entry.put("decision", decision.decision().name());
+            if (decision.correction() != null) entry.put("correction", decision.correction());
+            if (decision.rationale() != null) entry.put("rejectionRationale", decision.rationale());
+        }
+        return report;
     }
 
     public record DecisionInput(int itemIndex, MenuReviewDecision.Decision decision, String correction, String rationale, int expectedVersion) { }

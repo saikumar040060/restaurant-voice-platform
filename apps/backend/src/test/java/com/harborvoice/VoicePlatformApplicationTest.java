@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.harborvoice.identity.Actor;
 import com.harborvoice.identity.SessionService;
 import com.harborvoice.tenancy.TenantService;
@@ -99,7 +100,7 @@ class VoicePlatformApplicationTest {
     private record LoginInput(String username, String password) { }
 
     @Test
-    void syntheticCompleteMenuReviewRequiresEveryDecisionAndLocksTheUnpublishedRevision() {
+    void syntheticCompleteMenuReviewRequiresEveryDecisionAndLocksTheUnpublishedRevision() throws Exception {
         Actor owner = new Actor(ownerA, tenantA, Actor.Role.OWNER);
         assertThatThrownBy(() -> menuReviews.complete(owner))
                 .isInstanceOf(IllegalStateException.class)
@@ -118,6 +119,15 @@ class VoicePlatformApplicationTest {
         assertThat(menuReviews.complete(owner)).isEqualTo(completion);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM audit_events WHERE tenant_id = ? AND action = 'MENU_REVIEW_COMPLETED'",
                 Integer.class, tenantA)).isEqualTo(1);
+        String token = login("owner-a");
+        String report = mvc.perform(get("/api/v1/restaurant/menu-review-draft/report")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        JsonNode reportJson = json.readTree(report);
+        assertThat(reportJson.path("label").asText()).isEqualTo("UNPUBLISHED — TEST DATA");
+        assertThat(reportJson.path("totalItems").asInt()).isEqualTo(256);
+        assertThat(reportJson.path("completionAuditEventId").asText()).isNotBlank();
+        assertThat(reportJson.path("categories").path("Featured Items").isArray()).isTrue();
         assertThatThrownBy(() -> menuReviews.decide(owner, 1, MenuReviewDecision.Decision.APPROVED,
                 null, null, 1)).isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("immutable");

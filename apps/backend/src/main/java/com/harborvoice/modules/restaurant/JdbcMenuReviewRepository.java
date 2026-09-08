@@ -65,6 +65,17 @@ public class JdbcMenuReviewRepository {
                 actor.tenantId(), MenuReviewDraft.REVISION).stream().findFirst().orElse(null);
     }
 
+    public UUID completionAuditEventId(Actor actor) {
+        requireOwner(actor);
+        UUID targetId = completionTargetId(actor.tenantId());
+        return jdbc.query("""
+                SELECT id FROM audit_events
+                WHERE tenant_id = ? AND action = 'MENU_REVIEW_COMPLETED' AND target_id = ?
+                ORDER BY occurred_at DESC LIMIT 1
+                """, (rs, ignored) -> rs.getObject("id", UUID.class), actor.tenantId(), targetId)
+                .stream().findFirst().orElse(null);
+    }
+
     @Transactional
     public MenuReviewCompletion complete(Actor actor) {
         requireOwner(actor);
@@ -81,8 +92,8 @@ public class JdbcMenuReviewRepository {
                 """, actor.tenantId(), MenuReviewDraft.REVISION, decisionSetHash, actor.employeeId());
         if (inserted == 1) {
             audit.append(new PlatformAuditEvent(UUID.randomUUID(), actor.tenantId(), actor.employeeId(),
-                    "MENU_REVIEW_COMPLETED", UUID.nameUUIDFromBytes((actor.tenantId() + ":" + MenuReviewDraft.REVISION)
-                    .getBytes(StandardCharsets.UTF_8)), "UNPUBLISHED", UUID.randomUUID(), Instant.now()));
+                    "MENU_REVIEW_COMPLETED", completionTargetId(actor.tenantId()),
+                    "UNPUBLISHED", UUID.randomUUID(), Instant.now()));
         }
         MenuReviewCompletion completion = completion(actor);
         if (completion == null || !completion.decisionSetHash().equals(decisionSetHash)) {
@@ -187,6 +198,11 @@ public class JdbcMenuReviewRepository {
         } catch (NoSuchAlgorithmException impossible) {
             throw new IllegalStateException("SHA-256 unavailable", impossible);
         }
+    }
+
+    private static UUID completionTargetId(UUID businessId) {
+        return UUID.nameUUIDFromBytes((businessId + ":" + MenuReviewDraft.REVISION)
+                .getBytes(StandardCharsets.UTF_8));
     }
 
     private static void requireOwner(Actor actor) {
