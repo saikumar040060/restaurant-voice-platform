@@ -31,6 +31,27 @@ public class JdbcMenuReviewRepository {
                 """, (rs, ignored) -> fromRow(rs), actor.tenantId(), MenuReviewDraft.REVISION);
     }
 
+    public MenuReviewSummary summary(Actor actor, int totalItems) {
+        requireOwner(actor);
+        if (totalItems < 0) {
+            throw new IllegalArgumentException("total item count required");
+        }
+        return jdbc.queryForObject("""
+                SELECT
+                    COUNT(*) FILTER (WHERE decision = 'APPROVED'),
+                    COUNT(*) FILTER (WHERE decision = 'CORRECTED'),
+                    COUNT(*) FILTER (WHERE decision = 'REJECTED')
+                FROM menu_review_decisions
+                WHERE business_id = ? AND draft_revision = ? AND publication_state = 'UNPUBLISHED'
+                """, (rs, ignored) -> {
+            int approved = rs.getInt(1);
+            int corrected = rs.getInt(2);
+            int rejected = rs.getInt(3);
+            return new MenuReviewSummary(approved, corrected, rejected,
+                    Math.max(0, totalItems - approved - corrected - rejected), "UNPUBLISHED");
+        }, actor.tenantId(), MenuReviewDraft.REVISION);
+    }
+
     @Transactional
     public MenuReviewDecision decide(Actor actor, int itemIndex, MenuReviewDecision.Decision decision,
                                      String correction, int expectedVersion) {

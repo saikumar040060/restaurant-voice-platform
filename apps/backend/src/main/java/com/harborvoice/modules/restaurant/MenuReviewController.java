@@ -34,6 +34,14 @@ public final class MenuReviewController {
         if (actor == null || actor.role() != Actor.Role.OWNER) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "owner review access required");
         return decisions.decisions(actor);
     }
+    @GetMapping("/api/v1/restaurant/menu-review-draft/summary")
+    MenuReviewSummary summary(@AuthenticationPrincipal Actor actor) {
+        if (actor == null || actor.role() != Actor.Role.OWNER) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "owner review access required");
+        }
+        return decisions.summary(actor, 256);
+    }
+
     public record DecisionInput(int itemIndex, MenuReviewDecision.Decision decision, String correction, int expectedVersion) { }
     @PostMapping("/api/v1/restaurant/menu-review-draft/decisions")
     MenuReviewDecision decide(@AuthenticationPrincipal Actor actor, @RequestBody DecisionInput input) {

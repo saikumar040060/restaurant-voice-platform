@@ -116,6 +116,8 @@ class VoicePlatformApplicationTest {
         assertThat(otherTenant.businessId()).isEqualTo(tenantB);
         assertThat(menuReviews.decisions(owner)).containsExactly(first);
         assertThat(menuReviews.decisions(foreignOwner)).containsExactly(otherTenant);
+        assertThat(menuReviews.summary(owner, 256)).isEqualTo(new com.harborvoice.modules.restaurant.MenuReviewSummary(0, 1, 0, 255, "UNPUBLISHED"));
+        assertThat(menuReviews.summary(foreignOwner, 256)).isEqualTo(new com.harborvoice.modules.restaurant.MenuReviewSummary(0, 0, 1, 255, "UNPUBLISHED"));
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM audit_events WHERE tenant_id = ? AND action = 'MENU_REVIEW_CORRECTED'", Integer.class, tenantA)).isEqualTo(1);
 
         assertThatThrownBy(() -> menuReviews.decide(owner, 1, MenuReviewDecision.Decision.APPROVED, null, 0))
