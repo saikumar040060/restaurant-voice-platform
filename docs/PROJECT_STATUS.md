@@ -285,3 +285,5 @@ The Harbor Pizza Test Kitchen fixture now covers the complete fictional seed men
 The restaurant-owned mock POS now deduplicates a repeated submission by its order ID and canonical quote hash, returning the original fixture result without a second external-effect claim. It remains a local test adapter and does not contact Square or any other provider.
 
 Restaurant ordering policies now provide tenant-approved currency, tax basis points, line-quantity caps, large-order escalation threshold, and special-instruction length. Deterministic totals round tax half-up in integer minor units; the fictional Harbor fixture uses 6% tax, a 20-item line cap, and a $100 transfer threshold. These are fixture defaults, not production restaurant settings.
+
+Restaurant drafts can now bind to an immutable availability revision. Final confirmation validates the same revision and each line's availability, so a sold-out item or any availability revision change requires a new quote and read-back before submission.
