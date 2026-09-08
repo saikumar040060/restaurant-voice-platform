@@ -25,6 +25,7 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/healthz").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/auth/login").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/webhooks/twilio/voice").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/webhooks/twilio/media").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(errors -> errors
                         .authenticationEntryPoint((request, response, error) -> response.setStatus(401))

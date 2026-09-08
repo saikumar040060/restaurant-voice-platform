@@ -43,3 +43,11 @@ Do not configure messaging, status callbacks, recording, SIP, forwarding, paymen
 6. Confirm the endpoint returns disabled behavior and record the result in `PROJECT_STATUS.md`.
 
 Stop if signature validation, caller allowlisting, replay protection, budget controls, deployment health, or rollback fails. Do not retry by broadening the allowlist or disabling a safety control.
+
+## Media Streams endpoint
+
+The disabled Media Streams endpoint is:
+
+`wss://restaurant-voice-platform-production.up.railway.app/webhooks/twilio/media`
+
+Do not add this URL in Twilio Console yet. A connection requires a short-lived, one-use, business-scoped `token` query parameter issued only after the signed voice webhook has admitted the call. The current disabled handler rejects sessions before reading frames. It discards any future admitted frames and creates no recordings or orders. Activating the endpoint therefore requires a separately reviewed TwiML call-admission/token-issuance slice; do not bypass that by using a static token.
