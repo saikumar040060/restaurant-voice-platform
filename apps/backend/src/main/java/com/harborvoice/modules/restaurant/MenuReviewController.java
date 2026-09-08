@@ -42,14 +42,14 @@ public final class MenuReviewController {
         return decisions.summary(actor, MenuReviewDraft.ITEM_COUNT);
     }
 
-    public record DecisionInput(int itemIndex, MenuReviewDecision.Decision decision, String correction, int expectedVersion) { }
+    public record DecisionInput(int itemIndex, MenuReviewDecision.Decision decision, String correction, String rationale, int expectedVersion) { }
     @PostMapping("/api/v1/restaurant/menu-review-draft/decisions")
     MenuReviewDecision decide(@AuthenticationPrincipal Actor actor, @RequestBody DecisionInput input) {
         if (actor == null || actor.role() != Actor.Role.OWNER) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "owner review access required");
         }
         try {
-            return decisions.decide(actor, input.itemIndex(), input.decision(), input.correction(), input.expectedVersion());
+            return decisions.decide(actor, input.itemIndex(), input.decision(), input.correction(), input.rationale(), input.expectedVersion());
         } catch (IllegalStateException conflict) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "review decision changed; reload before retrying", conflict);
         } catch (IllegalArgumentException invalid) {
@@ -67,7 +67,7 @@ public final class MenuReviewController {
         try {
             List<JdbcMenuReviewRepository.DecisionWrite> writes = input == null || input.decisions() == null ? null
                     : input.decisions().stream().map(decision -> new JdbcMenuReviewRepository.DecisionWrite(
-                            decision.itemIndex(), decision.decision(), decision.correction(), decision.expectedVersion())).toList();
+                            decision.itemIndex(), decision.decision(), decision.correction(), decision.rationale(), decision.expectedVersion())).toList();
             return decisions.decideAll(actor, writes);
         } catch (IllegalStateException conflict) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "review decision changed; reload before retrying", conflict);

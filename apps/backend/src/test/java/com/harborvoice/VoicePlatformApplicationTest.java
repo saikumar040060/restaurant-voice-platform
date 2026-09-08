@@ -104,15 +104,19 @@ class VoicePlatformApplicationTest {
         Actor foreignOwner = new Actor(ownerB, tenantB, Actor.Role.OWNER);
         Actor manager = new Actor(UUID.randomUUID(), tenantA, Actor.Role.MANAGER);
 
-        assertThatThrownBy(() -> menuReviews.decide(manager, 1, MenuReviewDecision.Decision.APPROVED, null, 0))
+        assertThatThrownBy(() -> menuReviews.decide(manager, 1, MenuReviewDecision.Decision.APPROVED, null, null, 0))
                 .isInstanceOf(IllegalArgumentException.class);
 
         assertThatThrownBy(() -> menuReviews.decide(owner, MenuReviewDraft.ITEM_COUNT + 1,
-                MenuReviewDecision.Decision.APPROVED, null, 0)).isInstanceOf(IllegalArgumentException.class);
+                MenuReviewDecision.Decision.APPROVED, null, null, 0)).isInstanceOf(IllegalArgumentException.class);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM menu_review_decisions WHERE business_id = ?", Integer.class, tenantA)).isZero();
+        assertThatThrownBy(() -> menuReviews.decide(owner, 2, MenuReviewDecision.Decision.REJECTED, null, null, 0))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("rationale required");
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM menu_review_decisions WHERE business_id = ?", Integer.class, tenantA)).isZero();
 
-        var first = menuReviews.decide(owner, 1, MenuReviewDecision.Decision.CORRECTED, "Clarify the price.", 0);
-        var otherTenant = menuReviews.decide(foreignOwner, 1, MenuReviewDecision.Decision.REJECTED, null, 0);
+        var first = menuReviews.decide(owner, 1, MenuReviewDecision.Decision.CORRECTED, "Clarify the price.", null, 0);
+        var otherTenant = menuReviews.decide(foreignOwner, 1, MenuReviewDecision.Decision.REJECTED, null, "Duplicate entry", 0);
         assertThat(first.businessId()).isEqualTo(tenantA);
         assertThat(first.version()).isEqualTo(1);
         assertThat(first.publicationState()).isEqualTo("UNPUBLISHED");
@@ -124,7 +128,7 @@ class VoicePlatformApplicationTest {
         assertThat(menuReviews.summary(foreignOwner, 256)).isEqualTo(new com.harborvoice.modules.restaurant.MenuReviewSummary(0, 0, 1, 255, "UNPUBLISHED"));
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM audit_events WHERE tenant_id = ? AND action = 'MENU_REVIEW_CORRECTED'", Integer.class, tenantA)).isEqualTo(1);
 
-        assertThatThrownBy(() -> menuReviews.decide(owner, 1, MenuReviewDecision.Decision.APPROVED, null, 0))
+        assertThatThrownBy(() -> menuReviews.decide(owner, 1, MenuReviewDecision.Decision.APPROVED, null, null, 0))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("version conflict");
         assertThat(jdbc.queryForObject("SELECT version FROM menu_review_decisions WHERE business_id = ? AND item_index = 1", Integer.class, tenantA)).isEqualTo(1);
@@ -135,12 +139,12 @@ class VoicePlatformApplicationTest {
                 VALUES (?, 2, 'APPROVED', NULL, 1, 'PUBLISHED', ?)
                 """, tenantA, ownerA)).isInstanceOf(DataAccessException.class);
         assertThatThrownBy(() -> menuReviews.decideAll(owner, java.util.List.of(
-                new JdbcMenuReviewRepository.DecisionWrite(3, MenuReviewDecision.Decision.APPROVED, null, 0),
-                new JdbcMenuReviewRepository.DecisionWrite(1, MenuReviewDecision.Decision.APPROVED, null, 0))))
+                new JdbcMenuReviewRepository.DecisionWrite(3, MenuReviewDecision.Decision.APPROVED, null, null, 0),
+                new JdbcMenuReviewRepository.DecisionWrite(1, MenuReviewDecision.Decision.APPROVED, null, null, 0))))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("version conflict");
         assertThatThrownBy(() -> menuReviews.decideAll(owner, java.util.List.of(
-                new JdbcMenuReviewRepository.DecisionWrite(1, MenuReviewDecision.Decision.APPROVED, null, 1))))
+                new JdbcMenuReviewRepository.DecisionWrite(1, MenuReviewDecision.Decision.APPROVED, null, null, 1))))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("previously undecided");
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM menu_review_decisions WHERE business_id = ? AND item_index = 3", Integer.class, tenantA)).isZero();
@@ -149,7 +153,7 @@ class VoicePlatformApplicationTest {
         jdbc.update("UPDATE menu_review_decisions SET draft_revision = ? WHERE business_id = ? AND item_index = 1",
                 "a".repeat(64), tenantA);
         assertThat(menuReviews.decisions(owner)).isEmpty();
-        assertThatThrownBy(() -> menuReviews.decide(owner, 1, MenuReviewDecision.Decision.APPROVED, null, 1))
+        assertThatThrownBy(() -> menuReviews.decide(owner, 1, MenuReviewDecision.Decision.APPROVED, null, null, 1))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("version conflict");
     }

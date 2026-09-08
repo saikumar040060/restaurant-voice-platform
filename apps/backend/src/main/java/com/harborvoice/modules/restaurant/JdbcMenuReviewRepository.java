@@ -26,7 +26,7 @@ public class JdbcMenuReviewRepository {
     public List<MenuReviewDecision> decisions(Actor actor) {
         requireOwner(actor);
         return jdbc.query("""
-                SELECT business_id, item_index, decision, correction, version, publication_state, draft_revision, actor_id, decided_at
+                SELECT business_id, item_index, decision, correction, rationale, version, publication_state, draft_revision, actor_id, decided_at
                 FROM menu_review_decisions WHERE business_id = ? AND draft_revision = ? ORDER BY item_index
                 """, (rs, ignored) -> fromRow(rs), actor.tenantId(), MenuReviewDraft.REVISION);
     }
@@ -54,8 +54,8 @@ public class JdbcMenuReviewRepository {
 
     @Transactional
     public MenuReviewDecision decide(Actor actor, int itemIndex, MenuReviewDecision.Decision decision,
-                                     String correction, int expectedVersion) {
-        return write(actor, new DecisionWrite(itemIndex, decision, correction, expectedVersion));
+                                     String correction, String rationale, int expectedVersion) {
+        return write(actor, new DecisionWrite(itemIndex, decision, correction, rationale, expectedVersion));
     }
 
     @Transactional
@@ -83,18 +83,20 @@ public class JdbcMenuReviewRepository {
         int itemIndex = write.itemIndex();
         MenuReviewDecision.Decision decision = write.decision();
         String fixed = write.correction() == null ? null : write.correction().trim();
+        String reason = write.rationale() == null ? null : write.rationale().trim();
         int expectedVersion = write.expectedVersion();
         int changed = jdbc.update("""
-                INSERT INTO menu_review_decisions(business_id,item_index,decision,correction,version,actor_id,draft_revision)
-                VALUES(?,?,?,?,?,?,?)
+                INSERT INTO menu_review_decisions(business_id,item_index,decision,correction,rationale,version,actor_id,draft_revision)
+                VALUES(?,?,?,?,?,?,?,?)
                 ON CONFLICT (business_id,item_index) DO UPDATE SET
                     decision = EXCLUDED.decision,
                     correction = EXCLUDED.correction,
+                    rationale = EXCLUDED.rationale,
                     version = EXCLUDED.version,
                     actor_id = EXCLUDED.actor_id,
                     decided_at = CURRENT_TIMESTAMP
                 WHERE menu_review_decisions.version = ? AND menu_review_decisions.draft_revision = ?
-                """, actor.tenantId(), itemIndex, decision.name(), fixed, expectedVersion + 1,
+                """, actor.tenantId(), itemIndex, decision.name(), fixed, reason, expectedVersion + 1,
                 actor.employeeId(), MenuReviewDraft.REVISION, expectedVersion, MenuReviewDraft.REVISION);
         if (changed != 1) {
             throw new IllegalStateException("review decision version conflict");
@@ -104,7 +106,7 @@ public class JdbcMenuReviewRepository {
         audit.append(new PlatformAuditEvent(UUID.randomUUID(), actor.tenantId(), actor.employeeId(),
                 "MENU_REVIEW_" + decision.name(), targetId, "UNPUBLISHED", UUID.randomUUID(), Instant.now()));
         return jdbc.queryForObject("""
-                SELECT business_id, item_index, decision, correction, version, publication_state, draft_revision, actor_id, decided_at
+                SELECT business_id, item_index, decision, correction, rationale, version, publication_state, draft_revision, actor_id, decided_at
                 FROM menu_review_decisions WHERE business_id = ? AND item_index = ? AND draft_revision = ?
                 """, (rs, ignored) -> fromRow(rs), actor.tenantId(), itemIndex, MenuReviewDraft.REVISION);
     }
@@ -115,16 +117,20 @@ public class JdbcMenuReviewRepository {
             throw new IllegalArgumentException("item, decision, and expected version required");
         }
         String fixed = write.correction() == null ? null : write.correction().trim();
-        if (fixed != null && fixed.length() > 2000) {
+        String reason = write.rationale() == null ? null : write.rationale().trim();
+        if ((fixed != null && fixed.length() > 2000) || (reason != null && reason.length() > 2000)) {
             throw new IllegalArgumentException("correction too long");
         }
         if ((write.decision() == MenuReviewDecision.Decision.CORRECTED) != (fixed != null && !fixed.isBlank())) {
             throw new IllegalArgumentException("correction state mismatch");
         }
+        if ((write.decision() == MenuReviewDecision.Decision.REJECTED) != (reason != null && !reason.isBlank())) {
+            throw new IllegalArgumentException("rejection rationale required");
+        }
     }
 
     public record DecisionWrite(int itemIndex, MenuReviewDecision.Decision decision, String correction,
-                                int expectedVersion) { }
+                                String rationale, int expectedVersion) { }
 
     private static void requireOwner(Actor actor) {
         if (actor == null || actor.role() != Actor.Role.OWNER) {
@@ -134,7 +140,7 @@ public class JdbcMenuReviewRepository {
 
     private static MenuReviewDecision fromRow(java.sql.ResultSet rs) throws java.sql.SQLException {
         return new MenuReviewDecision(rs.getObject("business_id", UUID.class), rs.getInt("item_index"),
-                MenuReviewDecision.Decision.valueOf(rs.getString("decision")), rs.getString("correction"),
+                MenuReviewDecision.Decision.valueOf(rs.getString("decision")), rs.getString("correction"), rs.getString("rationale"),
                 rs.getInt("version"), rs.getString("publication_state"), rs.getString("draft_revision"),
                 rs.getObject("actor_id", UUID.class), rs.getTimestamp("decided_at").toInstant());
     }

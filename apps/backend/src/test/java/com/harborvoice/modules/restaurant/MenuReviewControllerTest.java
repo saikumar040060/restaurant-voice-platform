@@ -18,14 +18,14 @@ class MenuReviewControllerTest {
     @Test void staleDecisionMapsToConflictForTheDashboard() {
         var actor = new Actor(UUID.randomUUID(), UUID.randomUUID(), Actor.Role.OWNER);
         var controller = new MenuReviewController(new ObjectMapper(), new ConflictRepository());
-        assertThatThrownBy(() -> controller.decide(actor, new MenuReviewController.DecisionInput(1, MenuReviewDecision.Decision.APPROVED, null, 1)))
+        assertThatThrownBy(() -> controller.decide(actor, new MenuReviewController.DecisionInput(1, MenuReviewDecision.Decision.APPROVED, null, null, 1)))
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(error -> assertThat(((ResponseStatusException) error).getStatusCode().value()).isEqualTo(409));
     }
     private static final class ConflictRepository extends JdbcMenuReviewRepository {
         ConflictRepository() { super(null, null); }
         @Override public MenuReviewDecision decide(Actor actor, int itemIndex, MenuReviewDecision.Decision decision,
-                                                   String correction, int expectedVersion) {
+                                                   String correction, String rationale, int expectedVersion) {
             throw new IllegalStateException("review decision version conflict");
         }
     }
