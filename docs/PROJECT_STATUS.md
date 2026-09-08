@@ -287,3 +287,5 @@ The restaurant-owned mock POS now deduplicates a repeated submission by its orde
 Restaurant ordering policies now provide tenant-approved currency, tax basis points, line-quantity caps, large-order escalation threshold, and special-instruction length. Deterministic totals round tax half-up in integer minor units; the fictional Harbor fixture uses 6% tax, a 20-item line cap, and a $100 transfer threshold. These are fixture defaults, not production restaurant settings.
 
 Restaurant drafts can now bind to an immutable availability revision. Final confirmation validates the same revision and each line's availability, so a sold-out item or any availability revision change requires a new quote and read-back before submission.
+
+The local realtime evaluation gate now selects the lowest estimated-cost measured candidate only when it passes every approved accuracy, latency, interruption, reliability, and zero-safety-violation threshold. It is a pure local decision component with synthetic tests; it neither selects an OpenAI model nor connects a provider.

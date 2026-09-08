@@ -8,14 +8,12 @@ Run the same synthetic utterance set through each available low-cost and stronge
 
 Synthetic cases cover menu facts, ambiguity, corrections, interruptions, prompt injection, unavailable items, explicit order confirmation, unknown action outcomes, and human-transfer failure. Audio is synthetic or prerecorded test material only.
 
-## Owner checklist before credentials
+## Account and secret state
 
-1. Create or select a Twilio trial/development project and a development phone number.
-2. Configure the Twilio number webhook to the sandbox callback URL and enable bidirectional Media Streams.
-3. Create an OpenAI project/API key with a spending limit approved by the owner; choose the candidate Realtime model after the evaluation gate.
-4. Store Twilio auth token, account SID, and OpenAI key only in the approved local secret manager or environment injection; never paste them into chat, source, logs, or issue text.
-5. Confirm the test phone-number allowlist and owner-approved maximum concurrent calls, duration, and spend values.
-6. Confirm that all calls use synthetic testers only, with no real customer contact, recording, ordering, payment, SMS, or public deployment.
-7. Provide the sandbox callback URL and secret-injection mechanism to the operator running the tests.
+The owner has created sandbox Twilio and OpenAI accounts and injected the required credentials and a single test-caller allowlist as masked Railway variables. Values were not read, copied, logged, or committed. The Railway health endpoint supplies the future HTTPS callback base.
 
-Until these account actions and secure secret entry are complete, M5b remains a preparation gate.
+Before a provider connection is enabled, finish the local adapter-contract work, choose explicit safety limits, and obtain a specific owner decision to connect the sandbox providers. Keep webhook and realtime feature flags disabled until then. No real customers, restaurant orders, payments, SMS, recordings, or public service use is authorized.
+
+## Selection implementation
+
+The local `RealtimeModelSelector` takes measured candidate aggregates and selects the lowest estimated-cost candidate that meets every owner-approved threshold. Any safety violation disqualifies a candidate. It does not name a model, make an API request, inspect secrets, or enable a provider. Its test fixture uses a 98% accuracy floor, 1.5-second P95 first-audio limit, one allowed interruption failure, and zero reliability failures; the owner must approve final thresholds before a real evaluation.
