@@ -99,6 +99,31 @@ class VoicePlatformApplicationTest {
     private record LoginInput(String username, String password) { }
 
     @Test
+    void syntheticCompleteMenuReviewRequiresEveryDecisionAndLocksTheUnpublishedRevision() {
+        Actor owner = new Actor(ownerA, tenantA, Actor.Role.OWNER);
+        assertThatThrownBy(() -> menuReviews.complete(owner))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("all current draft entries");
+
+        var writes = java.util.stream.IntStream.rangeClosed(1, MenuReviewDraft.ITEM_COUNT)
+                .mapToObj(index -> new JdbcMenuReviewRepository.DecisionWrite(index,
+                        MenuReviewDecision.Decision.APPROVED, null, null, 0)).toList();
+        menuReviews.decideAll(owner, writes);
+        var completion = menuReviews.complete(owner);
+
+        assertThat(completion.businessId()).isEqualTo(tenantA);
+        assertThat(completion.draftRevision()).isEqualTo(MenuReviewDraft.REVISION);
+        assertThat(completion.publicationState()).isEqualTo("UNPUBLISHED");
+        assertThat(completion.decisionSetHash()).matches("[0-9a-f]{64}");
+        assertThat(menuReviews.complete(owner)).isEqualTo(completion);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM audit_events WHERE tenant_id = ? AND action = 'MENU_REVIEW_COMPLETED'",
+                Integer.class, tenantA)).isEqualTo(1);
+        assertThatThrownBy(() -> menuReviews.decide(owner, 1, MenuReviewDecision.Decision.APPROVED,
+                null, null, 1)).isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("immutable");
+    }
+
+    @Test
     void menuReviewDecisionsAreOwnerOnlyTenantScopedVersionedAndAudited() {
         Actor owner = new Actor(ownerA, tenantA, Actor.Role.OWNER);
         Actor foreignOwner = new Actor(ownerB, tenantB, Actor.Role.OWNER);

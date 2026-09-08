@@ -4,6 +4,8 @@ import com.harborvoice.identity.Actor;
 import com.harborvoice.platform.audit.PlatformAuditEvent;
 import com.harborvoice.platform.audit.PlatformAuditPort;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -52,6 +54,43 @@ public class JdbcMenuReviewRepository {
         }, actor.tenantId(), MenuReviewDraft.REVISION);
     }
 
+    public MenuReviewCompletion completion(Actor actor) {
+        requireOwner(actor);
+        return jdbc.query("""
+                SELECT business_id, draft_revision, decision_set_hash, publication_state, completed_by, completed_at
+                FROM menu_review_completions WHERE business_id = ? AND draft_revision = ?
+                """, (rs, ignored) -> new MenuReviewCompletion(rs.getObject("business_id", UUID.class),
+                rs.getString("draft_revision"), rs.getString("decision_set_hash"), rs.getString("publication_state"),
+                rs.getObject("completed_by", UUID.class), rs.getTimestamp("completed_at").toInstant()),
+                actor.tenantId(), MenuReviewDraft.REVISION).stream().findFirst().orElse(null);
+    }
+
+    @Transactional
+    public MenuReviewCompletion complete(Actor actor) {
+        requireOwner(actor);
+        List<MenuReviewDecision> current = decisions(actor);
+        if (current.size() != MenuReviewDraft.ITEM_COUNT) {
+            throw new IllegalStateException("all current draft entries require an owner decision");
+        }
+        String decisionSetHash = decisionSetHash(current);
+        int inserted = jdbc.update("""
+                INSERT INTO menu_review_completions
+                    (business_id, draft_revision, decision_set_hash, completed_by)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT (business_id, draft_revision) DO NOTHING
+                """, actor.tenantId(), MenuReviewDraft.REVISION, decisionSetHash, actor.employeeId());
+        if (inserted == 1) {
+            audit.append(new PlatformAuditEvent(UUID.randomUUID(), actor.tenantId(), actor.employeeId(),
+                    "MENU_REVIEW_COMPLETED", UUID.nameUUIDFromBytes((actor.tenantId() + ":" + MenuReviewDraft.REVISION)
+                    .getBytes(StandardCharsets.UTF_8)), "UNPUBLISHED", UUID.randomUUID(), Instant.now()));
+        }
+        MenuReviewCompletion completion = completion(actor);
+        if (completion == null || !completion.decisionSetHash().equals(decisionSetHash)) {
+            throw new IllegalStateException("menu review completion conflict");
+        }
+        return completion;
+    }
+
     @Transactional
     public MenuReviewDecision decide(Actor actor, int itemIndex, MenuReviewDecision.Decision decision,
                                      String correction, String rationale, int expectedVersion) {
@@ -80,6 +119,9 @@ public class JdbcMenuReviewRepository {
     private MenuReviewDecision write(Actor actor, DecisionWrite write) {
         requireOwner(actor);
         validate(write);
+        if (completion(actor) != null) {
+            throw new IllegalStateException("completed menu review decisions are immutable");
+        }
         int itemIndex = write.itemIndex();
         MenuReviewDecision.Decision decision = write.decision();
         String fixed = write.correction() == null ? null : write.correction().trim();
@@ -131,6 +173,21 @@ public class JdbcMenuReviewRepository {
 
     public record DecisionWrite(int itemIndex, MenuReviewDecision.Decision decision, String correction,
                                 String rationale, int expectedVersion) { }
+
+    private static String decisionSetHash(List<MenuReviewDecision> decisions) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            for (MenuReviewDecision decision : decisions) {
+                String canonical = decision.itemIndex() + "|" + decision.decision() + "|"
+                        + String.valueOf(decision.correction()) + "|" + String.valueOf(decision.rationale())
+                        + "|" + decision.version() + "\n";
+                digest.update(canonical.getBytes(StandardCharsets.UTF_8));
+            }
+            return java.util.HexFormat.of().formatHex(digest.digest());
+        } catch (NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 unavailable", impossible);
+        }
+    }
 
     private static void requireOwner(Actor actor) {
         if (actor == null || actor.role() != Actor.Role.OWNER) {

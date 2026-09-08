@@ -42,6 +42,29 @@ public final class MenuReviewController {
         return decisions.summary(actor, MenuReviewDraft.ITEM_COUNT);
     }
 
+    @GetMapping("/api/v1/restaurant/menu-review-draft/completion")
+    CompletionView completion(@AuthenticationPrincipal Actor actor) {
+        if (actor == null || actor.role() != Actor.Role.OWNER) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "owner review access required");
+        }
+        MenuReviewCompletion completion = decisions.completion(actor);
+        return new CompletionView(completion != null, completion);
+    }
+
+    public record CompletionView(boolean completed, MenuReviewCompletion completion) { }
+
+    @PostMapping("/api/v1/restaurant/menu-review-draft/completion")
+    MenuReviewCompletion complete(@AuthenticationPrincipal Actor actor) {
+        if (actor == null || actor.role() != Actor.Role.OWNER) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "owner review access required");
+        }
+        try {
+            return decisions.complete(actor);
+        } catch (IllegalStateException incomplete) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, incomplete.getMessage(), incomplete);
+        }
+    }
+
     public record DecisionInput(int itemIndex, MenuReviewDecision.Decision decision, String correction, String rationale, int expectedVersion) { }
     @PostMapping("/api/v1/restaurant/menu-review-draft/decisions")
     MenuReviewDecision decide(@AuthenticationPrincipal Actor actor, @RequestBody DecisionInput input) {
