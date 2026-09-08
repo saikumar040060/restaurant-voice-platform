@@ -29,4 +29,21 @@ public final class RestaurantOrderWorkflow {
         if (state == null || !state.draft().confirmed()) throw new IllegalArgumentException("confirmed draft required");
         return new State(OrderLifecycle.transition(state.orderState(), OrderState.SUBMITTING), state.draft());
     }
+
+    /**
+     * The only module-owned path to the POS boundary. It accepts an already-confirmed,
+     * read-back-backed draft and preserves an uncertain adapter response for reconciliation.
+     */
+    public State submit(State state, OrderPort orders) {
+        if (orders == null) throw new IllegalArgumentException("order port required");
+        State submitting = beginSubmission(state);
+        OrderPort.Result result = orders.submit(OrderSubmission.from(submitting.draft()));
+        if (result == null || result.state() == null) {
+            return new State(OrderState.UNKNOWN, submitting.draft());
+        }
+        if (result.state() != OrderState.ACCEPTED && result.state() != OrderState.UNKNOWN) {
+            throw new IllegalStateException("invalid order adapter outcome");
+        }
+        return new State(result.state(), submitting.draft());
+    }
 }

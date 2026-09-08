@@ -27,4 +27,13 @@ class RestaurantOrderWorkflowTest {
         var delivered = RestaurantReadback.issue(state.draft(), 1).markDelivered(1);
         assertThat(workflow.confirm(state, delivered, 1).orderState()).isEqualTo(OrderState.CONFIRMED);
     }
+
+    @Test void confirmedDraftCanReachOnlyTheMockPosBoundary() {
+        var item = new MenuItem("tea", "Tea", 300, java.util.Map.of());
+        var draft = OrderDraft.create(UUID.randomUUID(), List.of(new OrderPricing.Line(item, null, 1)), "USD");
+        var workflow = new RestaurantOrderWorkflow();
+        var confirmed = workflow.confirm(workflow.initial(draft), RestaurantReadback.issue(draft, 1).markDelivered(1), 1);
+        assertThat(workflow.submit(confirmed, new FixtureOrderPort()).orderState()).isEqualTo(OrderState.ACCEPTED);
+        assertThat(workflow.submit(confirmed, submission -> null).orderState()).isEqualTo(OrderState.UNKNOWN);
+    }
 }
