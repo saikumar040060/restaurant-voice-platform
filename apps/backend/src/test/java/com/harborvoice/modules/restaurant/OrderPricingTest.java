@@ -25,4 +25,14 @@ class OrderPricingTest {
         assertThatThrownBy(() -> OrderPricing.quote(List.of(new OrderPricing.Line(item, "cheese", 1)), "USD"))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test void requiresNamedModifierGroupsAndPricesMultipleGroupsDeterministically() {
+        var byo = HarborPizzaFixture.menu().items().stream().filter(item -> item.sku().equals("BYO")).findFirst().orElseThrow();
+        assertThatThrownBy(() -> OrderPricing.quote(List.of(new OrderPricing.Line(byo, "topping:onions", 1)), "USD"))
+                .isInstanceOf(IllegalArgumentException.class);
+        var quote = OrderPricing.quote(List.of(new OrderPricing.Line(byo, "size:medium|topping:onions", 2)), "USD");
+        assertThat(quote.subtotalMinor()).isEqualTo(2748);
+        assertThatThrownBy(() -> OrderPricing.quote(List.of(new OrderPricing.Line(byo, "size:small|size:large", 1)), "USD"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
 }

@@ -32,13 +32,13 @@ public class JdbcRestaurantOrderRepository {
         for (int i = 0; i < lines.size(); i++) {
             var line = lines.get(i);
             if (line == null || line.item() == null || line.quantity() < 1) throw new IllegalArgumentException("invalid order line");
-            int modifier = line.modifier() == null ? 0 : line.item().modifiers().getOrDefault(line.modifier(), -1);
+            int modifier = OrderPricing.modifierPrice(line.item(), line.modifier());
             if (modifier < 0) throw new IllegalArgumentException("unknown modifier");
             jdbc.update("""
                     INSERT INTO restaurant_order_lines(order_id, line_no, sku, modifier, quantity, unit_price_minor)
                     VALUES (?, ?, ?, ?, ?, ?)
                     ON CONFLICT (order_id, line_no) DO NOTHING
-                    """, orderId, i, line.item().sku(), line.modifier(), line.quantity(), line.item().priceMinor() + modifier);
+                    """, orderId, i, line.item().sku(), OrderPricing.canonicalModifiers(line.modifier()), line.quantity(), line.item().priceMinor() + modifier);
         }
     }
 }
