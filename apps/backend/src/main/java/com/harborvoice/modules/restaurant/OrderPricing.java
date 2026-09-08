@@ -13,12 +13,21 @@ public final class OrderPricing {
     }
 
     public static Quote quote(List<Line> lines, String currency) {
+        return quote(lines, currency, 99);
+    }
+
+    public static Quote quote(List<Line> lines, RestaurantOrderingPolicy policy) {
+        if (policy == null) throw new IllegalArgumentException("ordering policy required");
+        return quote(lines, policy.currency(), policy.maximumLineQuantity());
+    }
+
+    private static Quote quote(List<Line> lines, String currency, int maximumLineQuantity) {
         if (lines == null || lines.isEmpty() || lines.size() > 100 || currency == null || !currency.matches("[A-Z]{3}")) {
             throw new IllegalArgumentException("order and currency required");
         }
         int total = 0;
         for (Line line : lines) {
-            if (line == null || line.item() == null || line.quantity() < 1 || line.quantity() > 99) {
+            if (line == null || line.item() == null || line.quantity() < 1 || line.quantity() > maximumLineQuantity) {
                 throw new IllegalArgumentException("invalid order line");
             }
             int modifier = modifierPrice(line.item(), line.modifier());

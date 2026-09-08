@@ -45,6 +45,11 @@ public final class HarborPizzaFixture {
                         profile("DRINK-L", "Fountain drink with a required flavor selection.", java.util.List.of())));
     }
 
+    /** Fictional local defaults: USD, 6% tax, 20 per line, $100 transfer threshold, 280-character notes. */
+    public static RestaurantOrderingPolicy orderingPolicy() {
+        return new RestaurantOrderingPolicy("USD", 600, 20, 10_000, 280);
+    }
+
     private static MenuItem item(String sku, String name, int price) {
         return new MenuItem(sku, name, price, java.util.Map.of());
     }
