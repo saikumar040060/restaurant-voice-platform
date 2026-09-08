@@ -1,6 +1,6 @@
 # Project status
 
-Updated: 2026-09-07. Current work: platform-first core, deterministic voice fixtures, knowledge/dialogue contracts, restaurant domain foundations, and a sandbox Railway deployment are implemented; provider credentials and real-call gates remain open.
+Updated: 2026-09-08. Current work: platform-first core, deterministic voice fixtures, knowledge/dialogue contracts, restaurant domain foundations, and a sandbox Railway deployment are implemented; the approved sandbox secrets are stored only in Railway, while live-provider and real-call gates remain disabled.
 
 ## Product direction
 
@@ -273,3 +273,7 @@ M5b preparation now includes a provider-neutral circuit breaker that opens after
 Credential-free M5b provider invocation now has a bounded timeout wrapper coupled to the circuit breaker; synthetic tests prove successful calls, timeout failure accounting, and open-circuit suppression.
 
 The public Twilio voice-webhook boundary is now disabled by default. Enabling it requires an HTTPS callback base URL, injected token, bounded replay window, and test-number allowlist; invalid signatures, replayed deliveries, and unlisted callers are rejected. A valid sandbox request still returns `503` because no provider adapter or live call path is enabled.
+
+Owner-provided OpenAI and Twilio sandbox secrets, together with a single test-caller allowlist, are stored only as masked Railway service variables. They are not committed, logged, or read by this task. Realtime and Twilio ingress remain disabled pending a measured adapter evaluation and an explicit pre-connection decision.
+
+Restaurant order submission hashes now use a versioned canonical serialization of SKU, modifier, quantity, unit price, currency, and total rather than Java object text; a regression test proves identical quotes retain a stable hash and changed lines invalidate it.
