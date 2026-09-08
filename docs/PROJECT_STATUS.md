@@ -25,7 +25,7 @@ Retain staff authentication, UUIDs, tenant constraints, audit behavior and exist
 | 2 Generic businesses, profiles and module contracts | Core contracts, reference module, and boundary validation implemented |
 | 3 Call state, policy gateway and durable actions | Contracts, repositories, outbox, replay safety, and 112-test integration evidence implemented |
 | 4 Approved knowledge and configurable dialogue | Scoped retrieval, prompts, dialogue, console, publication controls, and conflict handling implemented |
-| 5 Reusable streaming voice proof | M5a local fixture path implemented; M5b sandbox safeguards and deployment are ready, but provider credentials and measured provider evaluation remain |
+| 5 Reusable streaming voice proof | M5a local fixture path implemented; M5b sandbox safeguards and deployment are ready. Sandbox credentials are securely stored, while provider connection and measured evaluation remain gated |
 | 6 Restaurant business module | Domain, workflow, persistence and escalation foundations implemented; full menu/UI/mock POS evidence remains |
 | 7 Shared operations and restaurant voice integration | Planned |
 | 8 Square sandbox | Pending approved access and prerequisites |
@@ -46,7 +46,7 @@ Hosted CI success is unverified. The previous run-list connector filtered PR eve
 
 ## Next action
 
-Use the repository policy's Terra/Medium preference for substantive implementation. Continue closing M1 lifecycle/privilege/testing gates and add focused M4/M6 evidence: authenticated text console, publication/rollback tests, complete fictional menu fixtures, and restaurant module isolation tests. Keep M5b and M8–M12 gated on approved providers, credentials, external systems, and human approval.
+Continue closing M1 lifecycle/privilege/testing gates and add focused M4/M6 evidence: authenticated text console, publication/rollback tests, complete fictional menu fixtures, and restaurant module isolation tests. Keep provider connection, real evaluation, and M8–M12 gated on approved external actions and human approval.
 
 The first bounded M1 lifecycle slice now includes scheduled deletion of expired `auth_sessions` rows. Local compilation is blocked by an environment JDK older than the Java 21 target; the project target and source were not changed.
 
@@ -252,7 +252,7 @@ No runtime voice vendor is chosen. M5a uses mocks/local fixtures; natural voice 
 
 Java 21 is available through Homebrew; shell Java was 17, so select Java 21 per process. Maven 3.9.12, Node 22.19.0 and Docker are installed. Previous integration tests used disposable PostgreSQL 17.6 containers. Prior turn-scoped tool permissions are not current grants.
 
-The sandbox backend is deployed to Railway with managed PostgreSQL and a public liveness endpoint. Railway verifies `/healthz` before completing deployments; the endpoint returns only `{"status":"ok"}` and exposes no tenant, order, provider, or credential data. This establishes an HTTPS callback base for later sandbox integration, not a live voice service. No Twilio or OpenAI credentials have been entered, no calls can be handled, and no customer activity is enabled.
+The sandbox backend is deployed to Railway with managed PostgreSQL and a public liveness endpoint. Railway verifies `/healthz` before completing deployments; the endpoint returns only `{"status":"ok"}` and exposes no tenant, order, provider, or credential data. This establishes an HTTPS callback base for later sandbox integration, not a live voice service. Sandbox Twilio and OpenAI credentials are stored only as masked Railway variables; no provider connection, calls, or customer activity is enabled.
 
 The routing guidance is committed in local 01129e9 and the remote snapshot. It does not automatically switch models or select a runtime voice model.
 
@@ -267,6 +267,8 @@ A post-M4 full harness retry on 2026-09-06 stopped before PostgreSQL startup bec
 User-provided full harness evidence 2026-09-06 19:23:18: Maven verify completed with 112 tests, zero failures/errors/skips, packaged jar/repackage succeeded, and bootstrap initialization/repeat-secret/insecure-secret checks passed.
 
 M5b preparation now includes a provider-neutral call admission controller enforcing test-number allowlisting, concurrent-call limits, and owner-approved spend ceilings before adapter execution; focused tests and repository validators pass.
+
+Spend reservation now releases a previously admitted sandbox call slot when the requested worst-case amount exceeds the fixed budget. Tests also prove that an unlisted caller or a negative reservation neither consumes a slot nor charges the budget.
 
 M5b preparation now includes a provider-neutral circuit breaker that opens after bounded failures and resets only after an explicit successful probe; focused tests and validators pass.
 
