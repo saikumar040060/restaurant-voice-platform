@@ -305,3 +305,5 @@ The owner authorized a controlled OpenAI sandbox connection on 2026-09-08. The R
 Restaurant confirmation now has explicit delivered read-back evidence bound to a quote hash and playback epoch. An undelivered response, interrupted epoch, or changed quote cannot confirm the order. Focused read-back, hash, and workflow tests plus repository validators pass; the pending local commit awaits temporary GitHub DNS recovery.
 
 The restaurant workflow now fails closed if a caller uses the legacy confirmation shortcut. A confirmation requires delivered read-back evidence bound to the exact quote and playback epoch; focused workflow regression tests and repository validators pass.
+
+Restaurant escalation classification now covers refunds/voids, payment disputes, complaints, food-safety/injury, threats/harassment, emergencies, allergy/cross-contamination, manager requests, uncertain orders, provider failure, and employee unavailability. Every category has an explicit transfer or callback route; the policy creates no contact and requires the platform's tenant-scoped durable escalation case for execution. Focused tests and repository validators pass.
