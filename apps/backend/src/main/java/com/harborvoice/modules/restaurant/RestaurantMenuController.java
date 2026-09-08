@@ -21,14 +21,14 @@ public final class RestaurantMenuController {
 
     public record ItemView(String sku, String name, int priceMinor, Map<String, Integer> modifiers,
                            java.util.Set<String> requiredModifierGroups) { }
-    public record MenuView(List<ItemView> items) { }
+    public record MenuView(List<ItemView> items, OpeningHours hours) { }
 
     @GetMapping("/api/v1/restaurant/menu")
     MenuView menu(@AuthenticationPrincipal Actor actor) {
         return new MenuView(menus.approvedMenu(actor).items().stream()
                 .map(item -> new ItemView(item.sku(), item.name(), item.priceMinor(), item.modifiers(),
                         item.requiredModifierGroups()))
-                .toList());
+                .toList(), HarborPizzaFixture.openingHours());
     }
 
     @GetMapping("/api/v1/restaurant/orders")

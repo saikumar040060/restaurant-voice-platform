@@ -45,6 +45,14 @@ public final class HarborPizzaFixture {
                         profile("DRINK-L", "Fountain drink with a required flavor selection.", java.util.List.of())));
     }
 
+    /** Fictional reference hours from the seed specification: 11:00–22:00 local time every day. */
+    public static OpeningHours openingHours() {
+        var hours = new OpeningHours.Window(java.time.LocalTime.of(11, 0), java.time.LocalTime.of(22, 0));
+        var schedule = new java.util.EnumMap<java.time.DayOfWeek, OpeningHours.Window>(java.time.DayOfWeek.class);
+        for (java.time.DayOfWeek day : java.time.DayOfWeek.values()) schedule.put(day, hours);
+        return new OpeningHours(schedule, java.time.ZoneId.of("America/Detroit"));
+    }
+
     /** Fictional local defaults: USD, 6% tax, 20 per line, $100 transfer threshold, 280-character notes. */
     public static RestaurantOrderingPolicy orderingPolicy() {
         return new RestaurantOrderingPolicy("USD", 600, 20, 10_000, 280);

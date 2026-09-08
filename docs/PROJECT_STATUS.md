@@ -316,3 +316,5 @@ A generic module-capability resolver now rejects a tool that the active compiled
 The first restaurant dashboard API slice is now available at authenticated `GET /api/v1/restaurant/menu`. It resolves the `restaurant` module through the caller's approved tenant binding before returning the fictional menu fixture. The new generic `ApprovedModuleResolver` keeps the restaurant module independent of JDBC implementation details; focused service, capability, and boundary checks pass.
 
 The authenticated restaurant surface now also exposes `GET /api/v1/restaurant/orders` with a bounded tenant-scoped order-summary projection. It returns only order ID, location, amount, currency, state, and creation time; it does not return customer details, payment information, transcripts, or provider data. The JDBC query is business-filtered, and focused controller/service tests plus module-boundary validation pass.
+
+The fictional Harbor Pizza Test Kitchen fixture now publishes the seed specification hours (11:00–22:00 America/Detroit every day) through the authenticated menu view. Focused menu/hour tests and repository validators pass.

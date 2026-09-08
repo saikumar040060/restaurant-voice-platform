@@ -1,5 +1,9 @@
 package com.harborvoice.modules.restaurant;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,5 +21,15 @@ class HarborPizzaFixtureTest {
         assertEquals(549, menu.items().stream().filter(i -> i.sku().equals("GARLIC-BREAD")).findFirst().orElseThrow().priceMinor());
         assertEquals(599, menu.items().stream().filter(i -> i.sku().equals("SALAD-S")).findFirst().orElseThrow().priceMinor());
         assertEquals(299, menu.items().stream().filter(i -> i.sku().equals("DRINK-L")).findFirst().orElseThrow().priceMinor());
+    }
+
+    @Test void declaresTheFictionalSeedHoursForEveryDay() {
+        var hours = HarborPizzaFixture.openingHours();
+        assertThat(hours.timezone().getId()).isEqualTo("America/Detroit");
+        assertThat(hours.windows()).hasSize(DayOfWeek.values().length)
+                .allSatisfy((day, window) -> {
+                    assertThat(window.opens()).isEqualTo(LocalTime.of(11, 0));
+                    assertThat(window.closes()).isEqualTo(LocalTime.of(22, 0));
+                });
     }
 }
