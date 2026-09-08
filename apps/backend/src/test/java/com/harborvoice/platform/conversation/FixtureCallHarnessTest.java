@@ -13,6 +13,17 @@ import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 
 class FixtureCallHarnessTest {
+    @Test void keepsFiveConcurrentRestaurantCallsAtOneSyntheticLocationIsolated() throws Exception {
+        var harness = new FixtureCallHarness(new ModuleRegistry(java.util.List.of(new RestaurantBusinessModule())));
+        var business = UUID.randomUUID();
+        var calls = IntStream.range(0, 5).mapToObj(ignored -> harness.start(business, "restaurant")).toList();
+        try (var pool = Executors.newFixedThreadPool(5)) {
+            pool.invokeAll(calls.stream().<java.util.concurrent.Callable<Boolean>>map(id -> () ->
+                    harness.acceptAudio(id, 0, 0, "fixture".getBytes(StandardCharsets.UTF_8))).toList());
+        }
+        assertThat(calls).allSatisfy(id -> assertThat(harness.state(id, business, "restaurant").phase()).isEqualTo("active"));
+    }
+
     @Test void keepsTenMixedModuleCallsIsolatedUnderConcurrentSyntheticAudio() throws Exception {
         var harness = new FixtureCallHarness(new ModuleRegistry(java.util.List.of(
                 new ReferenceBusinessModule(), new RestaurantBusinessModule())));
