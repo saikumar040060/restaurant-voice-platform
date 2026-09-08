@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.harborvoice.identity.Actor;
 import com.harborvoice.identity.SessionService;
 import com.harborvoice.tenancy.TenantService;
+import com.harborvoice.modules.restaurant.JdbcMenuReviewRepository;
+import com.harborvoice.modules.restaurant.MenuReviewDecision;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,6 +50,7 @@ class VoicePlatformApplicationTest {
     @Autowired TenantService tenants;
     @Autowired com.harborvoice.identity.BootstrapService bootstrap;
     @Autowired SessionService sessions;
+    @Autowired JdbcMenuReviewRepository menuReviews;
     private final UUID tenantA = UUID.randomUUID();
     private final UUID tenantB = UUID.randomUUID();
     private final UUID ownerA = UUID.randomUUID();
@@ -70,6 +73,7 @@ class VoicePlatformApplicationTest {
             passwordHash = encoder.encode(PASSWORD);
         }
         jdbc.update("INSERT INTO tenants VALUES (?, ?), (?, ?)", tenantA, "Tenant A", tenantB, "Tenant B");
+        jdbc.update("INSERT INTO businesses(id, business_type) VALUES (?, ?), (?, ?)", tenantA, "restaurant", tenantB, "restaurant");
         employee(ownerA, tenantA, "owner-a", Actor.Role.OWNER);
         employee(ownerB, tenantB, "owner-b", Actor.Role.OWNER);
         jdbc.update("INSERT INTO restaurants VALUES (?, ?, ?), (?, ?, ?)",
@@ -92,6 +96,37 @@ class VoicePlatformApplicationTest {
     }
 
     private record LoginInput(String username, String password) { }
+
+    @Test
+    void menuReviewDecisionsAreOwnerOnlyTenantScopedVersionedAndAudited() {
+        Actor owner = new Actor(ownerA, tenantA, Actor.Role.OWNER);
+        Actor foreignOwner = new Actor(ownerB, tenantB, Actor.Role.OWNER);
+        Actor manager = new Actor(UUID.randomUUID(), tenantA, Actor.Role.MANAGER);
+
+        assertThatThrownBy(() -> menuReviews.decide(manager, 1, MenuReviewDecision.Decision.APPROVED, null, 0))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        var first = menuReviews.decide(owner, 1, MenuReviewDecision.Decision.CORRECTED, "Clarify the price.", 0);
+        var otherTenant = menuReviews.decide(foreignOwner, 1, MenuReviewDecision.Decision.REJECTED, null, 0);
+        assertThat(first.businessId()).isEqualTo(tenantA);
+        assertThat(first.version()).isEqualTo(1);
+        assertThat(first.publicationState()).isEqualTo("UNPUBLISHED");
+        assertThat(otherTenant.businessId()).isEqualTo(tenantB);
+        assertThat(menuReviews.decisions(owner)).containsExactly(first);
+        assertThat(menuReviews.decisions(foreignOwner)).containsExactly(otherTenant);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM audit_events WHERE tenant_id = ? AND action = 'MENU_REVIEW_CORRECTED'", Integer.class, tenantA)).isEqualTo(1);
+
+        assertThatThrownBy(() -> menuReviews.decide(owner, 1, MenuReviewDecision.Decision.APPROVED, null, 0))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("version conflict");
+        assertThat(jdbc.queryForObject("SELECT version FROM menu_review_decisions WHERE business_id = ? AND item_index = 1", Integer.class, tenantA)).isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM audit_events WHERE tenant_id = ?", Integer.class, tenantA)).isEqualTo(1);
+
+        assertThatThrownBy(() -> jdbc.update("""
+                INSERT INTO menu_review_decisions(business_id, item_index, decision, correction, version, publication_state, actor_id)
+                VALUES (?, 2, 'APPROVED', NULL, 1, 'PUBLISHED', ?)
+                """, tenantA, ownerA)).isInstanceOf(DataAccessException.class);
+    }
 
     @Test
     void noAnonymousOrCallerSuppliedIdentity() throws Exception {

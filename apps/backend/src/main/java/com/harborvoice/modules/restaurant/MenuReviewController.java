@@ -4,9 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.harborvoice.identity.Actor;
 import java.io.InputStream;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -14,7 +17,8 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 public final class MenuReviewController {
     private final ObjectMapper json;
-    public MenuReviewController(ObjectMapper json) { this.json = json; }
+    private final JdbcMenuReviewRepository decisions;
+    public MenuReviewController(ObjectMapper json, JdbcMenuReviewRepository decisions) { this.json = json; this.decisions = decisions; }
     @GetMapping("/api/v1/restaurant/menu-review-draft")
     JsonNode draft(@AuthenticationPrincipal Actor actor) {
         if (actor == null || actor.role() != Actor.Role.OWNER) {
@@ -24,5 +28,16 @@ public final class MenuReviewController {
             if (source == null) throw new IllegalStateException("review draft unavailable");
             return json.readTree(source);
         } catch (java.io.IOException failure) { throw new IllegalStateException("review draft unavailable", failure); }
+    }
+    @GetMapping("/api/v1/restaurant/menu-review-draft/decisions")
+    List<MenuReviewDecision> decisions(@AuthenticationPrincipal Actor actor) {
+        if (actor == null || actor.role() != Actor.Role.OWNER) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "owner review access required");
+        return decisions.decisions(actor);
+    }
+    public record DecisionInput(int itemIndex, MenuReviewDecision.Decision decision, String correction, int expectedVersion) { }
+    @PostMapping("/api/v1/restaurant/menu-review-draft/decisions")
+    MenuReviewDecision decide(@AuthenticationPrincipal Actor actor, @RequestBody DecisionInput input) {
+        if (actor == null || actor.role() != Actor.Role.OWNER) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "owner review access required");
+        return decisions.decide(actor, input.itemIndex(), input.decision(), input.correction(), input.expectedVersion());
     }
 }
