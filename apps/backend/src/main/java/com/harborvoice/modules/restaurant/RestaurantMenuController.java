@@ -6,14 +6,17 @@ import java.util.Map;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /** Read-only, authenticated restaurant menu surface for the future shared dashboard. */
 @RestController
 public final class RestaurantMenuController {
     private final RestaurantMenuService menus;
+    private final RestaurantOrderQuery orders;
 
-    public RestaurantMenuController(RestaurantMenuService menus) {
+    public RestaurantMenuController(RestaurantMenuService menus, RestaurantOrderQuery orders) {
         this.menus = menus;
+        this.orders = orders;
     }
 
     public record ItemView(String sku, String name, int priceMinor, Map<String, Integer> modifiers,
@@ -26,5 +29,12 @@ public final class RestaurantMenuController {
                 .map(item -> new ItemView(item.sku(), item.name(), item.priceMinor(), item.modifiers(),
                         item.requiredModifierGroups()))
                 .toList());
+    }
+
+    @GetMapping("/api/v1/restaurant/orders")
+    List<RestaurantOrderQuery.Summary> orders(@AuthenticationPrincipal Actor actor,
+            @RequestParam(defaultValue = "50") int limit) {
+        menus.approvedMenu(actor);
+        return orders.recent(actor.tenantId(), limit);
     }
 }

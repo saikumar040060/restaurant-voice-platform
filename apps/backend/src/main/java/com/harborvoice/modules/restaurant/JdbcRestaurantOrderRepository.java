@@ -4,7 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JdbcRestaurantOrderRepository {
+public class JdbcRestaurantOrderRepository implements RestaurantOrderQuery {
     private final JdbcTemplate jdbc;
 
     public JdbcRestaurantOrderRepository(JdbcTemplate jdbc) { this.jdbc = jdbc; }
@@ -17,6 +17,19 @@ public class JdbcRestaurantOrderRepository {
                 ON CONFLICT (id) DO NOTHING
                 """, submission.orderId(), businessId, locationId, submission.quoteHash(),
                 submission.quote().currency(), submission.quote().subtotalMinor());
+    }
+
+    @Override
+    public java.util.List<RestaurantOrderQuery.Summary> recent(java.util.UUID businessId, int limit) {
+        if (businessId == null || limit < 1 || limit > 100) throw new IllegalArgumentException("order query scope required");
+        return jdbc.query("""
+                SELECT id, location_id, currency, total_minor, state, created_at
+                FROM restaurant_orders WHERE business_id = ?
+                ORDER BY created_at DESC, id DESC LIMIT ?
+                """, (rs, row) -> new RestaurantOrderQuery.Summary(
+                rs.getObject("id", java.util.UUID.class), rs.getObject("location_id", java.util.UUID.class),
+                rs.getString("currency"), rs.getLong("total_minor"), OrderState.valueOf(rs.getString("state")),
+                rs.getTimestamp("created_at").toInstant()), businessId, limit);
     }
 
     public boolean transition(java.util.UUID businessId, java.util.UUID orderId, OrderState from, OrderState to) {
