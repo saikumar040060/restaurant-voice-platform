@@ -23,7 +23,7 @@ public final class BoundedProviderCall<T> {
             breaker.recordSuccess(); return result;
         } catch (RuntimeException ex) {
             breaker.recordFailure();
-            if (ex instanceof CompletionException completion && completion.getCause() != null) throw completion;
+            if (ex instanceof CompletionException completion && completion.getCause() instanceof RuntimeException cause) throw cause;
             throw ex;
         }
     }

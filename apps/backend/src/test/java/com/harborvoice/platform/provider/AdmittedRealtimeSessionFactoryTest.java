@@ -5,9 +5,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
@@ -43,7 +45,9 @@ class AdmittedRealtimeSessionFactoryTest {
             RealtimeTransportFactory transports) {
         return new AdmittedRealtimeSessionFactory(new OpenAiRealtimeConfig(enabled, "runtime-secret", "candidate", 32),
                 new SandboxSpendGate(controller), transports, new ObjectMapper(),
-                Clock.fixed(Instant.parse("2026-09-08T12:00:00Z"), ZoneOffset.UTC));
+                Clock.fixed(Instant.parse("2026-09-08T12:00:00Z"), ZoneOffset.UTC),
+                new BoundedProviderCall<>(new ProviderCircuitBreaker(2, Duration.ofMinutes(1)),
+                        Duration.ofSeconds(1), ForkJoinPool.commonPool()));
     }
 
     private static final class FakeTransport implements RealtimeTransport {

@@ -330,3 +330,5 @@ Sandbox provider admission now issues an opaque, expiring call lease. A lease ca
 The realtime port now has a provider-neutral admitted-session wrapper. Every audio input/output operation rechecks the sandbox lease; expiration closes the delegate, rejects further audio, and idempotently releases the concurrency slot. Focused lease/session/fixture tests and repository validators pass.
 
 A fail-closed realtime-session factory now reserves the approved caller's spend, concurrency, and duration lease before it attempts transport setup. It releases the lease if setup fails and returns only an admitted, lease-enforced session. All coverage uses synthetic transports; no OpenAI socket or secret read occurred.
+
+Realtime transport setup now runs through the existing bounded timeout and circuit-breaker wrapper. The shared wrapper now unwraps runtime provider failures correctly while still recording them for breaker state. Synthetic connection/admission, timeout, and breaker regression tests pass; no real transport was opened.
