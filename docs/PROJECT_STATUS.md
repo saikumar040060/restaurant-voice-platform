@@ -320,3 +320,5 @@ The authenticated restaurant surface now also exposes `GET /api/v1/restaurant/or
 The fictional Harbor Pizza Test Kitchen fixture now publishes the seed specification hours (11:00–22:00 America/Detroit every day) through the authenticated menu view. Focused menu/hour tests and repository validators pass.
 
 Provider-free M7 concurrency evidence now includes a mixed-module fixture harness. Ten simultaneous synthetic calls (five reference and five restaurant) process isolated media/workflow state, while cross-business or wrong-module state reads fail closed. This is local fixture evidence only; it does not claim real-provider concurrency or voice quality.
+
+The M5b adapter boundary now includes a synthetic `OpenAiRealtimeSession` implementation behind the provider-neutral realtime port. It serializes input-audio/commit/response events, bounds output, clears output on interruption, and drops malformed provider frames before playback. Its transport is injected and no concrete network transport, credential read, socket, or OpenAI request has been added; focused synthetic tests and repository validators pass.
