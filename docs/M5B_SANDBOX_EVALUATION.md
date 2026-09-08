@@ -8,6 +8,8 @@ Run the same synthetic utterance set through each available low-cost and stronge
 
 Synthetic cases cover menu facts, ambiguity, corrections, interruptions, prompt injection, unavailable items, explicit order confirmation, unknown action outcomes, and human-transfer failure. Audio is synthetic or prerecorded test material only.
 
+`RestaurantEvaluationCatalog` contains the 30 mandatory fictional restaurant scenarios as the fixed evaluation denominator. Each result must report its scenario ID and expected outcome; real voice measurements must not replace this catalog with a smaller hand-picked set.
+
 ## Account and secret state
 
 The owner has created sandbox Twilio and OpenAI accounts and injected the required credentials and a single test-caller allowlist as masked Railway variables. Values were not read, copied, logged, or committed. The Railway health endpoint supplies the future HTTPS callback base.

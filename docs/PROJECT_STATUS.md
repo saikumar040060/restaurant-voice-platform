@@ -290,4 +290,6 @@ Restaurant drafts can now bind to an immutable availability revision. Final conf
 
 The local realtime evaluation gate now selects the lowest estimated-cost measured candidate only when it passes every approved accuracy, latency, interruption, reliability, and zero-safety-violation threshold. It is a pure local decision component with synthetic tests; it neither selects an OpenAI model nor connects a provider.
 
-Latest local verification on 2026-09-08: the focused provider, restaurant, and evaluation suites plus foundation and module-boundary validators passed. The disposable PostgreSQL harness was retried but the current process was denied access to Docker's socket, so no new database-harness result is claimed. All resulting commits through `79af813` are pushed to the private GitHub branch.
+Latest local verification on 2026-09-08: the focused provider, restaurant, and evaluation suites plus foundation and module-boundary validators passed. The disposable PostgreSQL harness was retried but the current process was denied access to Docker's socket, so no new database-harness result is claimed. All resulting commits through `914fc5c` are pushed to the private GitHub branch.
+
+The restaurant evaluation catalog now preserves all 30 required fictional safety and ordering scenarios as named, immutable evaluation inputs. It supplies the denominator for later model/provider evidence and cannot be reduced by selecting only easy prompts.
