@@ -336,3 +336,5 @@ Realtime transport setup now runs through the existing bounded timeout and circu
 The shared operations layer now has authenticated `GET /api/v1/operations/snapshot` access for owner and manager roles only. It exposes the existing redaction-safe health/budget projection and denies employee or unauthenticated access; focused operations tests and repository validators pass.
 
 Operations snapshots now remove provider-health diagnostic reasons before serialization, preventing internal or customer-derived diagnostic text from reaching the dashboard API. Focused operations tests and repository validators pass.
+
+A dependency-free same-origin dashboard shell now lives at `/dashboard/index.html`. It supports authenticated menu, order-summary, and authorized operations views; it stores the opaque session token only in browser session storage, uses no third-party assets, and avoids unsafe HTML insertion. The restrictive CSP now permits only same-origin scripts, styles, and API connections. Focused dashboard, restaurant, and operations tests plus repository validators pass.

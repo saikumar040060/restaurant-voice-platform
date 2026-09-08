@@ -1,0 +1,6 @@
+:root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+body { margin: 0; } main { max-width: 70rem; margin: auto; padding: 1.5rem; }
+header { border-bottom: 1px solid #777; margin-bottom: 1rem; } form { display: grid; gap: 1rem; max-width: 24rem; }
+label { display: grid; gap: .3rem; } button, input { font: inherit; padding: .55rem; }
+nav { display: flex; flex-wrap: wrap; gap: .5rem; } table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+th, td { border: 1px solid #777; padding: .5rem; text-align: left; } #status { min-height: 1.5rem; }
