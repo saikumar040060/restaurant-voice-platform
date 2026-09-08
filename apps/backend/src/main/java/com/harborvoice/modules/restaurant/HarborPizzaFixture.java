@@ -6,12 +6,12 @@ public final class HarborPizzaFixture {
 
     public static RestaurantMenuKnowledge menu() {
         return new RestaurantMenuKnowledge(java.util.List.of(
-                item("CHEESE-S", "Cheese Pizza (small)", 999),
-                item("CHEESE-M", "Cheese Pizza (medium)", 1299),
-                item("CHEESE-L", "Cheese Pizza (large)", 1599),
-                item("PEPPERONI-S", "Pepperoni Pizza (small)", 1149),
-                item("PEPPERONI-M", "Pepperoni Pizza (medium)", 1449),
-                item("PEPPERONI-L", "Pepperoni Pizza (large)", 1749),
+                pizza("CHEESE-S", "Cheese Pizza (small)", 999),
+                pizza("CHEESE-M", "Cheese Pizza (medium)", 1299),
+                pizza("CHEESE-L", "Cheese Pizza (large)", 1599),
+                pizza("PEPPERONI-S", "Pepperoni Pizza (small)", 1149),
+                pizza("PEPPERONI-M", "Pepperoni Pizza (medium)", 1449),
+                pizza("PEPPERONI-L", "Pepperoni Pizza (large)", 1749),
                 new MenuItem("BYO", "Build Your Own Pizza", 999,
                         java.util.Map.of("size:small", 0, "size:medium", 300, "size:large", 600,
                                 "topping:extra-cheese", 150, "topping:mushrooms", 100,
@@ -60,6 +60,15 @@ public final class HarborPizzaFixture {
 
     private static MenuItem item(String sku, String name, int price) {
         return new MenuItem(sku, name, price, java.util.Map.of());
+    }
+
+    /** Fictional optional toppings; each group may be selected at most once by deterministic pricing. */
+    private static MenuItem pizza(String sku, String name, int price) {
+        return new MenuItem(sku, name, price, java.util.Map.of(
+                "topping:extra-cheese", 150,
+                "topping:mushrooms", 100,
+                "topping:onions", 75,
+                "topping:jalapenos", 75));
     }
 
     private static java.util.Map<String, Integer> dressings() {

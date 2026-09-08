@@ -21,6 +21,8 @@ class HarborPizzaFixtureTest {
         assertEquals(549, menu.items().stream().filter(i -> i.sku().equals("GARLIC-BREAD")).findFirst().orElseThrow().priceMinor());
         assertEquals(599, menu.items().stream().filter(i -> i.sku().equals("SALAD-S")).findFirst().orElseThrow().priceMinor());
         assertEquals(299, menu.items().stream().filter(i -> i.sku().equals("DRINK-L")).findFirst().orElseThrow().priceMinor());
+        assertThat(menu.items().stream().filter(i -> i.sku().equals("CHEESE-M")).findFirst().orElseThrow().modifiers())
+                .containsEntry("topping:extra-cheese", 150).containsEntry("topping:jalapenos", 75);
     }
 
     @Test void declaresTheFictionalSeedHoursForEveryDay() {
