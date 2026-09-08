@@ -332,3 +332,5 @@ The realtime port now has a provider-neutral admitted-session wrapper. Every aud
 A fail-closed realtime-session factory now reserves the approved caller's spend, concurrency, and duration lease before it attempts transport setup. It releases the lease if setup fails and returns only an admitted, lease-enforced session. All coverage uses synthetic transports; no OpenAI socket or secret read occurred.
 
 Realtime transport setup now runs through the existing bounded timeout and circuit-breaker wrapper. The shared wrapper now unwraps runtime provider failures correctly while still recording them for breaker state. Synthetic connection/admission, timeout, and breaker regression tests pass; no real transport was opened.
+
+The shared operations layer now has authenticated `GET /api/v1/operations/snapshot` access for owner and manager roles only. It exposes the existing redaction-safe health/budget projection and denies employee or unauthenticated access; focused operations tests and repository validators pass.
