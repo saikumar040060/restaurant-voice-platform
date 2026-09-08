@@ -295,3 +295,5 @@ Latest local verification on 2026-09-08: the focused provider, restaurant, and e
 The restaurant evaluation catalog now preserves all 30 required fictional safety and ordering scenarios as named, immutable evaluation inputs. It supplies the denominator for later model/provider evidence and cannot be reduced by selecting only easy prompts.
 
 The local mock-POS concurrency regression now submits the same confirmed order ten times in parallel and verifies every caller receives the one idempotent fixture result. It covers the duplicate-confirmation/exactly-once path without introducing a real POS effect.
+
+The provider-neutral realtime session boundary now has a bounded in-memory fixture that emits output only for completed synthetic frames, clears queued audio on interruption, rejects old epochs, and closes without network activity. It is used only for local contract testing; the disabled runtime implementation remains the production default.
