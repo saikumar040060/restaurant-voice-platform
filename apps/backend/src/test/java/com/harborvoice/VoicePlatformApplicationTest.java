@@ -128,6 +128,15 @@ class VoicePlatformApplicationTest {
         assertThat(reportJson.path("totalItems").asInt()).isEqualTo(256);
         assertThat(reportJson.path("completionAuditEventId").asText()).isNotBlank();
         assertThat(reportJson.path("categories").path("Featured Items").isArray()).isTrue();
+        String preview = mvc.perform(get("/api/v1/restaurant/menu-review-draft/import-preview")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        JsonNode previewJson = json.readTree(preview);
+        assertThat(previewJson.path("label").asText()).isEqualTo("UNPUBLISHED — TEST-ONLY IMPORT PREVIEW");
+        assertThat(previewJson.path("executable").asBoolean()).isFalse();
+        assertThat(previewJson.path("includedCount").asInt()).isEqualTo(256);
+        assertThat(previewJson.path("excludedRejectedCount").asInt()).isZero();
+        assertThat(previewJson.path("items").get(0).path("previewSku").asText()).isEqualTo("review-001");
         assertThatThrownBy(() -> menuReviews.decide(owner, 1, MenuReviewDecision.Decision.APPROVED,
                 null, null, 1)).isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("immutable");
