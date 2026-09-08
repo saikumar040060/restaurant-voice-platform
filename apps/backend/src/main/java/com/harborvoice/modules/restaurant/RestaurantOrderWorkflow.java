@@ -14,6 +14,13 @@ public final class RestaurantOrderWorkflow {
                 state.draft().confirm(state.draft().quote()));
     }
 
+    /** Confirmation through this path requires a completed deterministic read-back. */
+    public State confirm(State state, RestaurantReadback readback, long confirmationEpoch) {
+        if (state == null || readback == null) throw new IllegalArgumentException("state and read-back required");
+        OrderDraft confirmed = readback.confirm(state.draft(), confirmationEpoch);
+        return new State(OrderLifecycle.transition(state.orderState(), OrderState.CONFIRMED), confirmed);
+    }
+
     public State beginSubmission(State state) {
         if (state == null || !state.draft().confirmed()) throw new IllegalArgumentException("confirmed draft required");
         return new State(OrderLifecycle.transition(state.orderState(), OrderState.SUBMITTING), state.draft());

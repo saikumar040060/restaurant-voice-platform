@@ -14,4 +14,12 @@ class RestaurantOrderWorkflowTest {
         assertThat(confirmed.orderState()).isEqualTo(OrderState.CONFIRMED);
         assertThat(workflow.beginSubmission(confirmed).orderState()).isEqualTo(OrderState.SUBMITTING);
     }
+
+    @Test void deliveredReadbackCanDriveSafeConfirmation() {
+        var item = new MenuItem("tea", "Tea", 300, java.util.Map.of());
+        var workflow = new RestaurantOrderWorkflow();
+        var state = workflow.initial(OrderDraft.create(UUID.randomUUID(), List.of(new OrderPricing.Line(item, null, 1)), "USD"));
+        var delivered = RestaurantReadback.issue(state.draft(), 1).markDelivered(1);
+        assertThat(workflow.confirm(state, delivered, 1).orderState()).isEqualTo(OrderState.CONFIRMED);
+    }
 }
