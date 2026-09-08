@@ -33,8 +33,8 @@ public class JdbcMenuReviewRepository {
 
     public MenuReviewSummary summary(Actor actor, int totalItems) {
         requireOwner(actor);
-        if (totalItems < 0) {
-            throw new IllegalArgumentException("total item count required");
+        if (totalItems != MenuReviewDraft.ITEM_COUNT) {
+            throw new IllegalArgumentException("current draft item count required");
         }
         return jdbc.queryForObject("""
                 SELECT
@@ -107,7 +107,8 @@ public class JdbcMenuReviewRepository {
     }
 
     private static void validate(DecisionWrite write) {
-        if (write == null || write.itemIndex() < 1 || write.decision() == null || write.expectedVersion() < 0) {
+        if (write == null || write.itemIndex() < 1 || write.itemIndex() > MenuReviewDraft.ITEM_COUNT
+                || write.decision() == null || write.expectedVersion() < 0) {
             throw new IllegalArgumentException("item, decision, and expected version required");
         }
         String fixed = write.correction() == null ? null : write.correction().trim();

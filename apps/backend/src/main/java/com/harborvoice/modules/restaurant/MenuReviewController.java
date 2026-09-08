@@ -39,7 +39,7 @@ public final class MenuReviewController {
         if (actor == null || actor.role() != Actor.Role.OWNER) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "owner review access required");
         }
-        return decisions.summary(actor, 256);
+        return decisions.summary(actor, MenuReviewDraft.ITEM_COUNT);
     }
 
     public record DecisionInput(int itemIndex, MenuReviewDecision.Decision decision, String correction, int expectedVersion) { }

@@ -107,6 +107,10 @@ class VoicePlatformApplicationTest {
         assertThatThrownBy(() -> menuReviews.decide(manager, 1, MenuReviewDecision.Decision.APPROVED, null, 0))
                 .isInstanceOf(IllegalArgumentException.class);
 
+        assertThatThrownBy(() -> menuReviews.decide(owner, MenuReviewDraft.ITEM_COUNT + 1,
+                MenuReviewDecision.Decision.APPROVED, null, 0)).isInstanceOf(IllegalArgumentException.class);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM menu_review_decisions WHERE business_id = ?", Integer.class, tenantA)).isZero();
+
         var first = menuReviews.decide(owner, 1, MenuReviewDecision.Decision.CORRECTED, "Clarify the price.", 0);
         var otherTenant = menuReviews.decide(foreignOwner, 1, MenuReviewDecision.Decision.REJECTED, null, 0);
         assertThat(first.businessId()).isEqualTo(tenantA);
