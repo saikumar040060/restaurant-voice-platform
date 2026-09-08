@@ -67,6 +67,9 @@ public class JdbcMenuReviewRepository {
         Set<Integer> indexes = new HashSet<>();
         for (DecisionWrite write : writes) {
             validate(write);
+            if (write.expectedVersion() != 0) {
+                throw new IllegalArgumentException("bulk review can decide only previously undecided entries");
+            }
             if (!indexes.add(write.itemIndex())) {
                 throw new IllegalArgumentException("duplicate item decision in bulk request");
             }

@@ -139,6 +139,10 @@ class VoicePlatformApplicationTest {
                 new JdbcMenuReviewRepository.DecisionWrite(1, MenuReviewDecision.Decision.APPROVED, null, 0))))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("version conflict");
+        assertThatThrownBy(() -> menuReviews.decideAll(owner, java.util.List.of(
+                new JdbcMenuReviewRepository.DecisionWrite(1, MenuReviewDecision.Decision.APPROVED, null, 1))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("previously undecided");
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM menu_review_decisions WHERE business_id = ? AND item_index = 3", Integer.class, tenantA)).isZero();
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM audit_events WHERE tenant_id = ?", Integer.class, tenantA)).isEqualTo(1);
 
