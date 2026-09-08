@@ -4,11 +4,12 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record MenuReviewDecision(UUID businessId, int itemIndex, Decision decision, String correction,
-                                 int version, String publicationState, UUID actorId, Instant decidedAt) {
+                                 int version, String publicationState, String draftRevision, UUID actorId, Instant decidedAt) {
     public enum Decision { APPROVED, CORRECTED, REJECTED }
     public MenuReviewDecision {
         if (businessId == null || itemIndex < 1 || decision == null || version < 1 || actorId == null || decidedAt == null
-                || !"UNPUBLISHED".equals(publicationState) || (decision == Decision.CORRECTED) != (correction != null && !correction.isBlank())) {
+                || !"UNPUBLISHED".equals(publicationState) || draftRevision == null || !draftRevision.matches("[0-9a-f]{64}")
+                || (decision == Decision.CORRECTED) != (correction != null && !correction.isBlank())) {
             throw new IllegalArgumentException("invalid unpublished menu review decision");
         }
     }

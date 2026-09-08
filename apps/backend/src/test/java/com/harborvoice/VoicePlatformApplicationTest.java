@@ -13,6 +13,7 @@ import com.harborvoice.identity.SessionService;
 import com.harborvoice.tenancy.TenantService;
 import com.harborvoice.modules.restaurant.JdbcMenuReviewRepository;
 import com.harborvoice.modules.restaurant.MenuReviewDecision;
+import com.harborvoice.modules.restaurant.MenuReviewDraft;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import org.junit.jupiter.api.BeforeEach;
@@ -111,6 +112,7 @@ class VoicePlatformApplicationTest {
         assertThat(first.businessId()).isEqualTo(tenantA);
         assertThat(first.version()).isEqualTo(1);
         assertThat(first.publicationState()).isEqualTo("UNPUBLISHED");
+        assertThat(first.draftRevision()).isEqualTo(MenuReviewDraft.REVISION);
         assertThat(otherTenant.businessId()).isEqualTo(tenantB);
         assertThat(menuReviews.decisions(owner)).containsExactly(first);
         assertThat(menuReviews.decisions(foreignOwner)).containsExactly(otherTenant);
@@ -133,6 +135,13 @@ class VoicePlatformApplicationTest {
                 .hasMessageContaining("version conflict");
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM menu_review_decisions WHERE business_id = ? AND item_index = 3", Integer.class, tenantA)).isZero();
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM audit_events WHERE tenant_id = ?", Integer.class, tenantA)).isEqualTo(1);
+
+        jdbc.update("UPDATE menu_review_decisions SET draft_revision = ? WHERE business_id = ? AND item_index = 1",
+                "a".repeat(64), tenantA);
+        assertThat(menuReviews.decisions(owner)).isEmpty();
+        assertThatThrownBy(() -> menuReviews.decide(owner, 1, MenuReviewDecision.Decision.APPROVED, null, 1))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("version conflict");
     }
 
     @Test
