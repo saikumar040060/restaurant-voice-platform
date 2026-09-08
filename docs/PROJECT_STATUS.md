@@ -289,3 +289,5 @@ Restaurant ordering policies now provide tenant-approved currency, tax basis poi
 Restaurant drafts can now bind to an immutable availability revision. Final confirmation validates the same revision and each line's availability, so a sold-out item or any availability revision change requires a new quote and read-back before submission.
 
 The local realtime evaluation gate now selects the lowest estimated-cost measured candidate only when it passes every approved accuracy, latency, interruption, reliability, and zero-safety-violation threshold. It is a pure local decision component with synthetic tests; it neither selects an OpenAI model nor connects a provider.
+
+Latest local verification on 2026-09-08: the focused provider, restaurant, and evaluation suites plus foundation and module-boundary validators passed. The disposable PostgreSQL harness was retried but the current process was denied access to Docker's socket, so no new database-harness result is claimed. All resulting commits through `79af813` are pushed to the private GitHub branch.
