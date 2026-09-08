@@ -19,3 +19,7 @@ Before a provider connection is enabled, finish the local adapter-contract work,
 ## Selection implementation
 
 The local `RealtimeModelSelector` takes measured candidate aggregates and selects the lowest estimated-cost candidate that meets every owner-approved threshold. Any safety violation disqualifies a candidate. It does not name a model, make an API request, inspect secrets, or enable a provider. Its test fixture uses a 98% accuracy floor, 1.5-second P95 first-audio limit, one allowed interruption failure, and zero reliability failures; the owner must approve final thresholds before a real evaluation.
+
+## Initial sandbox candidate
+
+With the owner's 2026-09-08 connection authorization, `gpt-realtime-2.1-mini` is configured as the initial low-cost candidate for a controlled synthetic evaluation. OpenAI documents it as a lower-cost Realtime model with WebRTC, WebSocket, and SIP support; its listed audio rates are lower than `gpt-realtime-2.1`. This is an evaluation candidate only, not a production selection. The measured evaluation gate remains responsible for accepting or rejecting it, and Twilio ingress remains disabled.
