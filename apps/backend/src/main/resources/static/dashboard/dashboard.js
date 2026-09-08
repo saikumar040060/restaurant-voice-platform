@@ -7,8 +7,10 @@
   const identity = document.querySelector("#identity");
   const token = () => sessionStorage.getItem(tokenKey);
   const setStatus = value => { status.textContent = value; };
+  const signedOut = () => { sessionStorage.removeItem(tokenKey); workspace.hidden = true; loginPanel.hidden = false; identity.textContent = "Sign in to view your tenant."; clear(); };
   const request = async path => {
     const response = await fetch(path, { headers: { Authorization: `Bearer ${token()}` }, cache: "no-store" });
+    if (response.status === 401) { signedOut(); throw new Error("Your session expired. Please sign in again."); }
     if (!response.ok) throw new Error(response.status === 403 ? "You do not have access to this view." : "Request failed.");
     return response.json();
   };
@@ -27,6 +29,9 @@
   const refreshIdentity = async () => { const actor = await request("/api/v1/me"); identity.textContent = `Signed in as ${actor.role}`; loginPanel.hidden = true; workspace.hidden = false; show("menu"); };
   document.querySelector("#login-form").addEventListener("submit", async event => { event.preventDefault(); setStatus("Signing in…"); try { const response = await fetch("/api/v1/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: document.querySelector("#username").value, password: document.querySelector("#password").value }) }); if (!response.ok) throw new Error("Sign-in failed."); sessionStorage.setItem(tokenKey, (await response.json()).token); await refreshIdentity(); setStatus(""); } catch (error) { setStatus(error.message); } });
   document.querySelector("nav").addEventListener("click", event => { if (event.target.dataset.view) show(event.target.dataset.view); });
-  document.querySelector("#logout").addEventListener("click", async () => { try { await fetch("/api/v1/auth/logout", { method: "POST", headers: { Authorization: `Bearer ${token()}` } }); } finally { sessionStorage.removeItem(tokenKey); workspace.hidden = true; loginPanel.hidden = false; identity.textContent = "Sign in to view your tenant."; clear(); } });
-  if (token()) refreshIdentity().catch(() => sessionStorage.removeItem(tokenKey));
+  document.querySelector("#logout").addEventListener("click", async () => { try { await fetch("/api/v1/auth/logout", { method: "POST", headers: { Authorization: `Bearer ${token()}` } }); } finally { signedOut(); } });
+  const reauthorize = () => { if (token()) refreshIdentity().catch(signedOut); };
+  window.addEventListener("focus", reauthorize);
+  setInterval(reauthorize, 60000);
+  if (token()) refreshIdentity().catch(signedOut);
 })();

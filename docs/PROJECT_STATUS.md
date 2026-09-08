@@ -338,3 +338,5 @@ The shared operations layer now has authenticated `GET /api/v1/operations/snapsh
 Operations snapshots now remove provider-health diagnostic reasons before serialization, preventing internal or customer-derived diagnostic text from reaching the dashboard API. Focused operations tests and repository validators pass.
 
 A dependency-free same-origin dashboard shell now lives at `/dashboard/index.html`. It supports authenticated menu, order-summary, and authorized operations views; it stores the opaque session token only in browser session storage, uses no third-party assets, and avoids unsafe HTML insertion. The restrictive CSP now permits only same-origin scripts, styles, and API connections. Focused dashboard, restaurant, and operations tests plus repository validators pass.
+
+The dashboard now reauthorizes the current session on focus and every minute. A `401` clears the session-scoped token, hides tenant content, and returns the user to sign-in rather than displaying stale data. Focused dashboard and console tests plus repository validators pass.

@@ -15,6 +15,7 @@ class DashboardAssetsTest {
         assertThat(html).contains("/dashboard/dashboard.css", "/dashboard/dashboard.js")
                 .doesNotContain("http://", "https://", "<script>");
         assertThat(script).contains("sessionStorage", "Authorization")
+                .contains("setInterval", "Your session expired")
                 .doesNotContain("localStorage", "innerHTML", "eval(");
     }
 }
