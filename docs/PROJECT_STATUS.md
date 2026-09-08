@@ -293,3 +293,5 @@ The local realtime evaluation gate now selects the lowest estimated-cost measure
 Latest local verification on 2026-09-08: the focused provider, restaurant, and evaluation suites plus foundation and module-boundary validators passed. The disposable PostgreSQL harness was retried but the current process was denied access to Docker's socket, so no new database-harness result is claimed. All resulting commits through `914fc5c` are pushed to the private GitHub branch.
 
 The restaurant evaluation catalog now preserves all 30 required fictional safety and ordering scenarios as named, immutable evaluation inputs. It supplies the denominator for later model/provider evidence and cannot be reduced by selecting only easy prompts.
+
+The local mock-POS concurrency regression now submits the same confirmed order ten times in parallel and verifies every caller receives the one idempotent fixture result. It covers the duplicate-confirmation/exactly-once path without introducing a real POS effect.
