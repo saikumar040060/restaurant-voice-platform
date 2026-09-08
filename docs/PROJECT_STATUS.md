@@ -46,7 +46,7 @@ Hosted CI success is unverified. The previous run-list connector filtered PR eve
 
 ## Next action
 
-Continue closing M1 lifecycle/privilege/testing gates and add focused M4/M6 evidence: authenticated text console, publication/rollback tests, complete fictional menu fixtures, and restaurant module isolation tests. Keep provider connection, real evaluation, and M8–M12 gated on approved external actions and human approval.
+Continue provider-free M6/M7 evidence with authenticated tenant-scoped restaurant views and synthetic integration tests. The OpenAI sandbox adapter evaluation may proceed only through the approved Railway environment; Twilio ingress and all real calls remain disabled. Full database-harness verification still needs Docker socket access, and hosted publication awaits GitHub DNS recovery.
 
 The first bounded M1 lifecycle slice now includes scheduled deletion of expired `auth_sessions` rows. Local compilation is blocked by an environment JDK older than the Java 21 target; the project target and source were not changed.
 
@@ -307,3 +307,6 @@ Restaurant confirmation now has explicit delivered read-back evidence bound to a
 The restaurant workflow now fails closed if a caller uses the legacy confirmation shortcut. A confirmation requires delivered read-back evidence bound to the exact quote and playback epoch; focused workflow regression tests and repository validators pass.
 
 Restaurant escalation classification now covers refunds/voids, payment disputes, complaints, food-safety/injury, threats/harassment, emergencies, allergy/cross-contamination, manager requests, uncertain orders, provider failure, and employee unavailability. Every category has an explicit transfer or callback route; the policy creates no contact and requires the platform's tenant-scoped durable escalation case for execution. Focused tests and repository validators pass.
+
+
+Latest focused restaurant-module verification on 2026-09-08: all 36 restaurant domain, policy, fixture, workflow, idempotency, evaluation-catalog, and escalation tests passed with zero failures, errors, or skips. An initial package-filter command matched no tests and was immediately corrected; it was not a product test failure.
