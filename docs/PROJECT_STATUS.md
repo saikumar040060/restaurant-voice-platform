@@ -312,3 +312,5 @@ Restaurant escalation classification now covers refunds/voids, payment disputes,
 Latest focused restaurant-module verification on 2026-09-08: all 36 restaurant domain, policy, fixture, workflow, idempotency, evaluation-catalog, and escalation tests passed with zero failures, errors, or skips. An initial package-filter command matched no tests and was immediately corrected; it was not a product test failure.
 
 A generic module-capability resolver now rejects a tool that the active compiled module did not declare. Regression coverage proves the reference module cannot obtain `restaurant.quote`, while dependency validation confirms the platform core does not import restaurant types. Focused capability, restaurant, and action-authorization tests pass.
+
+The first restaurant dashboard API slice is now available at authenticated `GET /api/v1/restaurant/menu`. It resolves the `restaurant` module through the caller's approved tenant binding before returning the fictional menu fixture. The new generic `ApprovedModuleResolver` keeps the restaurant module independent of JDBC implementation details; focused service, capability, and boundary checks pass.

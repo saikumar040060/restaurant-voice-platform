@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 /** Resolves only an approved module explicitly bound to the authenticated business. */
 @Service
-public class ModuleBindingService {
+public class ModuleBindingService implements ApprovedModuleResolver {
     private final JdbcTemplate jdbc;
     private final ModuleRegistry registry;
 
