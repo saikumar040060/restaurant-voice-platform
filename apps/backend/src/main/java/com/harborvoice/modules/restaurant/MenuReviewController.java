@@ -37,7 +37,15 @@ public final class MenuReviewController {
     public record DecisionInput(int itemIndex, MenuReviewDecision.Decision decision, String correction, int expectedVersion) { }
     @PostMapping("/api/v1/restaurant/menu-review-draft/decisions")
     MenuReviewDecision decide(@AuthenticationPrincipal Actor actor, @RequestBody DecisionInput input) {
-        if (actor == null || actor.role() != Actor.Role.OWNER) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "owner review access required");
-        return decisions.decide(actor, input.itemIndex(), input.decision(), input.correction(), input.expectedVersion());
+        if (actor == null || actor.role() != Actor.Role.OWNER) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "owner review access required");
+        }
+        try {
+            return decisions.decide(actor, input.itemIndex(), input.decision(), input.correction(), input.expectedVersion());
+        } catch (IllegalStateException conflict) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "review decision changed; reload before retrying", conflict);
+        } catch (IllegalArgumentException invalid) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, invalid.getMessage(), invalid);
+        }
     }
 }
