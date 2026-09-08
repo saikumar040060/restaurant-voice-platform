@@ -318,3 +318,5 @@ The first restaurant dashboard API slice is now available at authenticated `GET 
 The authenticated restaurant surface now also exposes `GET /api/v1/restaurant/orders` with a bounded tenant-scoped order-summary projection. It returns only order ID, location, amount, currency, state, and creation time; it does not return customer details, payment information, transcripts, or provider data. The JDBC query is business-filtered, and focused controller/service tests plus module-boundary validation pass.
 
 The fictional Harbor Pizza Test Kitchen fixture now publishes the seed specification hours (11:00–22:00 America/Detroit every day) through the authenticated menu view. Focused menu/hour tests and repository validators pass.
+
+Provider-free M7 concurrency evidence now includes a mixed-module fixture harness. Ten simultaneous synthetic calls (five reference and five restaurant) process isolated media/workflow state, while cross-business or wrong-module state reads fail closed. This is local fixture evidence only; it does not claim real-provider concurrency or voice quality.
