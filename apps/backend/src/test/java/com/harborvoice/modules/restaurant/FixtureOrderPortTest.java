@@ -13,4 +13,14 @@ class FixtureOrderPortTest {
         var result = new FixtureOrderPort().submit(OrderSubmission.from(draft));
         assertThat(result.state()).isEqualTo(OrderState.ACCEPTED);
     }
+
+    @Test void makesDuplicateMockPosSubmissionsIdempotent() {
+        var item = new MenuItem("tea", "Fictional Tea", 300, java.util.Map.of());
+        var draft = OrderDraft.create(UUID.randomUUID(), List.of(new OrderPricing.Line(item, null, 1)), "USD")
+                .confirm(OrderPricing.quote(List.of(new OrderPricing.Line(item, null, 1)), "USD"));
+        var submission = OrderSubmission.from(draft);
+        var port = new FixtureOrderPort();
+
+        assertThat(port.submit(submission)).isSameAs(port.submit(submission));
+    }
 }
