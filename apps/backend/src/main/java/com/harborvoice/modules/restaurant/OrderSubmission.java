@@ -14,9 +14,13 @@ public record OrderSubmission(UUID orderId, OrderPricing.Quote quote, String quo
 
     public static OrderSubmission from(OrderDraft draft) {
         if (draft == null || !draft.confirmed()) throw new IllegalArgumentException("order requires confirmation");
+        return new OrderSubmission(draft.id(), draft.quote(), previewHash(draft.quote()));
+    }
+
+    static String previewHash(OrderPricing.Quote quote) {
         try {
-            return new OrderSubmission(draft.id(), draft.quote(), HexFormat.of().formatHex(
-                    MessageDigest.getInstance("SHA-256").digest(canonicalQuote(draft.quote()).getBytes(StandardCharsets.UTF_8))));
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(canonicalQuote(quote).getBytes(StandardCharsets.UTF_8)));
         } catch (java.security.NoSuchAlgorithmException ex) {
             throw new IllegalStateException(ex);
         }
