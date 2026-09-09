@@ -70,6 +70,17 @@ class OpenAiRealtimeSessionTest {
         assertThat(drained).isEqualTo(128);
     }
 
+    @Test void signalsCallerSpeechSoThePhoneProviderCanClearBufferedAudio() {
+        var transport = new FakeTransport();
+        var session = new OpenAiRealtimeSession(config(), transport, new ObjectMapper());
+        var interruptions = new java.util.concurrent.atomic.AtomicInteger();
+        session.onInterruption(interruptions::incrementAndGet);
+
+        transport.emit("{\"type\":\"input_audio_buffer.speech_started\"}");
+
+        assertThat(interruptions).hasValue(1);
+    }
+
     private static OpenAiRealtimeConfig config() {
         return new OpenAiRealtimeConfig(true, "runtime-secret", "candidate", 256);
     }

@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 public interface RealtimeSessionPort extends AutoCloseable {
     default void configure(String instructions) { }
     default void onOutput(Consumer<TextToSpeechPort.AudioSynthesis> listener) { }
+    default void onInterruption(Runnable listener) { }
     void accept(MediaEnvelope input);
     TextToSpeechPort.AudioSynthesis nextOutput(long epoch);
     void cancel(long epoch);

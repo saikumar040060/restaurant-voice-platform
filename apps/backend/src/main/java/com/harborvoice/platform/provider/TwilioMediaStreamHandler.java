@@ -41,6 +41,7 @@ public final class TwilioMediaStreamHandler extends TextWebSocketHandler {
                 if (sessions == null) throw new IllegalStateException("realtime bridge unavailable");
                 RealtimeSessionPort realtime = sessions.open(grant.lease());
                 realtime.onOutput(output -> sendOutput(session, streamSid, output));
+                realtime.onInterruption(() -> clearOutput(session, streamSid));
                 realtime.configure(instructions);
                 session.getAttributes().put("realtime", realtime);
                 session.getAttributes().put("sequence", 0L);
@@ -76,6 +77,19 @@ public final class TwilioMediaStreamHandler extends TextWebSocketHandler {
                 session.sendMessage(new TextMessage(json.writeValueAsString(java.util.Map.of(
                         "event", "media", "streamSid", streamSid,
                         "media", java.util.Map.of("payload", Base64.getEncoder().encodeToString(output.payload()))))));
+            }
+        } catch (Exception failure) {
+            try { session.close(CloseStatus.SERVER_ERROR); }
+            catch (Exception ignored) { }
+        }
+    }
+
+    private void clearOutput(WebSocketSession session, String streamSid) {
+        try {
+            synchronized (session) {
+                if (!session.isOpen()) return;
+                session.sendMessage(new TextMessage(json.writeValueAsString(java.util.Map.of(
+                        "event", "clear", "streamSid", streamSid))));
             }
         } catch (Exception failure) {
             try { session.close(CloseStatus.SERVER_ERROR); }

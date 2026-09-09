@@ -59,6 +59,25 @@ class TwilioMediaStreamHandlerTest {
                 .isEqualTo("cHVzaGVk");
     }
 
+    @Test void clearsBufferedSpeechAndDeliversASecondAnswerWhenCallerAsksANewQuestion() throws Exception {
+        var fixture = fixture();
+        var socket = socket(fixture.token());
+        fixture.handler().afterConnectionEstablished(socket.session());
+        fixture.handler().handleTextMessage(socket.session(), new TextMessage(start("MZ-multiturn", fixture.token())));
+
+        fixture.transport().emit("{\"type\":\"response.output_audio.delta\",\"delta\":\"Zmlyc3Q=\"}");
+        fixture.transport().emit("{\"type\":\"input_audio_buffer.speech_started\"}");
+        fixture.transport().emit("{\"type\":\"response.output_audio.delta\",\"delta\":\"c2Vjb25k\"}");
+
+        assertThat(socket.outbound()).hasSize(3);
+        assertThat(JSON.readTree(socket.outbound().get(0).getPayload()).at("/media/payload").asText())
+                .isEqualTo("Zmlyc3Q=");
+        assertThat(JSON.readTree(socket.outbound().get(1).getPayload()).path("event").asText())
+                .isEqualTo("clear");
+        assertThat(JSON.readTree(socket.outbound().get(2).getPayload()).at("/media/payload").asText())
+                .isEqualTo("c2Vjb25k");
+    }
+
     @Test void failsClosedForMediaBeforeStartAndForReusedAdmissionToken() throws Exception {
         var noStart = fixture();
         var first = socket(noStart.token());

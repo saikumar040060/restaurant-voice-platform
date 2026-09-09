@@ -31,6 +31,11 @@ public final class AdmittedRealtimeSession implements RealtimeSessionPort {
         delegate.onOutput(listener);
     }
 
+    @Override public synchronized void onInterruption(Runnable listener) {
+        requireActive();
+        delegate.onInterruption(listener);
+    }
+
     @Override public synchronized void accept(MediaEnvelope input) {
         requireActive();
         delegate.accept(input);

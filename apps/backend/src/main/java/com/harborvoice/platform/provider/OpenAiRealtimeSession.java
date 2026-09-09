@@ -24,6 +24,7 @@ public final class OpenAiRealtimeSession implements RealtimeSessionPort {
     private final int maxOutputTokens;
     private final Deque<TextToSpeechPort.AudioSynthesis> outputs = new ArrayDeque<>();
     private Consumer<TextToSpeechPort.AudioSynthesis> outputListener;
+    private Runnable interruptionListener = () -> { };
     private long epoch;
     private boolean closed;
 
@@ -82,6 +83,11 @@ public final class OpenAiRealtimeSession implements RealtimeSessionPort {
         while (!outputs.isEmpty()) outputListener.accept(outputs.removeFirst());
     }
 
+    @Override public synchronized void onInterruption(Runnable listener) {
+        if (closed) throw new IllegalStateException("realtime session closed");
+        interruptionListener = Objects.requireNonNull(listener, "interruption listener required");
+    }
+
     @Override public synchronized TextToSpeechPort.AudioSynthesis nextOutput(long requestedEpoch) {
         if (closed || requestedEpoch != epoch) return null;
         return outputs.pollFirst();
@@ -106,6 +112,11 @@ public final class OpenAiRealtimeSession implements RealtimeSessionPort {
         try {
             JsonNode event = json.readTree(eventJson);
             String type = event.path("type").asText();
+            if ("input_audio_buffer.speech_started".equals(type)) {
+                outputs.clear();
+                interruptionListener.run();
+                return;
+            }
             if (!"response.output_audio.delta".equals(type) && !"response.audio.delta".equals(type)) return;
             String delta = event.path("delta").asText();
             if (delta.isBlank()) return;
