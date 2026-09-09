@@ -5,9 +5,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.net.URI;
 import java.util.Set;
+import java.util.UUID;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 class TwilioWebhookControllerTest {
@@ -15,12 +17,20 @@ class TwilioWebhookControllerTest {
     private static final String CALLER = "+15551234567";
     private static final String URL = "https://voice.example.test/webhooks/twilio/voice";
 
-    @Test void accepts_one_signed_allowed_sandbox_request_but_does_not_start_a_call() throws Exception {
-        var controller = enabledController();
-        var request = signedRequest();
+    @Test void spring_injects_call_admission_and_returns_stream_twiml() throws Exception {
+        try (var context = new AnnotationConfigApplicationContext()) {
+            context.registerBean(TwilioWebhookConfig.class, this::enabledConfig);
+            context.registerBean(TwilioRequestVerifier.class);
+            context.registerBean(TwilioCallAdmissionService.class, this::admissionService);
+            context.registerBean(TwilioWebhookController.class);
+            context.refresh();
 
-        assertThat(controller.voice(request).getStatusCode().value()).isEqualTo(503);
-        assertThat(controller.voice(request).getStatusCode().value()).isEqualTo(409);
+            var controller = context.getBean(TwilioWebhookController.class);
+            var response = controller.voice(signedRequest());
+            assertThat(response.getStatusCode().value()).isEqualTo(200);
+            assertThat(response.getBody().toString()).contains("<Connect><Stream", "name=\"admission\"");
+            assertThat(controller.voice(signedRequest()).getStatusCode().value()).isEqualTo(409);
+        }
     }
 
     @Test void rejects_bad_signature_and_unknown_phone_number() throws Exception {
@@ -41,8 +51,19 @@ class TwilioWebhookControllerTest {
     }
 
     private TwilioWebhookController enabledController() {
-        return new TwilioWebhookController(new TwilioWebhookConfig(true, TOKEN, URI.create("https://voice.example.test"), Set.of(CALLER), 300),
+        return new TwilioWebhookController(enabledConfig(),
                 new TwilioRequestVerifier());
+    }
+
+    private TwilioWebhookConfig enabledConfig() {
+        return new TwilioWebhookConfig(true, TOKEN, URI.create("https://voice.example.test"), Set.of(CALLER), 300);
+    }
+
+    private TwilioCallAdmissionService admissionService() {
+        var safety = new ProviderSafetyConfig(true, Set.of(CALLER), 1, 60, 100);
+        var streams = new TwilioMediaStreamAdmission(new SandboxSpendGate(new CallAdmissionController(safety)));
+        return new TwilioCallAdmissionService(streams, UUID.fromString("c4f3a781-5601-3694-9255-b6a1351dcbb6"),
+                "wss://voice.example.test/webhooks/twilio/media");
     }
 
     private MockHttpServletRequest signedRequest() throws Exception {

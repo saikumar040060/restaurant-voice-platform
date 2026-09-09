@@ -19,7 +19,6 @@ public class TwilioWebhookController {
     private final TwilioWebhookReplayGuard replayGuard;
     private final TwilioCallAdmissionService admissions;
 
-    @Autowired
     public TwilioWebhookController(TwilioWebhookConfig config, TwilioRequestVerifier verifier) {
         this(config, verifier, new TwilioWebhookReplayGuard(config.replayWindowSeconds()), null);
     }
@@ -28,6 +27,7 @@ public class TwilioWebhookController {
                             TwilioWebhookReplayGuard replayGuard) {
         this(config, verifier, replayGuard, null);
     }
+    @Autowired
     public TwilioWebhookController(TwilioWebhookConfig config, TwilioRequestVerifier verifier, TwilioCallAdmissionService admissions) {
         this(config, verifier, new TwilioWebhookReplayGuard(config.replayWindowSeconds()), admissions);
     }
