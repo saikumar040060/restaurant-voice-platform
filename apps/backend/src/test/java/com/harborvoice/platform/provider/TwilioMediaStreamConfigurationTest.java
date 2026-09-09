@@ -27,9 +27,11 @@ class TwilioMediaStreamConfigurationTest {
                 .contains("Hyderabad Chicken Dum Biriyani | $14.99")
                 .contains("supplied description")
                 .contains("UNPUBLISHED TEST DATA")
+                .contains("one or two short sentences")
+                .contains("If directly asked whether you are human")
                 .contains("nothing will be submitted")
                 .doesNotContain("function_call", "tools");
-        assertThat(prompt.length()).isLessThanOrEqualTo(60_000);
+        assertThat(prompt.length()).isBetween(25_000, 40_000);
         assertThat(prompt.lines().filter(line -> line.matches("\\d+ \\|.*")).count()).isEqualTo(256);
     }
 }
