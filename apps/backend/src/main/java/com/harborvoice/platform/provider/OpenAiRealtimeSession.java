@@ -14,7 +14,10 @@ import java.util.Objects;
  * through {@link RealtimeTransport}; construction does not make a network call.
  */
 public final class OpenAiRealtimeSession implements RealtimeSessionPort {
-    private static final int MAX_OUTPUTS = 32;
+    // Realtime providers may deliver audio faster than Twilio consumes its 20 ms
+    // media frames. Keep a bounded burst large enough to avoid truncating an
+    // ordinary spoken reply while still preventing unbounded memory growth.
+    private static final int MAX_OUTPUTS = 512;
     private final RealtimeTransport transport;
     private final ObjectMapper json;
     private final int maxOutputTokens;

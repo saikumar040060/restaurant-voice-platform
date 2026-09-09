@@ -55,6 +55,19 @@ class OpenAiRealtimeSessionTest {
         assertThatThrownBy(() -> session.configure(" ")).isInstanceOf(IllegalArgumentException.class);
     }
 
+    @Test void retainsAnOrdinaryProviderAudioBurstUntilThePhoneBridgeDrainsIt() {
+        var transport = new FakeTransport();
+        var session = new OpenAiRealtimeSession(config(), transport, new ObjectMapper());
+
+        for (int index = 0; index < 128; index++) {
+            transport.emit("{\"type\":\"response.output_audio.delta\",\"delta\":\"aGVsbG8=\"}");
+        }
+
+        int drained = 0;
+        while (session.nextOutput(0) != null) drained++;
+        assertThat(drained).isEqualTo(128);
+    }
+
     private static OpenAiRealtimeConfig config() {
         return new OpenAiRealtimeConfig(true, "runtime-secret", "candidate", 256);
     }
