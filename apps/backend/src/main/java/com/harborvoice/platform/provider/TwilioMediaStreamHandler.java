@@ -39,7 +39,7 @@ public final class TwilioMediaStreamHandler extends TextWebSocketHandler {
                 if (streamSid.isBlank() || streamSid.length() > 128) throw new IllegalArgumentException("bounded stream id required");
                 session.getAttributes().put("streamSid", streamSid);
                 if (sessions == null) throw new IllegalStateException("realtime bridge unavailable");
-                RealtimeSessionPort realtime = sessions.open(grant.lease());
+                RealtimeSessionPort realtime = sessions.open(grant.lease(), grant.businessId());
                 realtime.onOutput(output -> sendOutput(session, streamSid, output));
                 realtime.onInterruption(() -> clearOutput(session, streamSid));
                 realtime.configure(instructions);

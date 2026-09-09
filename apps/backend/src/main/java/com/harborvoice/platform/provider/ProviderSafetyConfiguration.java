@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import java.util.UUID;
 
 @Configuration
 public class ProviderSafetyConfiguration {
@@ -29,9 +30,14 @@ public class ProviderSafetyConfiguration {
     }
 
     @Bean AdmittedRealtimeSessionFactory admittedRealtimeSessionFactory(OpenAiRealtimeConfig config,
-            SandboxSpendGate gate, ObjectMapper json) {
+            SandboxSpendGate gate, ObjectMapper json, RealtimeToolGateway realtimeToolGateway) {
         return new AdmittedRealtimeSessionFactory(config, gate, OpenAiWebSocketTransport::connect, json, Clock.systemUTC(),
                 new BoundedProviderCall<>(new ProviderCircuitBreaker(2, Duration.ofMinutes(1)),
-                        Duration.ofSeconds(10), ForkJoinPool.commonPool()));
+                        Duration.ofSeconds(10), ForkJoinPool.commonPool()), realtimeToolGateway);
+    }
+
+    @Bean RealtimeToolGateway realtimeToolGateway(ObjectMapper json,
+            @Value("${VOICE_TWILIO_SANDBOX_BUSINESS_ID:00000000-0000-0000-0000-000000000000}") String businessId) {
+        return new SandboxMenuRealtimeToolGateway(json, UUID.fromString(businessId));
     }
 }

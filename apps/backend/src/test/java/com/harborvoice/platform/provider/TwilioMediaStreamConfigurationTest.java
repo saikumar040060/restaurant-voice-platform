@@ -16,22 +16,18 @@ class TwilioMediaStreamConfigurationTest {
         assertThatCode(() -> config.twilioMediaStreamWebSocketConfigurer(handler)).doesNotThrowAnyException();
     }
 
-    @Test void sandboxPromptMakesTheCompleteUnpublishedMenuAvailableForGroundedConversation() {
+    @Test void sandboxPromptRequiresFastGroundedLookupWithoutEmbeddingTheEntireMenu() {
         String prompt = new TwilioMediaStreamConfiguration().sandboxInstructions(
                 new com.fasterxml.jackson.databind.ObjectMapper());
 
         assertThat(prompt)
-                .contains("You HAVE the complete 256-entry sandbox menu")
-                .contains("Never say that you lack menu access")
-                .contains("Chicken Supreme | $14.99")
-                .contains("Hyderabad Chicken Dum Biriyani | $14.99")
-                .contains("supplied description")
+                .contains("restaurant_menu_lookup")
+                .contains("Call that tool before every answer")
                 .contains("UNPUBLISHED TEST DATA")
-                .contains("one or two short sentences")
+                .contains("one or two short sentences", "respond as soon as")
                 .contains("If directly asked whether you are human")
                 .contains("nothing will be submitted")
-                .doesNotContain("function_call", "tools");
-        assertThat(prompt.length()).isBetween(25_000, 40_000);
-        assertThat(prompt.lines().filter(line -> line.matches("\\d+ \\|.*")).count()).isEqualTo(256);
+                .doesNotContain("Chicken Supreme", "Hyderabad Chicken Dum Biriyani");
+        assertThat(prompt.length()).isLessThan(3_000);
     }
 }

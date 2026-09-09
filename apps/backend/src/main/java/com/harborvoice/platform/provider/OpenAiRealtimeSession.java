@@ -9,6 +9,7 @@ import java.util.Base64;
 import java.util.Deque;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.UUID;
 
 /**
  * Server-side OpenAI Realtime event adapter. Networking is supplied separately
@@ -22,6 +23,8 @@ public final class OpenAiRealtimeSession implements RealtimeSessionPort {
     private final RealtimeTransport transport;
     private final ObjectMapper json;
     private final int maxOutputTokens;
+    private final UUID businessId;
+    private final RealtimeToolGateway tools;
     private final Deque<TextToSpeechPort.AudioSynthesis> outputs = new ArrayDeque<>();
     private Consumer<TextToSpeechPort.AudioSynthesis> outputListener;
     private Runnable interruptionListener = () -> { };
@@ -29,10 +32,17 @@ public final class OpenAiRealtimeSession implements RealtimeSessionPort {
     private boolean closed;
 
     public OpenAiRealtimeSession(OpenAiRealtimeConfig config, RealtimeTransport transport, ObjectMapper json) {
+        this(config, transport, json, null, RealtimeToolGateway.disabled());
+    }
+
+    public OpenAiRealtimeSession(OpenAiRealtimeConfig config, RealtimeTransport transport, ObjectMapper json,
+                                 UUID businessId, RealtimeToolGateway tools) {
         if (config == null || !config.enabled()) throw new IllegalArgumentException("enabled realtime configuration required");
         this.transport = Objects.requireNonNull(transport, "transport required");
         this.json = Objects.requireNonNull(json, "json required");
         this.maxOutputTokens = config.maxOutputTokens();
+        this.businessId = businessId;
+        this.tools = Objects.requireNonNull(tools, "tool gateway required");
         transport.onEvent(this::acceptEvent);
     }
 
@@ -62,14 +72,23 @@ public final class OpenAiRealtimeSession implements RealtimeSessionPort {
             throw new IllegalArgumentException("bounded realtime instructions required");
         }
         try {
-            transport.send(json.writeValueAsString(java.util.Map.of("type", "session.update", "session", java.util.Map.of(
-                    "type", "realtime", "instructions", instructions, "output_modalities", java.util.List.of("audio"),
-                    "max_output_tokens", maxOutputTokens, "audio", java.util.Map.of(
+            var session = new java.util.LinkedHashMap<String, Object>();
+            session.put("type", "realtime");
+            session.put("instructions", instructions);
+            session.put("output_modalities", java.util.List.of("audio"));
+            session.put("max_output_tokens", maxOutputTokens);
+            session.put("audio", java.util.Map.of(
                             "input", java.util.Map.of("format", java.util.Map.of("type", "audio/pcmu"),
                                     "turn_detection", java.util.Map.of("type", "server_vad", "threshold", 0.5,
                                             "prefix_padding_ms", 250, "silence_duration_ms", 350,
                                             "create_response", true, "interrupt_response", true)),
-                            "output", java.util.Map.of("format", java.util.Map.of("type", "audio/pcmu"), "voice", "alloy"))))));
+                            "output", java.util.Map.of("format", java.util.Map.of("type", "audio/pcmu"), "voice", "marin")));
+            var definitions = businessId == null ? java.util.List.<java.util.Map<String, Object>>of() : tools.definitions(businessId);
+            if (!definitions.isEmpty()) {
+                session.put("tools", definitions);
+                session.put("tool_choice", "auto");
+            }
+            transport.send(json.writeValueAsString(java.util.Map.of("type", "session.update", "session", session)));
             transport.send(json.writeValueAsString(java.util.Map.of("type", "response.create", "response", java.util.Map.of(
                     "instructions", "Say only: Thanks for calling. How can I help you today?"))));
         } catch (Exception failure) {
@@ -117,6 +136,10 @@ public final class OpenAiRealtimeSession implements RealtimeSessionPort {
                 interruptionListener.run();
                 return;
             }
+            if ("response.function_call_arguments.done".equals(type)) {
+                completeToolCall(event);
+                return;
+            }
             if (!"response.output_audio.delta".equals(type) && !"response.audio.delta".equals(type)) return;
             String delta = event.path("delta").asText();
             if (delta.isBlank()) return;
@@ -126,5 +149,24 @@ public final class OpenAiRealtimeSession implements RealtimeSessionPort {
         } catch (Exception ignored) {
             // Malformed provider frames must not reach customer playback or alter workflow state.
         }
+    }
+
+    private void completeToolCall(JsonNode event) throws Exception {
+        String callId = event.path("call_id").asText();
+        String name = event.path("name").asText();
+        String arguments = event.path("arguments").asText();
+        if (businessId == null || callId.isBlank() || callId.length() > 200 || name.isBlank()) {
+            throw new IllegalArgumentException("scoped realtime tool call required");
+        }
+        String result;
+        try {
+            result = tools.execute(businessId, name, arguments);
+        } catch (RuntimeException denied) {
+            result = json.writeValueAsString(java.util.Map.of("status", "DENIED",
+                    "instruction", "Do not guess. Say the menu lookup was unavailable and offer employee help."));
+        }
+        transport.send(json.writeValueAsString(java.util.Map.of("type", "conversation.item.create", "item", java.util.Map.of(
+                "type", "function_call_output", "call_id", callId, "output", result))));
+        transport.send("{\"type\":\"response.create\"}");
     }
 }

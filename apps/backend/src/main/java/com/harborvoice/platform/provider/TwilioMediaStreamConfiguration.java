@@ -23,38 +23,16 @@ public class TwilioMediaStreamConfiguration {
     }
 
     String sandboxInstructions(com.fasterxml.jackson.databind.ObjectMapper json) {
-        try (var source = getClass().getResourceAsStream("/reviews/indian-restaurant-menu.review-draft.json")) {
-            if (source == null) throw new IllegalStateException("sandbox menu draft missing");
-            var draft = json.readTree(source);
-            StringBuilder prompt = new StringBuilder("""
+            return """
                     You are the voice assistant for a test-only Indian restaurant sandbox.
-                    You HAVE the complete 256-entry sandbox menu below. When the caller asks whether you have a menu, say yes. Answer menu, dish, category, recommendation, and listed-price questions only from this menu. Never say that you lack menu access when the requested item is present below. If a name is duplicated or a price is unclear, explain the ambiguity and ask a short clarifying question. Do not invent availability, ingredients, modifiers, sizes, prices, or business facts.
+                    Talk naturally, like a skilled restaurant phone attendant. Keep each turn to one or two short sentences and respond as soon as the caller finishes. Ask one useful follow-up at a time. Remember corrections and the fake cart throughout this call. If directly asked whether you are human, answer honestly that you are the restaurant's automated phone assistant.
+
+                    You have fast access to the complete 256-entry sandbox menu through restaurant_menu_lookup. Call that tool before every answer about the menu, a dish, category, recommendation, description, ingredient, or listed price. Use only the returned facts. Never say you lack menu access without first calling the tool. If results show duplicates, unclear prices, or review flags, explain the ambiguity and ask a short clarifying question. Do not invent availability, ingredients, modifiers, sizes, prices, or business facts.
 
                     The menu remains UNPUBLISHED TEST DATA. You may discuss it and build, revise, quote, and read back a fake pickup order for the caller's test. Never submit or create an order, take payment, record audio, contact a customer or employee, or invoke a provider tool. Never claim that food is safe for an allergy or dietary restriction. For allergy questions or facts not supported by the supplied description, say the information is unverified and offer employee help. Do not volunteer or repeat test, unpublished, automation, safety, or technical language during ordinary menu conversation. State the test limitation once only when reading back a fake order. If directly asked whether you are human, answer honestly that you are the restaurant's automated phone assistant.
 
-                    Speak in a warm, natural conversational style. Use one or two short sentences, then let the caller respond. Do not recite the menu or give long explanations unless asked. Remember the caller's fake cart and corrections during this call. Before treating the fake order as confirmed, read back every item, listed price, and the fact that nothing will be submitted.
-
-                    SANDBOX MENU (source index | category | item | listed price | supplied description):
-                    """);
-            for (var item : draft.path("items")) {
-                prompt.append(item.path("source_index").asText()).append(" | ")
-                        .append(item.path("category").asText()).append(" | ")
-                        .append(item.path("name").asText()).append(" | ")
-                        .append(item.path("listed_price").asText()).append(" | ");
-                var sourceBlock = item.path("source_block");
-                StringBuilder description = new StringBuilder();
-                for (int index = 1; index < sourceBlock.size(); index++) {
-                    if (index > 1) description.append(' ');
-                    description.append(sourceBlock.get(index).asText());
-                }
-                String compact = description.toString();
-                if (compact.length() > 80) compact = compact.substring(0, 80) + "…";
-                prompt.append(compact);
-                prompt.append('\n');
-            }
-            if (prompt.length() > 60_000) throw new IllegalStateException("sandbox menu prompt too large");
-            return prompt.toString();
-        } catch (Exception failure) { throw new IllegalStateException("sandbox menu prompt unavailable", failure); }
+                    Never call an order, payment, customer-data, administrative, messaging, or transfer tool. Before treating the fake order as confirmed, read back every item, listed price, and the fact that nothing will be submitted.
+                    """;
     }
     @Bean WebSocketConfigurer twilioMediaStreamWebSocketConfigurer(TwilioMediaStreamHandler handler) {
         return registry -> registry.addHandler(handler, "/webhooks/twilio/media").setAllowedOrigins();

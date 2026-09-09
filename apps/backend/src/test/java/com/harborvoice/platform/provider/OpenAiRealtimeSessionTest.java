@@ -51,6 +51,7 @@ class OpenAiRealtimeSessionTest {
         assertThat(update.at("/session/audio/input/turn_detection/interrupt_response").asBoolean()).isTrue();
         assertThat(update.at("/session/audio/input/turn_detection/silence_duration_ms").asInt()).isEqualTo(350);
         assertThat(update.at("/session/audio/output/format/type").asText()).isEqualTo("audio/pcmu");
+        assertThat(update.at("/session/audio/output/voice").asText()).isEqualTo("marin");
         assertThat(update.at("/session/max_output_tokens").asInt()).isEqualTo(256);
         assertThat(transport.sent).anyMatch(value -> value.contains("response.create")
                 && value.contains("Thanks for calling") && !value.contains("test restaurant assistant"));
@@ -79,6 +80,54 @@ class OpenAiRealtimeSessionTest {
         transport.emit("{\"type\":\"input_audio_buffer.speech_started\"}");
 
         assertThat(interruptions).hasValue(1);
+    }
+
+    @Test void exposesOnlyTenantScopedMenuLookupAndReturnsItsResultToTheModel() throws Exception {
+        var transport = new FakeTransport();
+        UUID businessId = UUID.randomUUID();
+        var calls = new ArrayList<String>();
+        RealtimeToolGateway tools = new RealtimeToolGateway() {
+            @Override public List<java.util.Map<String, Object>> definitions(UUID scopedBusiness) {
+                assertThat(scopedBusiness).isEqualTo(businessId);
+                return List.of(java.util.Map.of("type", "function", "name", "restaurant_menu_lookup",
+                        "parameters", java.util.Map.of("type", "object")));
+            }
+            @Override public String execute(UUID scopedBusiness, String name, String arguments) {
+                assertThat(scopedBusiness).isEqualTo(businessId);
+                calls.add(name + ":" + arguments);
+                return "{\"status\":\"UNPUBLISHED_TEST_DATA\",\"name\":\"Garlic Naan\",\"price\":\"$3.99\"}";
+            }
+        };
+        var session = new OpenAiRealtimeSession(config(), transport, new ObjectMapper(), businessId, tools);
+        session.configure("Use the approved menu lookup.");
+
+        var update = new ObjectMapper().readTree(transport.sent.getFirst());
+        assertThat(update.at("/session/tools/0/name").asText()).isEqualTo("restaurant_menu_lookup");
+        assertThat(update.at("/session/tool_choice").asText()).isEqualTo("auto");
+        assertThat(update.path("session").path("tools").toString()).doesNotContain("order", "payment", "customer");
+
+        transport.emit("{\"type\":\"response.function_call_arguments.done\",\"call_id\":\"call-1\",\"name\":\"restaurant_menu_lookup\",\"arguments\":\"{\\\"query\\\":\\\"garlic naan\\\"}\"}");
+
+        assertThat(calls).containsExactly("restaurant_menu_lookup:{\"query\":\"garlic naan\"}");
+        assertThat(transport.sent).anyMatch(value -> value.contains("conversation.item.create")
+                && value.contains("function_call_output") && value.contains("Garlic Naan"));
+        assertThat(transport.sent.getLast()).isEqualTo("{\"type\":\"response.create\"}");
+    }
+
+    @Test void deniedRealtimeToolCanNeverBecomeAnOrderOperation() {
+        var transport = new FakeTransport();
+        UUID businessId = UUID.randomUUID();
+        RealtimeToolGateway tools = new RealtimeToolGateway() {
+            @Override public List<java.util.Map<String, Object>> definitions(UUID scopedBusiness) { return List.of(); }
+            @Override public String execute(UUID scopedBusiness, String name, String arguments) {
+                throw new IllegalArgumentException("denied");
+            }
+        };
+        var session = new OpenAiRealtimeSession(config(), transport, new ObjectMapper(), businessId, tools);
+
+        transport.emit("{\"type\":\"response.function_call_arguments.done\",\"call_id\":\"call-2\",\"name\":\"create_order\",\"arguments\":\"{}\"}");
+
+        assertThat(transport.sent).anyMatch(value -> value.contains("function_call_output") && value.contains("DENIED"));
     }
 
     private static OpenAiRealtimeConfig config() {
