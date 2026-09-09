@@ -60,8 +60,12 @@ public final class OpenAiRealtimeSession implements RealtimeSessionPort {
                     "type", "realtime", "instructions", instructions, "output_modalities", java.util.List.of("audio"),
                     "max_output_tokens", maxOutputTokens, "audio", java.util.Map.of(
                             "input", java.util.Map.of("format", java.util.Map.of("type", "audio/pcmu"),
-                                    "turn_detection", java.util.Map.of("type", "server_vad")),
+                                    "turn_detection", java.util.Map.of("type", "server_vad", "threshold", 0.5,
+                                            "prefix_padding_ms", 300, "silence_duration_ms", 500,
+                                            "create_response", true, "interrupt_response", true)),
                             "output", java.util.Map.of("format", java.util.Map.of("type", "audio/pcmu"), "voice", "alloy"))))));
+            transport.send(json.writeValueAsString(java.util.Map.of("type", "response.create", "response", java.util.Map.of(
+                    "instructions", "Briefly greet the caller as the test restaurant assistant, then ask how you can help."))));
         } catch (Exception failure) {
             throw new IllegalStateException("realtime session configuration failed", failure);
         }

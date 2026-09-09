@@ -47,8 +47,11 @@ class OpenAiRealtimeSessionTest {
         assertThat(update.path("type").asText()).isEqualTo("session.update");
         assertThat(update.at("/session/audio/input/format/type").asText()).isEqualTo("audio/pcmu");
         assertThat(update.at("/session/audio/input/turn_detection/type").asText()).isEqualTo("server_vad");
+        assertThat(update.at("/session/audio/input/turn_detection/create_response").asBoolean()).isTrue();
+        assertThat(update.at("/session/audio/input/turn_detection/interrupt_response").asBoolean()).isTrue();
         assertThat(update.at("/session/audio/output/format/type").asText()).isEqualTo("audio/pcmu");
         assertThat(update.at("/session/max_output_tokens").asInt()).isEqualTo(256);
+        assertThat(transport.sent).anyMatch(value -> value.contains("response.create") && value.contains("greet the caller"));
         assertThatThrownBy(() -> session.configure(" ")).isInstanceOf(IllegalArgumentException.class);
     }
 
