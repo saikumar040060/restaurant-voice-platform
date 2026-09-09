@@ -38,6 +38,20 @@ class OpenAiRealtimeSessionTest {
         assertThat(session.nextOutput(0)).isNull();
     }
 
+    @Test void configuresPcmuInBothDirectionsWithServerVadAndBoundedInstructions() throws Exception {
+        var transport = new FakeTransport();
+        var session = new OpenAiRealtimeSession(config(), transport, new ObjectMapper());
+        session.configure("Only discuss the synthetic menu.");
+
+        var update = new ObjectMapper().readTree(transport.sent.getFirst());
+        assertThat(update.path("type").asText()).isEqualTo("session.update");
+        assertThat(update.at("/session/audio/input/format/type").asText()).isEqualTo("audio/pcmu");
+        assertThat(update.at("/session/audio/input/turn_detection/type").asText()).isEqualTo("server_vad");
+        assertThat(update.at("/session/audio/output/format/type").asText()).isEqualTo("audio/pcmu");
+        assertThat(update.at("/session/max_output_tokens").asInt()).isEqualTo(256);
+        assertThatThrownBy(() -> session.configure(" ")).isInstanceOf(IllegalArgumentException.class);
+    }
+
     private static OpenAiRealtimeConfig config() {
         return new OpenAiRealtimeConfig(true, "runtime-secret", "candidate", 256);
     }

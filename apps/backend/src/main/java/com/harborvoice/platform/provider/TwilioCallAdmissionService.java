@@ -16,6 +16,6 @@ public final class TwilioCallAdmissionService {
         UUID conversation = UUID.nameUUIDFromBytes((businessId + ":" + callSid).getBytes(StandardCharsets.UTF_8));
         UUID token = streams.issue(businessId, conversation, caller, worstCaseMinor, now);
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Connect><Stream url=\"" + mediaUrl
-                + "?token=" + token + "\"/></Connect></Response>";
+                + "\"><Parameter name=\"admission\" value=\"" + token + "\"/></Stream></Connect></Response>";
     }
 }

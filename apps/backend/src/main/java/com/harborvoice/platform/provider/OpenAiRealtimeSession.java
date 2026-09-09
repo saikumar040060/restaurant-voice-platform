@@ -17,6 +17,7 @@ public final class OpenAiRealtimeSession implements RealtimeSessionPort {
     private static final int MAX_OUTPUTS = 32;
     private final RealtimeTransport transport;
     private final ObjectMapper json;
+    private final int maxOutputTokens;
     private final Deque<TextToSpeechPort.AudioSynthesis> outputs = new ArrayDeque<>();
     private long epoch;
     private boolean closed;
@@ -25,6 +26,7 @@ public final class OpenAiRealtimeSession implements RealtimeSessionPort {
         if (config == null || !config.enabled()) throw new IllegalArgumentException("enabled realtime configuration required");
         this.transport = Objects.requireNonNull(transport, "transport required");
         this.json = Objects.requireNonNull(json, "json required");
+        this.maxOutputTokens = config.maxOutputTokens();
         transport.onEvent(this::acceptEvent);
     }
 
@@ -46,6 +48,22 @@ public final class OpenAiRealtimeSession implements RealtimeSessionPort {
             }
         } catch (Exception ex) {
             throw new IllegalStateException("realtime event serialization failed", ex);
+        }
+    }
+
+    @Override public synchronized void configure(String instructions) {
+        if (closed || instructions == null || instructions.isBlank() || instructions.length() > 60_000) {
+            throw new IllegalArgumentException("bounded realtime instructions required");
+        }
+        try {
+            transport.send(json.writeValueAsString(java.util.Map.of("type", "session.update", "session", java.util.Map.of(
+                    "type", "realtime", "instructions", instructions, "output_modalities", java.util.List.of("audio"),
+                    "max_output_tokens", maxOutputTokens, "audio", java.util.Map.of(
+                            "input", java.util.Map.of("format", java.util.Map.of("type", "audio/pcmu"),
+                                    "turn_detection", java.util.Map.of("type", "server_vad")),
+                            "output", java.util.Map.of("format", java.util.Map.of("type", "audio/pcmu"), "voice", "alloy"))))));
+        } catch (Exception failure) {
+            throw new IllegalStateException("realtime session configuration failed", failure);
         }
     }
 
@@ -76,7 +94,7 @@ public final class OpenAiRealtimeSession implements RealtimeSessionPort {
             if (!"response.output_audio.delta".equals(type) && !"response.audio.delta".equals(type)) return;
             String delta = event.path("delta").asText();
             if (delta.isBlank() || outputs.size() >= MAX_OUTPUTS) return;
-            outputs.addLast(new TextToSpeechPort.AudioSynthesis("audio/pcm", Base64.getDecoder().decode(delta), epoch));
+            outputs.addLast(new TextToSpeechPort.AudioSynthesis("audio/pcmu", Base64.getDecoder().decode(delta), epoch));
         } catch (Exception ignored) {
             // Malformed provider frames must not reach customer playback or alter workflow state.
         }

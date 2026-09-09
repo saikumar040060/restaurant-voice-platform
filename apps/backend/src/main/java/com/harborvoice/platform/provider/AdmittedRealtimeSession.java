@@ -20,6 +20,11 @@ public final class AdmittedRealtimeSession implements RealtimeSessionPort {
         this.clock = Objects.requireNonNull(clock, "clock required");
     }
 
+    @Override public synchronized void configure(String instructions) {
+        requireActive();
+        delegate.configure(instructions);
+    }
+
     @Override public synchronized void accept(MediaEnvelope input) {
         requireActive();
         delegate.accept(input);

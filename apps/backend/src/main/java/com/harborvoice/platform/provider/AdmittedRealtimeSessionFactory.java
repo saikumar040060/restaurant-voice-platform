@@ -37,4 +37,18 @@ public final class AdmittedRealtimeSessionFactory {
             throw ex;
         }
     }
+
+    /** Opens against the lease already reserved by signed Twilio call admission. */
+    public RealtimeSessionPort open(SandboxCallLease lease) {
+        if (!config.enabled() || lease == null || !gate.active(lease, clock.instant())) {
+            throw new IllegalStateException("admitted realtime lease required");
+        }
+        try {
+            var transport = connectionCall.execute(() -> transports.connect(config));
+            return new AdmittedRealtimeSession(new OpenAiRealtimeSession(config, transport, json), gate, lease, clock);
+        } catch (RuntimeException failure) {
+            gate.release(lease);
+            throw failure;
+        }
+    }
 }

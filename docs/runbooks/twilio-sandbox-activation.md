@@ -20,6 +20,11 @@ Enter these only in Railway's masked Variables form. Never paste them into chat,
 | `VOICE_TWILIO_PUBLIC_BASE_URL` | `https://restaurant-voice-platform-production.up.railway.app` |
 | `VOICE_TWILIO_ALLOWED_FROM` | The one approved personal E.164 test number |
 | `VOICE_TWILIO_REPLAY_WINDOW_SECONDS` | `300` |
+| `VOICE_TWILIO_SANDBOX_BUSINESS_ID` | Fictional sandbox business UUID from the seeded fixture |
+| `VOICE_TWILIO_MEDIA_WSS_URL` | `wss://restaurant-voice-platform-production.up.railway.app/webhooks/twilio/media` |
+| `VOICE_OPENAI_REALTIME_MODEL` | The evaluated low-cost realtime model |
+| `VOICE_OPENAI_MAX_OUTPUT_TOKENS` | Bounded evaluated output limit |
+| `VOICE_OPENAI_REALTIME_ENABLED` | Keep `false` until the one-call activation |
 | `VOICE_TWILIO_ENABLED` | Keep `false` until the owner explicitly approves the one-call test |
 
 `TWILIO_ACCOUNT_SID` may remain stored for later adapter work, but the current disabled ingress does not use it to place calls.
@@ -37,7 +42,7 @@ Do not configure messaging, status callbacks, recording, SIP, forwarding, paymen
 
 1. Set `VOICE_TWILIO_ENABLED=true` in Railway and deploy once.
 2. Make exactly one call from the allowlisted personal number.
-3. Expect the current safe ingress to validate signature/replay/allowlist and return a temporary-unavailable response. It must not start a media stream, record audio, create an order, send a message, or contact an employee.
+3. Expect the safe ingress to validate signature, replay window, allowlist, concurrency, duration, and spend before issuing one short-lived stream admission. The assistant may discuss the unpublished test menu and read back a fake order; it must not record audio, create an order, take payment, send a message, or contact an employee.
 4. Check Railway logs for only redacted operational status; never reveal secrets or caller data in a report.
 5. Immediately set `VOICE_TWILIO_ENABLED=false` and deploy again.
 6. Confirm the endpoint returns disabled behavior and record the result in `PROJECT_STATUS.md`.
@@ -50,6 +55,6 @@ The disabled Media Streams endpoint is:
 
 `wss://restaurant-voice-platform-production.up.railway.app/webhooks/twilio/media`
 
-Do not add this URL in Twilio Console yet. A connection requires a short-lived, one-use, business-scoped `token` query parameter issued only after the signed voice webhook has admitted the call. The current disabled handler rejects sessions before reading frames. It discards any future admitted frames and creates no recordings or orders. Activating the endpoint therefore requires a separately reviewed TwiML call-admission/token-issuance slice; do not bypass that by using a static token.
+Do not enter this WSS URL in Twilio Console. The signed voice webhook generates the TwiML and passes a short-lived, one-use, business-scoped admission as a `<Parameter>` custom value. The handler accepts it only from Twilio's `start.customParameters`; static tokens and URL query tokens are rejected. The media bridge stores no audio and exposes no order, payment, messaging, recording, customer-data, or administrative tool.
 
 For the reviewed TwiML admission step, also configure the nonsecret `VOICE_TWILIO_SANDBOX_BUSINESS_ID` to the approved fictional sandbox business UUID and retain `VOICE_TWILIO_MEDIA_WSS_URL` at the documented WSS URL. The server derives a stable conversation identity from that business and Twilio `CallSid`; it never accepts a caller-provided tenant identifier.

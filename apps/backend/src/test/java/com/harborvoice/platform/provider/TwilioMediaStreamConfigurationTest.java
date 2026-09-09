@@ -10,7 +10,8 @@ class TwilioMediaStreamConfigurationTest {
     @Test void registrationDoesNotRequireTheConfigurationBeanToConstructItsOwnHandler() {
         var config = new TwilioMediaStreamConfiguration();
         var gate = new SandboxSpendGate(new CallAdmissionController(new ProviderSafetyConfig(false, Set.of(), 1, 60, 100)));
-        var handler = config.twilioMediaStreamHandler(TwilioWebhookConfig.disabled(), config.twilioMediaStreamAdmission(gate));
+        var handler = config.twilioMediaStreamHandler(TwilioWebhookConfig.disabled(),
+                config.twilioMediaStreamAdmission(gate), null, new com.fasterxml.jackson.databind.ObjectMapper());
         assertThatCode(() -> config.twilioMediaStreamWebSocketConfigurer(handler)).doesNotThrowAnyException();
     }
 }
