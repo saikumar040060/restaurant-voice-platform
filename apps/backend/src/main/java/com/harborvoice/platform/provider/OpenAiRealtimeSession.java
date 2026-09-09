@@ -8,6 +8,7 @@ import java.util.ArrayDeque;
 import java.util.Base64;
 import java.util.Deque;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * Server-side OpenAI Realtime event adapter. Networking is supplied separately
@@ -22,6 +23,7 @@ public final class OpenAiRealtimeSession implements RealtimeSessionPort {
     private final ObjectMapper json;
     private final int maxOutputTokens;
     private final Deque<TextToSpeechPort.AudioSynthesis> outputs = new ArrayDeque<>();
+    private Consumer<TextToSpeechPort.AudioSynthesis> outputListener;
     private long epoch;
     private boolean closed;
 
@@ -74,6 +76,12 @@ public final class OpenAiRealtimeSession implements RealtimeSessionPort {
         }
     }
 
+    @Override public synchronized void onOutput(Consumer<TextToSpeechPort.AudioSynthesis> listener) {
+        if (closed) throw new IllegalStateException("realtime session closed");
+        outputListener = Objects.requireNonNull(listener, "output listener required");
+        while (!outputs.isEmpty()) outputListener.accept(outputs.removeFirst());
+    }
+
     @Override public synchronized TextToSpeechPort.AudioSynthesis nextOutput(long requestedEpoch) {
         if (closed || requestedEpoch != epoch) return null;
         return outputs.pollFirst();
@@ -100,8 +108,10 @@ public final class OpenAiRealtimeSession implements RealtimeSessionPort {
             String type = event.path("type").asText();
             if (!"response.output_audio.delta".equals(type) && !"response.audio.delta".equals(type)) return;
             String delta = event.path("delta").asText();
-            if (delta.isBlank() || outputs.size() >= MAX_OUTPUTS) return;
-            outputs.addLast(new TextToSpeechPort.AudioSynthesis("audio/pcmu", Base64.getDecoder().decode(delta), epoch));
+            if (delta.isBlank()) return;
+            var output = new TextToSpeechPort.AudioSynthesis("audio/pcmu", Base64.getDecoder().decode(delta), epoch);
+            if (outputListener != null) outputListener.accept(output);
+            else if (outputs.size() < MAX_OUTPUTS) outputs.addLast(output);
         } catch (Exception ignored) {
             // Malformed provider frames must not reach customer playback or alter workflow state.
         }

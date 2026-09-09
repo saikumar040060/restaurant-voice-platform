@@ -40,6 +40,7 @@ public final class TwilioMediaStreamHandler extends TextWebSocketHandler {
                 session.getAttributes().put("streamSid", streamSid);
                 if (sessions == null) throw new IllegalStateException("realtime bridge unavailable");
                 RealtimeSessionPort realtime = sessions.open(grant.lease());
+                realtime.onOutput(output -> sendOutput(session, streamSid, output));
                 realtime.configure(instructions);
                 session.getAttributes().put("realtime", realtime);
                 session.getAttributes().put("sequence", 0L);
@@ -53,10 +54,6 @@ public final class TwilioMediaStreamHandler extends TextWebSocketHandler {
                 realtime.accept(new MediaEnvelope(grant.conversationId(), "twilio", sequence, 0,
                         "audio/pcmu", audio, false));
                 session.getAttributes().put("sequence", sequence + 1);
-                var output = realtime.nextOutput(0);
-                if (output != null) session.sendMessage(new TextMessage(json.writeValueAsString(java.util.Map.of(
-                        "event", "media", "streamSid", session.getAttributes().get("streamSid"),
-                        "media", java.util.Map.of("payload", Base64.getEncoder().encodeToString(output.payload()))))));
             } else if ("stop".equals(event.path("event").asText())) session.close(CloseStatus.NORMAL);
         } catch (IllegalArgumentException denied) {
             session.close(CloseStatus.POLICY_VIOLATION);
@@ -69,5 +66,20 @@ public final class TwilioMediaStreamHandler extends TextWebSocketHandler {
         if (realtime instanceof RealtimeSessionPort active) active.close();
         Object grant = session.getAttributes().get("grant");
         if (grant instanceof TwilioMediaStreamAdmission.Grant item) admissions.close(item);
+    }
+
+    private void sendOutput(WebSocketSession session, String streamSid,
+                            com.harborvoice.platform.speech.TextToSpeechPort.AudioSynthesis output) {
+        try {
+            synchronized (session) {
+                if (!session.isOpen()) return;
+                session.sendMessage(new TextMessage(json.writeValueAsString(java.util.Map.of(
+                        "event", "media", "streamSid", streamSid,
+                        "media", java.util.Map.of("payload", Base64.getEncoder().encodeToString(output.payload()))))));
+            }
+        } catch (Exception failure) {
+            try { session.close(CloseStatus.SERVER_ERROR); }
+            catch (Exception ignored) { }
+        }
     }
 }

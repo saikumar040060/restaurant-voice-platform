@@ -4,6 +4,7 @@ import com.harborvoice.platform.media.MediaEnvelope;
 import com.harborvoice.platform.speech.TextToSpeechPort;
 import java.time.Clock;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /** Provider-neutral realtime wrapper that enforces an admitted sandbox lease for every operation. */
 public final class AdmittedRealtimeSession implements RealtimeSessionPort {
@@ -23,6 +24,11 @@ public final class AdmittedRealtimeSession implements RealtimeSessionPort {
     @Override public synchronized void configure(String instructions) {
         requireActive();
         delegate.configure(instructions);
+    }
+
+    @Override public synchronized void onOutput(Consumer<TextToSpeechPort.AudioSynthesis> listener) {
+        requireActive();
+        delegate.onOutput(listener);
     }
 
     @Override public synchronized void accept(MediaEnvelope input) {

@@ -46,6 +46,19 @@ class TwilioMediaStreamHandlerTest {
         assertThat(fixture.transport().sent).noneMatch(value -> value.contains("function_call") || value.contains("tools"));
     }
 
+    @Test void forwardsProviderAudioImmediatelyWithoutWaitingForAnotherInboundPhoneFrame() throws Exception {
+        var fixture = fixture();
+        var socket = socket(fixture.token());
+        fixture.handler().afterConnectionEstablished(socket.session());
+        fixture.handler().handleTextMessage(socket.session(), new TextMessage(start("MZ-push", fixture.token())));
+
+        fixture.transport().emit("{\"type\":\"response.output_audio.delta\",\"delta\":\"cHVzaGVk\"}");
+
+        assertThat(socket.outbound()).hasSize(1);
+        assertThat(JSON.readTree(socket.outbound().getFirst().getPayload()).at("/media/payload").asText())
+                .isEqualTo("cHVzaGVk");
+    }
+
     @Test void failsClosedForMediaBeforeStartAndForReusedAdmissionToken() throws Exception {
         var noStart = fixture();
         var first = socket(noStart.token());
@@ -149,5 +162,6 @@ class TwilioMediaStreamHandlerTest {
         }
         @Override public void onEvent(Consumer<String> eventHandler) { receiver = eventHandler; }
         @Override public void close() { closed = true; }
+        void emit(String event) { receiver.accept(event); }
     }
 }
