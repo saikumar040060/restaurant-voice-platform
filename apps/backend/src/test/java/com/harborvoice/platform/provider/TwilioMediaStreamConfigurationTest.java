@@ -25,6 +25,11 @@ class TwilioMediaStreamConfigurationTest {
                 .contains("Call that tool before every answer")
                 .contains("UNPUBLISHED TEST DATA")
                 .contains("one or two short sentences", "respond as soon as")
+                .contains("collect the pickup name before accepting the first item")
+                .contains("Is the number you're calling from the best callback number?")
+                .contains("Ask these as separate short questions")
+                .contains("Do not read a full phone number aloud")
+                .contains("only in this call's memory")
                 .contains("If directly asked whether you are human")
                 .contains("nothing will be submitted")
                 .doesNotContain("Chicken Supreme", "Hyderabad Chicken Dum Biriyani");
