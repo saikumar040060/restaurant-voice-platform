@@ -1,5 +1,6 @@
 package com.harborvoice.platform.provider;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import java.net.URI;
 import java.util.Set;
@@ -13,5 +14,22 @@ class TwilioMediaStreamConfigurationTest {
         var handler = config.twilioMediaStreamHandler(TwilioWebhookConfig.disabled(),
                 config.twilioMediaStreamAdmission(gate), null, new com.fasterxml.jackson.databind.ObjectMapper());
         assertThatCode(() -> config.twilioMediaStreamWebSocketConfigurer(handler)).doesNotThrowAnyException();
+    }
+
+    @Test void sandboxPromptMakesTheCompleteUnpublishedMenuAvailableForGroundedConversation() {
+        String prompt = new TwilioMediaStreamConfiguration().sandboxInstructions(
+                new com.fasterxml.jackson.databind.ObjectMapper());
+
+        assertThat(prompt)
+                .contains("You HAVE the complete 256-entry sandbox menu")
+                .contains("Never say that you lack menu access")
+                .contains("Chicken Supreme | $14.99")
+                .contains("Hyderabad Chicken Dum Biriyani | $14.99")
+                .contains("supplied description")
+                .contains("UNPUBLISHED TEST DATA")
+                .contains("nothing will be submitted")
+                .doesNotContain("function_call", "tools");
+        assertThat(prompt.length()).isLessThanOrEqualTo(60_000);
+        assertThat(prompt.lines().filter(line -> line.matches("\\d+ \\|.*")).count()).isEqualTo(256);
     }
 }
